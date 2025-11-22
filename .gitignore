@@ -5,7 +5,7 @@
 # --- Backend ---
 backend/node_modules/
 backend/.env
-backend/.env.*
+backend/.env.*cd
 backend/package-lock.json
 backend/npm-debug.log*
 
