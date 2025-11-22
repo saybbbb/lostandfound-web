@@ -2,16 +2,13 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 
-function Login() {
+function Recovery() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
-    password: "",
   });
 
-  // =========================
-  //     INLINE STYLES
-  // =========================
+
   const styles = {
     wrapper: {
       minHeight: "100vh",
@@ -97,15 +94,6 @@ function Login() {
       fontSize: "15px",
     },
 
-    forgot: {
-      color: "#222",
-      marginTop: "4px",
-      textDecoration: "underline",
-      fontSize: "13px",
-      cursor: "pointer",
-      fontWeight: "bold",
-    },
-
     button: {
       marginTop: "18px",
       width: "100%",
@@ -116,40 +104,6 @@ function Login() {
       fontSize: "18px",
       border: "none",
       fontWeight: "600",
-      cursor: "pointer",
-    },
-
-    orLineContainer: {
-      marginTop: "20px",
-      marginBottom: "15px",
-      display: "flex",
-      alignItems: "center",
-      gap: "10px",
-      color: "white",
-    },
-
-    line: {
-      flexGrow: 1,
-      height: "1px",
-      background: "rgba(255,255,255,0.5)",
-    },
-
-    socialRow: {
-      display: "flex",
-      gap: "20px",
-      justifyContent: "center",
-      marginTop: "10px",
-    },
-
-    socialIcon: {
-      width: "45px",
-      height: "45px",
-      borderRadius: "12px",
-      background: "rgba(255,255,255,0.7)",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      fontSize: "22px",
       cursor: "pointer",
     },
 
@@ -166,75 +120,57 @@ function Login() {
     e.preventDefault();
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/auth/login",
+        "http://localhost:5000/api/auth/recovery",
         formData
       );
-      if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
-        navigate("/dashboard");
+      if (res.data.success) {
+        alert("Code Sended!");
+        navigate("/");
       }
     } catch (err) {
-      alert(err.response?.data?.message || "Login failed");
+      alert(err.response?.data?.message || "Recovery failed");
     }
   };
 
   return (
-    <div style={styles.wrapper}>
-      <div style={styles.overlay}></div>
+     <div style={styles.wrapper}>
+       <div style={styles.overlay}></div>
+ 
+       <div style={styles.container}>
+ 
+         {/* LEFT CARD */}
+         <div style={styles.card}>
+           <h2 style={styles.title}>Account Recovery</h2>
+ 
+           <p style={styles.subtitle}>
+             Already have an Account?{" "}
+             <Link to="/" style={styles.link}>Login</Link>
+           </p>
 
-      <div style={styles.container}>
-        {/* LEFT LOGIN CARD */}
-        <div style={styles.card}>
-          <h2 style={styles.title}>Sign in to your <br /> Account</h2>
+ 
+           {/* EMAIL */}
+           <div style={styles.inputWrapper}>
+             <span style={styles.icon}>📧</span>
+             <input
+               style={styles.input}
+               name="email"
+               placeholder="Email"
+               onChange={handleChange}
+             />
+           </div>
 
-          <p style={styles.subtitle}>
-            Don’t have an account?{" "}
-            <Link to="/register" style={styles.link}>Sign Up</Link>
-          </p>
-
-          {/* EMAIL INPUT */}
-          <div style={styles.inputWrapper}>
-            <span style={styles.icon}>📧</span>
-            <input
-              style={styles.input}
-              name="email"
-              placeholder="Email Address"
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* PASSWORD INPUT */}
-          <div style={styles.inputWrapper}>
-            <span style={styles.icon}>🔒</span>
-            <input
-              style={styles.input}
-              type="password"
-              name="password"
-              placeholder="Password"
-              onChange={handleChange}
-            />
-          </div>
-          <br></br>
-          <Link to="/recovery" style={styles.forgot}>
-  Forgot Your Password?
-</Link>
-            
-          
-
-          <button style={styles.button} onClick={handleSubmit}>
-            Log In
-          </button>
-      
-        </div>
-
-        {/* RIGHT LOGO */}
-        <img
-          src="/images/LAF Logo.png"
-          style={styles.logo}
-        />
-      </div>
-    </div>
-  );
-}
-
-export default Login;
+ 
+           <button style={styles.button} onClick={handleSubmit}>
+             send
+           </button>
+         </div>
+ 
+         {/* RIGHT LOGO */}
+         <img src="/images/LAF Logo.png" style={styles.logo} />
+       </div>
+     </div>
+   );
+ }
+ 
+ export default Recovery;
+ 
