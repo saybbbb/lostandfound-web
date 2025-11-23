@@ -3,6 +3,7 @@ const router = express.Router();
 const { register, login, protected } = require("../controllers/authController");
 const jwt = require("jsonwebtoken");
 
+
 // Middleware to verify JWT
 const authMiddleware = (req, res, next) => {
   const token = req.headers["authorization"];
