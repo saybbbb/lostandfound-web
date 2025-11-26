@@ -2,12 +2,15 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 
+
 function Login() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
+  
 
   // =========================
   //     INLINE STYLES
@@ -154,8 +157,17 @@ function Login() {
     },
 
     logo: {
-      width: window.innerWidth >= 900 ? "350px" : "200px",
+      width: window.innerWidth >= 900 ? "400px" : "200px",
       filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.5))",
+    },
+
+    adminTextLink:{
+      color: "#white",
+      marginTop: "4px",
+      textDecoration: "underline",
+      fontSize: "13px",
+      cursor: "pointer",
+      fontWeight: "semibold",
     },
   };
 
@@ -163,20 +175,38 @@ function Login() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await axios.post(
-        "http://localhost:5000/api/auth/login",
-        formData
-      );
-      if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
-        navigate("/dashboard");
+  e.preventDefault();
+  try {
+    const res = await axios.post(
+      "http://localhost:5000/api/auth/login",
+      formData
+    );
+
+    if (res.data.token) {
+
+      // Store the token
+      localStorage.setItem("token", res.data.token);
+
+      // Decode JWT to extract role
+      const decoded = JSON.parse(atob(res.data.token.split(".")[1]));
+      localStorage.setItem("role", decoded.role);
+
+      // Redirect user based on role
+      if (decoded.role === "admin") {
+        navigate("/AdminDashboard");
+      } 
+      else if (decoded.role === "staff") {
+        navigate("/staff-dashboard");
+      } 
+      else {
+        navigate("/Dashboard");
       }
-    } catch (err) {
-      alert(err.response?.data?.message || "Login failed");
     }
-  };
+
+  } catch (err) {
+    alert(err.response?.data?.message || "Login failed");
+  }
+};
 
   return (
     <div style={styles.wrapper}>
@@ -224,15 +254,17 @@ function Login() {
           <button style={styles.button} onClick={handleSubmit}>
             Log In
           </button>
+
       
         </div>
 
         {/* RIGHT LOGO */}
         <img
           src="/images/LAF Logo.png"
+          alt=""
           style={styles.logo}
         />
-      </div>
+      </div>s
     </div>
   );
 }

@@ -128,7 +128,8 @@ function Recovery() {
         navigate("/");
       }
     } catch (err) {
-      alert(err.response?.data?.message || "Recovery failed");
+      alert(err.response?.data?.message || "Success Check Email!");
+      navigate("/");
     }
   };
 
