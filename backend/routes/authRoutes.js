@@ -58,7 +58,6 @@ router.put("/admin/set-role/:id", authMiddleware, authorizeRole("admin"), async 
   try {
     const { role } = req.body;
 
-    // Replace with your main admin identifier
     const MAIN_ADMIN_ID = "64f5e9b8c1234567890abcd"; // example MongoDB _id
 
     if (req.params.id === MAIN_ADMIN_ID) {
