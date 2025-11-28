@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Footer from "./Footer";
+import AdminNavBar from "./AdminNavBar";
+import { IoSearchOutline } from "react-icons/io5";
 
 function AdminDashboard() {
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
   const [users, setUsers] = useState([]);
+  const [search, setSearch] = useState("");
+  const [adminName, setAdminName] = useState("");
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -31,19 +36,21 @@ function AdminDashboard() {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
+    const load = async () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) throw new Error("No token found");
 
-        // Check protected route
+        // Validate token
         const res = await axios.get(
           "http://localhost:5000/api/auth/protected",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        setMessage(res.data.message);
+
+        
+        setAdminName(res.data.user?.name || "Admin");
 
         fetchUsers();
       } catch (err) {
@@ -52,19 +59,19 @@ function AdminDashboard() {
       }
     };
 
-    fetchData();
+    load();
   }, [navigate]);
 
-  // Update user role
+  // Update role
   const updateRole = async (userId, newRole) => {
     try {
       const token = localStorage.getItem("token");
 
       await axios.put(
-  `http://localhost:5000/api/auth/admin/set-role/${userId}`,
-  { role: newRole },
-  { headers: { Authorization: `Bearer ${token}` } }
-);
+        `http://localhost:5000/api/auth/admin/set-role/${userId}`,
+        { role: newRole },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
       alert("Role updated successfully!");
       fetchUsers();
@@ -74,70 +81,174 @@ function AdminDashboard() {
     }
   };
 
+  // Search filter
+  const filteredUsers = users.filter((u) =>
+    u.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div style={styles.container}>
-      <h1>Admin Dashboard</h1>
-      <p>{message}</p>
 
-      <button onClick={logout} style={styles.logoutBtn}>
-        Logout
-      </button>
+      {/* ⬇️ LEFT SIDEBAR */}
+      <AdminNavBar />
 
-      <h2>User Role Management</h2>
+      {/* ⬇️ MAIN CONTENT */}
+      <div style={styles.mainContent}>
+        <div style={styles.header}>
+          <p>MANAGE USER ACCOUNTS</p>
+          <div style={styles.buttonContainer}>
+            <button style={styles.button}>Students</button>
+            <button style={styles.button}>Admin</button>
+            <button style={styles.button}>Unverified</button>
+          </div>
+        </div>
 
-      <div style={styles.userList}>
-        {users.length > 0 ? (
-          users.map((u) => (
-            <div key={u.id} style={styles.userCard}>
-              <p><strong>{u.name}</strong></p>
-              <p>Email: {u.email}</p>
+        <div style={styles.body}>
+          <div style={styles.searchbar}>
+            <input
+              type="text"
+              placeholder="Search User Here..."
+              style={styles.searchinput}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <IoSearchOutline size={20} color="#ffffff" style={styles.searchicon} />
+          </div>
 
-              <label>Role:</label>
-              <select
-  value={u.role.toLowerCase()}
-  style={styles.select}
-  onChange={(e) => updateRole(u._id, e.target.value)}
->
-  <option value="student">Student</option>
-  <option value="staff">Staff</option>
-  <option value="admin">Admin</option>
-</select>
-            </div>
-          ))
-        ) : (
-          <p>No users found.</p>
-        )}
+          <div style={styles.userList}>
+            {filteredUsers.length > 0 ? (
+              <table style={styles.table}>
+                <thead>
+                  <tr>
+                    <th style={styles.th}>Index</th>
+                    <th style={styles.th}>Full Name</th>
+                    <th style={styles.th}>Email</th>
+                    <th style={styles.th}>Birthday</th>
+                    <th style={styles.th}>Role</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {filteredUsers.map((u, index) => (
+                    <tr key={u._id || index}>
+                      <td style={styles.td}>{index + 1}</td>
+                      <td style={styles.td}>{u.name}</td>
+                      <td style={styles.td}>{u.email}</td>
+                      <td style={styles.td}>{u.birthday ? new Date(u.birthday).toISOString().split("T")[0] : "—"}</td>
+
+                      <td style={styles.td}>
+                        <select
+                          value={u.role?.toLowerCase() || ""}
+                          style={styles.select}
+                          onChange={(e) => updateRole(u._id, e.target.value)}
+                        >
+                          <option value="student">Student</option>
+                          <option value="staff">Staff</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p>No users found.</p>
+            )}
+          </div>
+        </div>
+
+        <Footer />
       </div>
     </div>
   );
 }
 
+// Styles (same as before)
 const styles = {
   container: {
-    padding: "20px",
     fontFamily: "Arial",
+    display: "flex",
+    minHeight: "100vh",
   },
-  logoutBtn: {
-    padding: "8px 16px",
+  mainContent: {
+    flex: 6,
+    backgroundColor: "#F5F5F5",
+  },
+  header: {
+    fontSize: "30px",
+    fontWeight: "bold",
     marginBottom: "20px",
-    cursor: "pointer",
-  },
-  userList: {
     display: "flex",
     flexDirection: "column",
-    gap: "15px",
-    maxWidth: "500px",
+    gap: "10px",
+    color: "#1A1851",
+    backgroundColor: "#FFFFFF",
+    padding: "20px",
+    minHeight: "15vh",
   },
-  userCard: {
-    padding: "15px",
-    border: "1px solid #ccc",
+  buttonContainer: {
+    display: "flex",
+    flexDirection: "row",
+    gap: "10px",
+  },
+  button: {
+    padding: "8px 16px",
+    backgroundColor: "#1A1851",
+    color: "#FFFFFF",
+    fontSize: "16px",
+    fontWeight: "bold",
+    cursor: "pointer",
     borderRadius: "6px",
-    background: "#f7f7f7",
+  },
+  body: {
+    backgroundColor: "#ffffff",
+    padding: "20px",
+    minHeight: "65vh",
+    marginBottom: "20px",
+  },
+  searchbar: {
+    display: "flex",
+    alignItems: "center",
+    marginBottom: "20px",
+  },
+  searchinput: {
+    flex: 1,
+    fontSize: 16,
+    padding: "10px",
+    width: "90%",
+    border: "1px solid #ccc",
+    borderRadius: "6px 0px 6px 6px",
+  },
+  searchicon: {
+    backgroundColor: "#1A1851",
+    alignSelf: "center",
+    padding: "10px",
+    cursor: "pointer",
+    borderRadius: "0px 6px 6px 0px",
+  },
+  userList: {
+    width: "100%",
+    overflowX: "auto",
+  },
+  table: {
+    width: "100%",
+    borderCollapse: "collapse",
+    border: "2px solid #ccc",
+    padding: "10px",
+  },
+  th: {
+    border: "1px solid #ccc",
+    padding: "10px",
+    backgroundColor: "#f4f4f4",
+    textAlign: "left",
+    fontWeight: "bold",
+  },
+  td: {
+    border: "1px solid #ccc",
+    padding: "8px",
   },
   select: {
-    marginTop: "5px",
-    padding: "5px",
-    width: "150px",
+    padding: "4px",
   },
 };
 

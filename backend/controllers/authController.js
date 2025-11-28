@@ -63,7 +63,9 @@ exports.login = async (req, res) => {
 
 // Protected route example
 exports.protected = async (req, res) => {
-  res.json({ message: "You accessed a protected route!", user: req.user });
+  res.json({
+    success: true,
+    user: req.user
+  });
 };
-
 
