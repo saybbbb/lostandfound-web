@@ -97,7 +97,7 @@ function AdminDashboard() {
         <div style={styles.header}>
           <p>MANAGE USER ACCOUNTS</p>
           <div style={styles.buttonContainer}>
-            <button style={styles.button}>Students</button>
+            <button style={styles.button}>User</button>
             <button style={styles.button}>Admin</button>
             <button style={styles.button}>Unverified</button>
           </div>
@@ -142,7 +142,7 @@ function AdminDashboard() {
                           style={styles.select}
                           onChange={(e) => updateRole(u._id, e.target.value)}
                         >
-                          <option value="student">Student</option>
+                          <option value="user">User</option>
                           <option value="staff">Staff</option>
                           <option value="admin">Admin</option>
                         </select>
