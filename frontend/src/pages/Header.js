@@ -50,7 +50,7 @@ function Header() {
       <div style={styles.header}>
         <div style={styles.logo}>
           <img
-            src="/images/logo.png"
+            src="/images/LAF Logo.png"
             alt="Logo"
             style={styles.headerLogo}
           />

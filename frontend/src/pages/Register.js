@@ -110,7 +110,7 @@ function Register() {
     },
 
     logo: {
-      width: window.innerWidth >= 900 ? "350px" : "200px",
+      width: window.innerWidth >= 900 ? "400px" : "200px",
       filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.5))",
     },
   };

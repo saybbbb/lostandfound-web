@@ -9,8 +9,9 @@ function Footer () {
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-      padding: "0px 80px",
-      color: "#64748B",
+      minheight: "10vh",
+      padding: "0px 20px",
+      color: "#1d1f22ff",
       borderTop: "1px solid #E5E7EB",       
     },
     footerLinks: {

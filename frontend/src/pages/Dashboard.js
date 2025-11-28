@@ -11,6 +11,7 @@ function Dashboard() {
       alignItems: "center",
       padding: "20px 40px",
       margin:"0px 20px",
+      minHeight: "65vh",
     },
     logOutButton:{
       padding: "10px 20px",
@@ -20,7 +21,7 @@ function Dashboard() {
     text: {
       textAlign: "center",
       color: "#64748B",
-      margin:"0px 0px 50px 0px",
+      margin:"0px 0px 40px 0px",
     },
     systemName: {
       fontSize: 50,
@@ -32,6 +33,7 @@ function Dashboard() {
       flexDirection: "row",
       justifyContent: "center",
       gap: "10px",
+      margin: "10px 0px"
     },
     buttonBlue: {
       display:"flex",
@@ -74,7 +76,7 @@ function Dashboard() {
       flexDirection: "row",
       justifyContent: "space-between",
       gap: "30px",
-      margin: "50px 40px",
+      margin: "10px 40px",
       padding: "0px 20px",
     },
     card: {
