@@ -6,6 +6,8 @@ import Recovery from "./pages/Recovery";
 import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
+import StaffDashboard from "./pages/StaffDashboard";
+import StaffLostApproval from "./pages/StaffLostApproval";
 
 function App() {
   return (
@@ -15,6 +17,10 @@ function App() {
         <Route path="/Dashboard" element={<Dashboard />} />
         <Route path="/register" element={<Register />} />
         <Route path="/recovery" element={<Recovery />} />
+        <Route path="/StaffLostApproval" element={<StaffLostApproval />}/>
+
+  
+        <Route path="/StaffDashboard" element={<StaffDashboard />}/>
 
 
         <Route 
@@ -24,6 +30,7 @@ function App() {
           <AdminDashboard />
           </AdminProtectedRoute>}/>
 
+        
         <Route
           path="/dashboard"
           element={

@@ -64,7 +64,7 @@ router.put("/admin/set-role/:id", authMiddleware, authorizeRole("admin"), async 
       return res.status(403).json({ message: "Cannot change main admin role" });
     }
 
-    if (!["student", "staff", "admin"].includes(role.toLowerCase())) {
+    if (!["user", "staff", "admin"].includes(role.toLowerCase())) {
       return res.status(400).json({ message: "Invalid role" });
     }
 

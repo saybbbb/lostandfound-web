@@ -196,7 +196,7 @@ function Login() {
         navigate("/AdminDashboard");
       } 
       else if (decoded.role === "staff") {
-        navigate("/staff-dashboard");
+        navigate("/StaffDashboard");
       } 
       else {
         navigate("/Dashboard");

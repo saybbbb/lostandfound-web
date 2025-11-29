@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { IoHomeOutline, IoPersonOutline, IoCubeOutline, IoCheckmarkDoneCircleOutline } from "react-icons/io5";
+import { 
+  IoHomeOutline, 
+  IoPersonOutline, 
+  IoCubeOutline, 
+  IoCheckmarkDoneCircleOutline 
+} from "react-icons/io5";
 
-function AdminNavBar() {
+function StaffNavBar() {
   const navigate = useNavigate();
   const [adminName, setAdminName] = useState("Admin");
-   const [message, setMessage] = useState("");
 
   // Logout
   const logout = () => {
@@ -14,7 +18,7 @@ function AdminNavBar() {
     navigate("/");
   };
 
-  // Fetch Auth User
+  // Fetch authenticated admin
   const fetchAdminInfo = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -25,11 +29,10 @@ function AdminNavBar() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
-      setMessage(res.data.message);
       setAdminName(res.data.user?.name || "Admin");
     } catch (err) {
       alert("Unauthorized. Please login again.");
-      navigate("/admin");
+      navigate("/login");
     }
   };
 
@@ -40,31 +43,40 @@ function AdminNavBar() {
   return (
     <div style={styles.navbar}>
       <div style={styles.logonavigation}>
+        
+        {/* LOGO */}
         <img src="/images/LAF Logo.png" alt="Logo" style={styles.logo} />
 
+        {/* ICONS ONLY */}
         <div style={styles.navlink}>
-          <div style={styles.navitem}>
-            <IoHomeOutline size={25} color="#ffffff" />
-            <p>Home</p>
+          <div style={styles.iconOnly}>
+            <IoHomeOutline 
+            size={25} 
+            color="#ffffff" 
+            style={{ cursor: "pointer" }}
+            onClick={() => navigate("/StaffDashboard")} 
+            />
           </div>
 
-          <div style={styles.navitem}>
-            <IoPersonOutline size={25} color="#ffffff" />
-            <p>User</p>
-          </div>
-
-          <div style={styles.navitem}>
+          <div style={styles.iconOnly}>
+             <IoPersonOutline 
+                size={25} 
+                color="#ffffff" 
+                style={{ cursor: "pointer" }}
+                onClick={() => navigate("/StaffLostApproval")} 
+            />
+</div>
+          <div style={styles.iconOnly}>
             <IoCubeOutline size={25} color="#ffffff" />
-            <p>Post Approval</p>
           </div>
 
-          <div style={styles.navitem}>
+          <div style={styles.iconOnly}>
             <IoCheckmarkDoneCircleOutline size={25} color="#ffffff" />
-            <p>Claim Request</p>
           </div>
         </div>
       </div>
-      <p>{message}</p>
+
+      {/* ACCOUNT SECTION */}
       <div style={styles.account}>
         <IoPersonOutline 
           size={30} 
@@ -78,49 +90,53 @@ function AdminNavBar() {
   );
 }
 
+/* STYLES */
 const styles = {
   navbar: {
     display: "flex",
     flexDirection: "column",
-    width: "250px",
+    width: "250px",        // ⬅ narrower since text removed
     backgroundColor: "#1A1851",
     justifyContent: "space-between",
     minHeight: "100vh",
     color: "#FFFFFF",
-    paddingLeft: "20px",
+    padding: "20px 0",
   },
   logonavigation: {
     display: "flex",
     flexDirection: "column",
-    gap: "50px",
+    gap: "40px",
+    alignItems: "center",
   },
   logo: {
-    width: 150,
-    height: 150,
-    paddingTop: "20px",
-    alignSelf: "center",
+    width: 90,
+    height: 90,
   },
   navlink: {
     display: "flex",
     flexDirection: "column",
-    gap: "10px",
-  },
-  navitem: {
-    display: "flex",
+    gap: "25px",
     alignItems: "center",
-    gap: "15px",
-    cursor: "pointer",
-    fontSize: "18px",
-    fontWeight: "bold",
   },
+
+  /* ICON ONLY STYLE */
+  iconOnly: {
+    padding: "12px",
+    borderRadius: "12px",
+    cursor: "pointer",
+    transition: "0.2s",
+  },
+
   account: {
     display: "flex",
+    paddingLeft:"20px",
+    flexDirection: "row",
     alignItems: "center",
-    gap: "15px",
-    fontSize: "18px",
+    gap: "10px",
+    fontSize: "16px",
     fontWeight: "bold",
-    padding: "20px",
+    paddingBottom: "20px",
   },
 };
 
-export default AdminNavBar;
+export default StaffNavBar;
