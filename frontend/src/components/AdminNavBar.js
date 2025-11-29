@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { IoHomeOutline, IoPersonOutline, IoCubeOutline, IoCheckmarkDoneCircleOutline } from "react-icons/io5";
@@ -6,7 +6,10 @@ import { IoHomeOutline, IoPersonOutline, IoCubeOutline, IoCheckmarkDoneCircleOut
 function AdminNavBar() {
   const navigate = useNavigate();
   const [adminName, setAdminName] = useState("Admin");
-   const [message, setMessage] = useState("");
+
+  // Dropdown state
+  const [openDropdown, setOpenDropdown] = useState(false);
+  const dropdownRef = useRef(null);
 
   // Logout
   const logout = () => {
@@ -14,18 +17,15 @@ function AdminNavBar() {
     navigate("/admin");
   };
 
-  // Fetch Auth User
+  // Fetch Admin Info
   const fetchAdminInfo = async () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No token");
-
       const res = await axios.get(
         "http://localhost:5000/api/auth/protected",
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      
-      setMessage(res.data.message);
       setAdminName(res.data.user?.name || "Admin");
     } catch (err) {
       alert("Unauthorized. Please login again.");
@@ -35,6 +35,17 @@ function AdminNavBar() {
 
   useEffect(() => {
     fetchAdminInfo();
+  }, []);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpenDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -64,15 +75,28 @@ function AdminNavBar() {
           </div>
         </div>
       </div>
-      <p>{message}</p>
-      <div style={styles.account}>
-        <IoPersonOutline 
-          size={30} 
-          color="#ffffff" 
-          onClick={logout} 
-          style={{ cursor: "pointer" }} 
-        />
-        <p>{adminName}</p>
+
+      {/* ACCOUNT + DROPDOWN */}
+      <div style={styles.accountWrapper} ref={dropdownRef}>
+        <div 
+          style={styles.account}
+          onClick={() => setOpenDropdown(!openDropdown)}
+        >
+          <IoPersonOutline size={30} color="#ffffff" style={{ cursor: "pointer" }} />
+          <p>{adminName}</p>
+        </div>
+
+        {/* DROPDOWN MENU */}
+        {openDropdown && (
+          <div style={styles.dropdown}>
+            <p style={styles.dropdownItem} onClick={() => navigate("/admin/profile")}>
+              Profile
+            </p>
+            <p style={styles.dropdownItem} onClick={logout}>
+              Logout
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -113,6 +137,12 @@ const styles = {
     fontSize: "18px",
     fontWeight: "bold",
   },
+
+  /* ACCOUNT + DROPDOWN */
+  accountWrapper: {
+    position: "relative",
+    marginBottom: "20px",
+  },
   account: {
     display: "flex",
     alignItems: "center",
@@ -120,6 +150,24 @@ const styles = {
     fontSize: "18px",
     fontWeight: "bold",
     padding: "20px",
+    cursor: "pointer",
+  },
+  dropdown: {
+    position: "absolute",
+    bottom: "60px",
+    left: "20px",
+    backgroundColor: "#ffffff",
+    color: "#000",
+    width: "150px",
+    borderRadius: "8px",
+    boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+    padding: "10px 0",
+    zIndex: 999,
+  },
+  dropdownItem: {
+    padding: "10px 20px",
+    cursor: "pointer",
+    fontWeight: "500",
   },
 };
 

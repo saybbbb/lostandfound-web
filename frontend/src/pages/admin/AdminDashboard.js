@@ -1,21 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Footer from "./Footer";
-import AdminNavBar from "./AdminNavBar";
+import Footer from "../../components/Footer";
+import AdminNavBar from "../../components/AdminNavBar";
 import { IoSearchOutline } from "react-icons/io5";
 
 function AdminDashboard() {
   const navigate = useNavigate();
-  const [message, setMessage] = useState("");
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
-  const [adminName, setAdminName] = useState("");
-
-  const logout = () => {
-    localStorage.removeItem("token");
-    navigate("/admin");
-  };
 
   // Fetch users
   const fetchUsers = async () => {
@@ -49,16 +42,12 @@ function AdminDashboard() {
           }
         );
 
-        
-        setAdminName(res.data.user?.name || "Admin");
-
         fetchUsers();
       } catch (err) {
         alert("Unauthorized. Please login again.");
         navigate("/admin");
       }
     };
-
     load();
   }, [navigate]);
 
