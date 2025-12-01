@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Footer from "./Footer";
-import AdminNavBar from "./AdminNavBar";
+import Footer from "../../components/NavigationBars/Footer";
+import AdminNavBar from "../../components/NavigationBars/AdminNavBar";
 import { IoSearchOutline } from "react-icons/io5";
 
 function AdminDashboard() {

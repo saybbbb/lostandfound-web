@@ -1,22 +1,27 @@
 import React from "react";
-import Header from "./Header";
-import Footer from "./Footer";
-import { IoCloseCircleOutline, IoSearchOutline,IoFileTrayFullOutline, IoAlertCircle } from "react-icons/io5";
+import Header from "../../components/NavigationBars/Header";
+import Footer from "../../components/NavigationBars/Footer";
+import { 
+  IoCloseCircleOutline, 
+  IoSearchOutline,
+  IoFileTrayFullOutline, 
+  IoAlertCircle, 
+  IoCopyOutline,
+  IoAlbumsOutline
+} from "react-icons/io5";
+
+import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
 
-  // ✅ MOVE styles ABOVE return
+  const navigate = useNavigate(); // ✅ FIXED
+
   const styles = {
     dashboardcontainer: {
       alignItems: "center",
       padding: "20px 40px",
       margin:"0px 20px",
       minHeight: "65vh",
-    },
-    logOutButton:{
-      padding: "10px 20px",
-      cursor: "pointer",
-      alignSelf:"center",
     },
     text: {
       textAlign: "center",
@@ -47,11 +52,6 @@ function Dashboard() {
       borderRadius: "15px",
       cursor: "pointer",
       fontSize: "16px",
-      shadowColor:"#000",
-      shadowOffset: {width: 0, height: 4},
-      shadowOpacity: 0.25,
-      shadowRadius: 3.84,
-      elevation:5,
     },
     button: {
       display:"flex",
@@ -65,11 +65,6 @@ function Dashboard() {
       borderRadius: "15px",
       cursor: "pointer",
       fontSize: "16px",
-      shadowColor:"#000",
-      shadowOffset: {width: 0, height: 4},
-      shadowOpacity: 0.25,
-      shadowRadius: 3.84,
-      elevation:5,
     },
     cardContainer: {
       display: "flex",
@@ -87,6 +82,7 @@ function Dashboard() {
       width: "30%",
       textAlign: "center",
       boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+      cursor: "pointer",  // add cursor for clickable card
     },
     cardTitle:{
       fontWight:"bold",
@@ -113,31 +109,54 @@ function Dashboard() {
           </div>
 
           <div style={styles.buttonContainer}>
-            <button style={styles.buttonBlue}>
-              <IoAlertCircle size={40} color="#EF4444" />
-              Report an Item
+            <button 
+            style={styles.buttonBlue}
+            onClick={() => navigate("/ReportLostItemPage")}
+            >
+            <IoAlertCircle 
+            size={40} 
+            color="#EF4444" 
+            />
+            Report an Item
             </button>
-            <button style={styles.button}>
+            
+            <button style={styles.button}
+            onClick={() => navigate("/FoundItemPage")}
+            >
               <IoFileTrayFullOutline size={40} color="#64748B" />
-              Search Found Items</button>
+              Search Found Items
+            </button>
           </div>
 
           <div style={styles.cardContainer}>
-            <div style={styles.card}>
+
+            <div style={styles.card}
+              onClick={() => navigate("/ReportLostItemPage")}
+            >
               <IoAlertCircle size={50} color="#EF4444" />
               <h5 style={styles.cardTitle}>Report Lost Items</h5>
-              <p style={styles.cardText}>Quickly report your lost items with details and damages to increase your chances of finding them.</p>
+              <p style={styles.cardText}>Report your lost item here.</p>
             </div>
-            <div style={styles.card}>
+
+            <div 
+              style={styles.card}
+              onClick={() => navigate("/FoundItemPage")}
+            >
               <IoSearchOutline size={50} color="black" />
-              <h5 style={styles.cardTitle}>Find Items</h5>
-              <p style={styles.cardText}>Search for items by category, location, and date.</p>
+              <h5 style={styles.cardTitle}>Found Item</h5>
+              <p style={styles.cardText}>Find found items here.</p>
             </div>
-            <div style={styles.card}>
-              <IoCloseCircleOutline size={50} color="black" />
+
+            {/* FIXED CLICKABLE CARD */}
+            <div 
+              style={styles.card}
+              onClick={() => navigate("/LostItemPage")}
+            >
+              <IoAlbumsOutline size={50} color="black" />
               <h5 style={styles.cardTitle}>Lost Item</h5>
-              <p style={styles.cardText}>Ensures that items are returned to their rightful owners.</p>
+              <p style={styles.cardText}>Find your lost items here.</p>
             </div>
+
           </div>
         </div>
       </div>
@@ -146,8 +165,6 @@ function Dashboard() {
 
     </div>
   );
-
-  
 }
 
 export default Dashboard;

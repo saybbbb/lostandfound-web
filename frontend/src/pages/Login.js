@@ -187,8 +187,13 @@ function Login() {
       // Store the token
       localStorage.setItem("token", res.data.token);
 
-      // Decode JWT to extract role
+      // Decode JWT to extract role + ID
       const decoded = JSON.parse(atob(res.data.token.split(".")[1]));
+
+      // ⭐⭐⭐ STORE USER ID HERE (FIX) ⭐⭐⭐
+      localStorage.setItem("userId", decoded.id || decoded._id);
+
+      // Store role
       localStorage.setItem("role", decoded.role);
 
       // Redirect user based on role

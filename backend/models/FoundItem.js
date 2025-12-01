@@ -55,7 +55,27 @@ const FoundItemSchema = new mongoose.Schema({
     claimed_at: {
         type: Date,
         default: null
-    }
+    },
+
+    approval_status: {
+    type: String,
+    enum: ["pending", "approved", "rejected"],
+    default: "pending"
+},
+reviewed_by: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    default: null
+},
+reviewed_at: {
+    type: Date,
+    default: null
+},
+rejection_reason: {
+    type: String,
+    default: null
+}
+
 
 }, { timestamps: true });
 
