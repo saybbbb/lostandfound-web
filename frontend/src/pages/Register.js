@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import { IoCalendarOutline, IoLockClosedOutline, IoMailOutline, IoPersonOutline } from "react-icons/io5";
 
 function Register() {
   const navigate = useNavigate();
@@ -151,7 +152,7 @@ function Register() {
 
           {/* FULL NAME */}
           <div style={styles.inputWrapper}>
-            <span style={styles.icon}>👤</span>
+            <IoPersonOutline style={{ fontSize: 20, marginRight: 10 }} />
             <input
               style={styles.input}
               name="name"
@@ -162,7 +163,7 @@ function Register() {
 
           {/* EMAIL */}
           <div style={styles.inputWrapper}>
-            <span style={styles.icon}>📧</span>
+            <IoMailOutline style={{ fontSize: 20, marginRight: 10 }} />
             <input
               style={styles.input}
               name="email"
@@ -173,7 +174,7 @@ function Register() {
 
           {/* BIRTHDAY */}
           <div style={styles.inputWrapper}>
-            <span style={styles.icon}>🎂</span>
+            <IoCalendarOutline style={{ fontSize: 20, marginRight: 10 }} />
             <input
               style={styles.input}
               type="date"
@@ -184,7 +185,7 @@ function Register() {
 
           {/* PASSWORD */}
           <div style={styles.inputWrapper}>
-            <span style={styles.icon}>🔒</span>
+            <IoLockClosedOutline style={{ fontSize: 20, marginRight: 10 }} />
             <input
               style={styles.input}
               name="password"
