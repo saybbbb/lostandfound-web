@@ -59,6 +59,7 @@ The **Lost and Found Web System** is a centralized platform designed to moderniz
 - [Charlie Omongos](https://github.com/Zeke033104)
 - [Gilliand Obial](https://github.com/Heraerth)
 - [Kristine Nicole Dela Peña](https://github.com/Zsxcylliope)
+- [Henna Christine Pajo](https://github.com/hennacafe)
 
 ---
 
@@ -67,11 +68,7 @@ The **Lost and Found Web System** is a centralized platform designed to moderniz
 Run the following commands inside the **backend** directory:
 
 ```bash
-npm install
-npm install express
-npm install cors
-npm install mongoose
-npm install dotenv
+npm install express cors mongoose dotenv
 ```
 
 ## 📌 Frontend Installation
@@ -79,9 +76,5 @@ npm install dotenv
 Run the following commands inside the **frontend** directory:
 
 ```bash
-npm install
-npm install react
-npm install axios react-router-dom
-npm install react-icons
-npm install jwt-decode
+npm install react axios react-router-dom react-icons jwt-decode
 ```
