@@ -3,6 +3,7 @@ import axios from "axios";
 import Header from "../../components/NavigationBars/Header";
 import Footer from "../../components/NavigationBars/Footer";
 import { useNavigate } from "react-router-dom";
+import { uploadToCloudinary } from "../../utils/uploadImage";
 
 function ReportLostItemPage() {
   const navigate = useNavigate();
@@ -18,9 +19,9 @@ function ReportLostItemPage() {
     reported_by: localStorage.getItem("userId"),
   });
 
+  const [isUploading, setIsUploading] = useState(false);
   const [categories, setCategories] = useState([]);
 
-  // Fetch categories
   useEffect(() => {
     axios
       .get("http://localhost:5000/api/auth/categories")
@@ -38,16 +39,15 @@ function ReportLostItemPage() {
   const submitLostItem = async (e) => {
     e.preventDefault();
     try {
-     const res = await axios.post(
-  "http://localhost:5000/api/auth/lost-items",
-  form,
-  {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`
-    }
-  }
-);
-      
+      const res = await axios.post(
+        "http://localhost:5000/api/auth/lost-items",
+        form,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
 
       setForm({
         name: "",
@@ -60,9 +60,8 @@ function ReportLostItemPage() {
       });
 
       if (res.data.success) {
-  navigate("/ReportSuccessPage?type=lost");
-}
- 
+        navigate("/ReportSuccessPage?type=lost");
+      }
     } catch (err) {
       console.log(err);
       alert("Error submitting lost item");
@@ -79,40 +78,33 @@ function ReportLostItemPage() {
           Please provide as much detail as possible to help with identification.
         </p>
 
-        {/* TOGGLE BUTTONS */}
         <div style={styles.toggleContainer}>
-  {/* LOST ITEM — active tab */}
-  <button
-    style={styles.activeToggle}
-    onClick={() => navigate("/ReportLostItemPage")}
-  >
-    I Lost an Item
-  </button>
+          <button
+            style={styles.activeToggle}
+            onClick={() => navigate("/ReportLostItemPage")}
+          >
+            I Lost an Item
+          </button>
 
-  {/* FOUND ITEM — redirect to FoundItemPage */}
-  <button
-    style={styles.inactiveToggle}
-    onClick={() => navigate("/ReportFoundItemPage")}
-  >
-    I Found an Item
-  </button>
-</div>
+          <button
+            style={styles.inactiveToggle}
+            onClick={() => navigate("/ReportFoundItemPage")}
+          >
+            I Found an Item
+          </button>
+        </div>
 
         {/* FORM */}
         <form onSubmit={submitLostItem} style={styles.form}>
-
-          {/* ITEM NAME */}
           <label style={styles.label}>Item Name*</label>
           <input
             name="name"
-            placeholder=""
             value={form.name}
             onChange={handleChange}
             style={styles.input}
             required
           />
 
-          {/* CATEGORY */}
           <label style={styles.label}>Category*</label>
           <select
             name="category"
@@ -129,7 +121,6 @@ function ReportLostItemPage() {
             ))}
           </select>
 
-          {/* LOCATION + DATE (SIDE BY SIDE) */}
           <div style={styles.row}>
             <div style={styles.col}>
               <label style={styles.label}>Location*</label>
@@ -155,7 +146,6 @@ function ReportLostItemPage() {
             </div>
           </div>
 
-          {/* DESCRIPTION */}
           <label style={styles.label}>Description*</label>
           <textarea
             name="description"
@@ -165,18 +155,40 @@ function ReportLostItemPage() {
             required
           />
 
-          {/* CONTACT INFO */}
           <label style={styles.label}>Contact Information*</label>
           <input
             name="contact_info"
-            placeholder="Your email or phone number"
             value={form.contact_info}
             onChange={handleChange}
             style={styles.input}
             required
           />
 
-          {/* BUTTONS */}
+          {/* CLOUDINARY UPLOAD */}
+          <label style={styles.label}>Upload Image</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={async (e) => {
+              const file = e.target.files[0];
+              if (!file) return;
+
+              setIsUploading(true);
+              try {
+                const url = await uploadToCloudinary(file);
+                if (url) {
+                  setForm({ ...form, image_url: url });
+                }
+              } catch (error) {
+                console.error("Upload failed:", error);
+                alert("Image upload failed. Please try again.");
+              } finally {
+                setIsUploading(false);
+              }
+            }}
+            style={styles.input}
+          />
+
           <div style={styles.buttonRow}>
             <button
               type="button"
@@ -186,8 +198,12 @@ function ReportLostItemPage() {
               Cancel
             </button>
 
-            <button type="submit" style={styles.submitBtn}>
-              Submit Report
+            <button
+              type="submit"
+              style={isUploading ? { ...styles.submitBtn, backgroundColor: "#ccc" } : styles.submitBtn}
+              disabled={isUploading}
+            >
+              {isUploading ? "Uploading..." : "Submit Report"}
             </button>
           </div>
         </form>

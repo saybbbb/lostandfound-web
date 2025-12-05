@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import usePageMetadata from "../../hooks/usePageMetadata";
 import axios from "axios";
 import Footer from "../../components/NavigationBars/Footer";
 import AdminNavBar from "../../components/NavigationBars/AdminNavBar";
 import { IoSearchOutline } from "react-icons/io5";
 
 function AdminDashboard() {
+  usePageMetadata("Admin Dashboard", "/images/LAF Logo.png");
   const navigate = useNavigate();
   const [message, setMessage] = useState("");
   const [users, setUsers] = useState([]);

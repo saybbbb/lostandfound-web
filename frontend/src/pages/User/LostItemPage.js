@@ -55,6 +55,24 @@ function LostItemPage() {
     }
   };
 
+  const handleCancel = async (itemId) => {
+    if (window.confirm("Are you sure you want to cancel this report?")) {
+      try {
+        await axios.delete(`http://localhost:5000/api/auth/lost-items/${itemId}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+
+        // Refresh lists
+        setMyLostItems(myLostItems.filter(item => item._id !== itemId));
+        setLostItems(lostItems.filter(item => item._id !== itemId));
+
+      } catch (err) {
+        console.error("Error cancelling item:", err);
+        alert(err.response?.data?.message || "Failed to cancel report.");
+      }
+    }
+  };
+
   /* ======================================================
        MERGE APPROVED LOST ITEMS + USER'S PENDING ONES
   ======================================================= */
@@ -280,18 +298,29 @@ function LostItemPage() {
                   <p style={styles.itemDesc}>{item.description}</p>
 
                   {/* DISPLAY RULES */}
-                  {isPendingLostApproval ? (
-                    <p style={styles.badgePending}>Pending Verification...</p>
-                  ) : isPendingFoundReport ? (
-                    <p style={styles.badgePending}>Found Report Pending...</p>
-                  ) : (
-                    <button
-                      style={styles.contactBtn}
-                      onClick={() => navigate(`/LostReportPage/${item._id}`)}
-                    >
-                      Found Item
-                    </button>
-                  )}
+                  <div style={{ marginTop: "15px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    {isPendingLostApproval ? (
+                      <p style={styles.badgePending}>Pending Verification...</p>
+                    ) : isPendingFoundReport ? (
+                      <p style={styles.badgePending}>Found Report Pending...</p>
+                    ) : (
+                      <button
+                        style={styles.contactBtn}
+                        onClick={() => navigate(`/LostReportPage/${item._id}`)}
+                      >
+                        Found This Item
+                      </button>
+                    )}
+
+                    {myLost && (
+                       <button
+                        style={{ ...styles.contactBtn, color: "red" }}
+                        onClick={() => handleCancel(item._id)}
+                      >
+                        Cancel Report
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             );
