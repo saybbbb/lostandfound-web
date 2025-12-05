@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
 
-  const navigate = useNavigate(); // ✅ FIXED
+  const navigate = useNavigate(); 
 
   const styles = {
     dashboardcontainer: {

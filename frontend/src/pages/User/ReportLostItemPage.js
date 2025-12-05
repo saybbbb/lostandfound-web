@@ -38,8 +38,8 @@ function ReportLostItemPage() {
   const submitLostItem = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/api/auth/lost-items", form);
-      alert("Lost item submitted successfully!");
+     const res = await axios.post("http://localhost:5000/api/auth/lost-items", form);
+      
 
       setForm({
         name: "",
@@ -52,7 +52,10 @@ function ReportLostItemPage() {
         reported_by: localStorage.getItem("userId"),
       });
 
-      navigate("/LostItemPage");
+      if (res.data.success) {
+  navigate("/ReportSuccessPage?type=found");
+}
+ 
     } catch (err) {
       console.log(err);
       alert("Error submitting lost item");

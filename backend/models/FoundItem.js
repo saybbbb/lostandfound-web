@@ -40,11 +40,6 @@ const FoundItemSchema = new mongoose.Schema({
         required: true
     },
 
-    status: {
-        type: String,
-        enum: ["pending", "claimed"],
-        default: "pending"
-    },
 
     claimed_by: {
         type: mongoose.Schema.Types.ObjectId,
@@ -74,7 +69,35 @@ reviewed_at: {
 rejection_reason: {
     type: String,
     default: null
-}
+},
+
+claim_status: {
+    type: String,
+    enum: ["none", "claimed"],
+    default: "none"
+},
+
+proof_description: {
+    type: String,
+    default: null,
+},
+
+verified_claim: {
+    type: Boolean,
+    default: false,
+},
+
+verified_by: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    default: null
+},
+
+verified_at: {
+    type: Date,
+    default: null
+},
+
 
 
 }, { timestamps: true });

@@ -6,6 +6,7 @@ import Recovery from "./pages/Recovery";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
+import StaffProtectedRoute from "./components/StaffProtectedRoute";
 import StaffDashboard from "./pages/Staff/StaffDashboard";
 import StaffLostApproval from "./pages/Staff/StaffLostApproval";
 import StaffFoundApproval from "./pages/Staff/StaffFoundApproval";
@@ -14,6 +15,12 @@ import LostItemPage from "./pages/User/LostItemPage";
 import ReportFoundItemPage from "./pages/User/ReportFoundItemPage";
 import ReportLostItemPage from "./pages/User/ReportLostItemPage";
 import FoundItemPage from "./pages/User/FoundItemPage";
+import ReportSuccessPage from "./pages/User/ReportSuccessPage";
+import ClaimFoundItemPage from "./pages/User/ClaimFoundItemPage";
+import StaffClaimReview from "./pages/Staff/StaffClaimReview";
+
+
+
 
 
 
@@ -22,21 +29,98 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/Dashboard" element={<Dashboard />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/recovery" element={<Recovery />} />
-        <Route path="/StaffLostApproval" element={<StaffLostApproval />}/>
-        <Route path="/StaffFoundApproval" element={<StaffFoundApproval />}/>
-        <Route path="/StaffPendingClaim" element={<StaffPendingClaim />}/>
-        <Route path="/LostItemPage" element={<LostItemPage />}/>
-        <Route path="/ReportFoundItemPage" element={<ReportFoundItemPage />}/>
-        <Route path="/ReportLostItemPage" element={<ReportLostItemPage />}/>
-        <Route path="/FoundItemPage" element={<FoundItemPage />}/>
+
+        <Route 
+        path="/Dashboard" 
+        element={
+          <ProtectedRoute>
+          <Dashboard />
+          </ProtectedRoute>} />
+
+        <Route 
+        path="/register" 
+        element={
+          <ProtectedRoute>
+          <Register />
+          </ProtectedRoute>} />
+
+        <Route 
+        path="/recovery" 
+        element={
+          <ProtectedRoute>
+          <Recovery />
+          </ProtectedRoute>} />
 
 
+        <Route 
+        path="/StaffLostApproval" 
+        element={
+          <ProtectedRoute>
+          <StaffLostApproval />
+          </ProtectedRoute>}/>
 
-  
-        <Route path="/StaffDashboard" element={<StaffDashboard />}/>
+        <Route 
+        path="/StaffFoundApproval" 
+        element={
+          <ProtectedRoute>
+          <StaffFoundApproval />
+          </ProtectedRoute>}/>
+
+        <Route 
+        path="/StaffPendingClaim" 
+        element={
+          <ProtectedRoute>
+          <StaffPendingClaim />
+          </ProtectedRoute>}/>
+
+        <Route 
+        path="/LostItemPage" 
+        element={
+          <ProtectedRoute>
+          <LostItemPage />
+          </ProtectedRoute>}/>
+
+        <Route 
+        path="/ReportFoundItemPage" 
+        element={
+          <ProtectedRoute>
+          <ReportFoundItemPage />
+          </ProtectedRoute>}/>
+
+        <Route 
+        path="/ReportLostItemPage" 
+        element={
+          <ProtectedRoute>
+          <ReportLostItemPage />
+          </ProtectedRoute>}/>
+
+        <Route 
+        path="/FoundItemPage" 
+        element={
+          <ProtectedRoute>
+          <FoundItemPage />
+          </ProtectedRoute>}/>
+
+        <Route 
+        path="/ReportSuccessPage" 
+        element={
+          <ProtectedRoute>
+          <ReportSuccessPage />
+          </ProtectedRoute>}/>
+
+        <Route 
+        path="/ClaimFoundItemPage/:foundId" 
+        element={
+          <ProtectedRoute>
+          <ClaimFoundItemPage />
+          </ProtectedRoute>}/>
+
+        <Route 
+        path="/StaffDashboard" 
+        element={
+          <StaffProtectedRoute>
+          <StaffDashboard />
+          </StaffProtectedRoute>}/>
 
 
         <Route 
@@ -46,15 +130,17 @@ function App() {
           <AdminDashboard />
           </AdminProtectedRoute>}/>
 
-        
         <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
+        path="/StaffClaimReview/:claimId"
+        element={
+          <StaffProtectedRoute>
+            <StaffClaimReview />
+          </StaffProtectedRoute>
+        }
         />
+
+        
+
         
       </Routes>
     </Router>

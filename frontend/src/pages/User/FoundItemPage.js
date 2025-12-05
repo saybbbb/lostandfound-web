@@ -16,6 +16,17 @@ function FoundItemPage() {
     fetchCategories();
   }, []);
 
+
+const [myLostItems, setMyLostItems] = useState([]);
+
+useEffect(() => {
+  axios.get("http://localhost:5000/api/auth/lost-items/my", {
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+  })
+  .then(res => setMyLostItems(res.data.items || []))
+  .catch(err => console.log(err));
+}, []);
+
   // Load found items
   const fetchFoundItems = async () => {
     try {
@@ -46,6 +57,8 @@ function FoundItemPage() {
 
     return matchesSearch && matchesCategory;
   });
+
+  
 
   // Same style object as LostItemPage
   const styles = {
@@ -242,7 +255,9 @@ function FoundItemPage() {
                 <p style={styles.itemLocation}>{item.found_location}</p>
                 <p style={styles.itemDesc}>{item.description}</p>
 
-                <button style={styles.contactBtn}>Contact Finder</button>
+                <button onClick={() => navigate(`/ClaimFoundItemPage/${item._id}`)}>
+  Claim Item
+</button>
               </div>
             </div>
           ))}

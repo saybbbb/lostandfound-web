@@ -42,12 +42,6 @@ router.post("/register", register);
 router.post("/login", login);
 router.get("/protected", authMiddleware, protected);
 
-/* ======================================================
-   STAFF ROUTES
-======================================================*/
-
-router.post("/staff/approve", authMiddleware, authorizeRole("staff"), staffController.approveItem);
-//router.post("/staff/validate-return", authMiddleware, authorizeRole("staff"), staffController.validateReturn);
 
 /* ======================================================
    ADMIN ROUTES
@@ -87,6 +81,29 @@ router.post("/staff/approve", authMiddleware, authorizeRole("staff"), staffContr
 
 router.post("/staff/reject", authMiddleware, authorizeRole("staff"), staffController.rejectItem);
 
+router.get(
+  "/staff/claims/pending",
+  authMiddleware,
+  authorizeRole("staff"),
+  staffController.getPendingClaims
+);
+
+router.post(
+  "/staff/claims/verify",
+  authMiddleware,
+  authorizeRole("staff"),
+  staffController.verifyClaim
+);
+
+router.post(
+  "/staff/claims/reject",
+  authMiddleware,
+  authorizeRole("staff"),
+  staffController.rejectClaim
+);
+
+
+
 
 
 
@@ -95,7 +112,7 @@ router.post("/staff/reject", authMiddleware, authorizeRole("staff"), staffContro
 ======================================================*/
 
 // CREATE LOST ITEM
-router.post("/lost-items", async (req, res) => {
+router.post("/lost-items", authMiddleware, async (req, res) => {
   try {
     const {
       name,
@@ -153,6 +170,23 @@ router.get("/found-items", async (req, res) => {
   }
 });
 
+router.get("/found-items/:id", async (req, res) => {
+  try {
+    const item = await FoundItem.findById(req.params.id)
+      .populate("category", "name")
+      .populate("posted_by", "name email");
+
+    if (!item) {
+      return res.status(404).json({ success: false, message: "Item not found" });
+    }
+
+    res.json({ success: true, item });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+
 
 // GET ALL CATEGORIES
 router.get("/categories", async (req, res) => {
@@ -197,5 +231,59 @@ router.post("/found-items", async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+
+/* =============================
+   USER CLAIMS FOUND ITEM
+============================= */
+
+
+router.post(
+  "/claims",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const { found_item, proof_description } = req.body;
+
+      const item = await FoundItem.findById(found_item);
+
+      if (!item)
+        return res.status(404).json({ message: "Item not found" });
+
+      if (item.approval_status !== "approved") {
+        return res.json({
+          success: false,
+          message: "Item is waiting for staff approval"
+        });
+      }
+
+      if (item.claim_status === "claimed") {
+        return res.json({
+          success: false,
+          message: "Item already claimed"
+        });
+      }
+
+      // 🔥 SAVE CLAIM DETAILS (What you were missing)
+      item.claim_status = "claimed";
+      item.claimed_by = req.user.id;
+      item.claimed_at = new Date();
+      item.proof_description = proof_description;
+      item.verified_claim = false; // IMPORTANT for staff filter
+
+      await item.save();
+
+      res.json({
+        success: true,
+        message: "Item successfully claimed"
+      });
+
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  }
+);
+
+
+
 
 module.exports = router;

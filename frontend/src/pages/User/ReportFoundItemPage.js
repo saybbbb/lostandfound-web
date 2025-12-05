@@ -39,9 +39,10 @@ function ReportFoundItemPage() {
     e.preventDefault();
 
     try {
-      await axios.post("http://localhost:5000/api/auth/found-items", form);
+      const res = await axios.post("http://localhost:5000/api/auth/found-items", form);
 
-      alert("Found item submitted successfully!");
+      navigate("/report-success?type=found");
+
 
       setForm({
         name: "",
@@ -54,7 +55,10 @@ function ReportFoundItemPage() {
         posted_by: localStorage.getItem("userId"),
       });
 
-      navigate("/FoundItemPage");
+      if (res.data.success) {
+      navigate("/ReportSuccessPage?type=lost");
+      }
+
     } catch (err) {
       console.log(err);
       alert("Error submitting found item");
