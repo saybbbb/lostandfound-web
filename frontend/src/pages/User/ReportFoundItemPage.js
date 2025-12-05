@@ -36,34 +36,28 @@ function ReportFoundItemPage() {
   };
 
   const submitFoundItem = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      const res = await axios.post("http://localhost:5000/api/auth/found-items", form);
-
-      navigate("/report-success?type=found");
-
-
-      setForm({
-        name: "",
-        category: "",
-        found_location: "",
-        description: "",
-        date_found: "",
-        image_url: "",
-        contact_info: "",
-        posted_by: localStorage.getItem("userId"),
-      });
-
-      if (res.data.success) {
-      navigate("/ReportSuccessPage?type=lost");
+  try {
+    const res = await axios.post(
+      "http://localhost:5000/api/auth/found-items",
+      form,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       }
+    );
 
-    } catch (err) {
-      console.log(err);
-      alert("Error submitting found item");
+    if (res.data.success) {
+      navigate("/ReportSuccessPage?type=found");
     }
-  };
+  } catch (err) {
+    console.log("Submit Found Item ERROR:", err.response?.data || err.message);
+    alert("Error submitting found item");
+  }
+};
+
 
   return (
     <>

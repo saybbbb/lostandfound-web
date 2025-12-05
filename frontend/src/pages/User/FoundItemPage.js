@@ -255,9 +255,17 @@ useEffect(() => {
                 <p style={styles.itemLocation}>{item.found_location}</p>
                 <p style={styles.itemDesc}>{item.description}</p>
 
-                <button onClick={() => navigate(`/ClaimFoundItemPage/${item._id}`)}>
-  Claim Item
+                <button
+  disabled={item.claim_status === "claimed"}
+  onClick={() => navigate(`/ClaimFoundItemPage/${item._id}`)}
+  style={{
+    opacity: item.claim_status === "claimed" ? 0.5 : 1,
+    cursor: item.claim_status === "claimed" ? "not-allowed" : "pointer"
+  }}
+>
+  {item.claim_status === "claimed" ? "Pending Verification" : "Claim Item"}
 </button>
+
               </div>
             </div>
           ))}

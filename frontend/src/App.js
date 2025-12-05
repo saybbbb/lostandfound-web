@@ -3,6 +3,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/User/Dashboard";
 import Recovery from "./pages/Recovery";
+import ResetPassword from "./pages/ResetPassword";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
@@ -18,6 +19,7 @@ import FoundItemPage from "./pages/User/FoundItemPage";
 import ReportSuccessPage from "./pages/User/ReportSuccessPage";
 import ClaimFoundItemPage from "./pages/User/ClaimFoundItemPage";
 import StaffClaimReview from "./pages/Staff/StaffClaimReview";
+import LostReportPage from "./pages/User/LostReportPage";
 
 
 
@@ -40,16 +42,21 @@ function App() {
         <Route 
         path="/register" 
         element={
-          <ProtectedRoute>
+          
           <Register />
-          </ProtectedRoute>} />
+          } />
 
         <Route 
         path="/recovery" 
         element={
-          <ProtectedRoute>
           <Recovery />
-          </ProtectedRoute>} />
+          } />
+
+          
+        <Route 
+        path="/reset-password/:token"
+        element={
+        <ResetPassword />} />
 
 
         <Route 
@@ -139,6 +146,13 @@ function App() {
         }
         />
 
+        <Route
+        path="/LostReportPage/:id"
+        element={
+          <ProtectedRoute>
+            <LostReportPage />
+          </ProtectedRoute>
+        }/>
         
 
         
