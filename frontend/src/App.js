@@ -3,6 +3,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/User/Dashboard";
 import Recovery from "./pages/Recovery";
+import ResetPassword from "./pages/ResetPassword";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
@@ -50,6 +51,12 @@ function App() {
           <ProtectedRoute>
           <Recovery />
           </ProtectedRoute>} />
+
+          
+        <Route 
+        path="/reset-password/:token"
+        element={
+        <ResetPassword />} />
 
 
         <Route 
