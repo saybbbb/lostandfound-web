@@ -2,14 +2,12 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 
-function Register() {
+function Recovery() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: "",
     email: "",
-    birthday: "",
-    password: "",
   });
+
 
   const styles = {
     wrapper: {
@@ -110,7 +108,7 @@ function Register() {
     },
 
     logo: {
-      width: window.innerWidth >= 900 ? "400px" : "200px",
+      width: window.innerWidth >= 900 ? "350px" : "200px",
       filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.5))",
     },
   };
@@ -122,88 +120,58 @@ function Register() {
     e.preventDefault();
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/auth/register",
+        "http://localhost:5000/api/auth/recovery",
         formData
       );
       if (res.data.success) {
-        alert("Registration successful!");
+        alert("Code Sended!");
         navigate("/");
       }
     } catch (err) {
-      alert(err.response?.data?.message || "Registration failed");
+      alert(err.response?.data?.message || "Success Check Email!");
+      navigate("/");
     }
   };
 
   return (
-    <div style={styles.wrapper}>
-      <div style={styles.overlay}></div>
+     <div style={styles.wrapper}>
+       <div style={styles.overlay}></div>
+ 
+       <div style={styles.container}>
+ 
+         {/* LEFT CARD */}
+         <div style={styles.card}>
+           <h2 style={styles.title}>Account Recovery</h2>
+ 
+           <p style={styles.subtitle}>
+             Already have an Account?{" "}
+             <Link to="/" style={styles.link}>Login</Link>
+           </p>
 
-      <div style={styles.container}>
+ 
+           {/* EMAIL */}
+           <div style={styles.inputWrapper}>
+             <span style={styles.icon}>📧</span>
+             <input
+               style={styles.input}
+               name="email"
+               placeholder="Email"
+               onChange={handleChange}
+             />
+           </div>
 
-        {/* LEFT CARD */}
-        <div style={styles.card}>
-          <h2 style={styles.title}>Create Account</h2>
-
-          <p style={styles.subtitle}>
-            Already have an Account?{" "}
-            <Link to="/" style={styles.link}>Login</Link>
-          </p>
-
-          {/* FULL NAME */}
-          <div style={styles.inputWrapper}>
-            <span style={styles.icon}>👤</span>
-            <input
-              style={styles.input}
-              name="name"
-              placeholder="Full Name"
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* EMAIL */}
-          <div style={styles.inputWrapper}>
-            <span style={styles.icon}>📧</span>
-            <input
-              style={styles.input}
-              name="email"
-              placeholder="Email"
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* BIRTHDAY */}
-          <div style={styles.inputWrapper}>
-            <span style={styles.icon}>🎂</span>
-            <input
-              style={styles.input}
-              type="date"
-              name="birthday"
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* PASSWORD */}
-          <div style={styles.inputWrapper}>
-            <span style={styles.icon}>🔒</span>
-            <input
-              style={styles.input}
-              name="password"
-              type="password"
-              placeholder="Password"
-              onChange={handleChange}
-            />
-          </div>
-
-          <button style={styles.button} onClick={handleSubmit}>
-            Register
-          </button>
-        </div>
-
-        {/* RIGHT LOGO */}
-        <img src="/images/LAF Logo.png" style={styles.logo} />
-      </div>
-    </div>
-  );
-}
-
-export default Register;
+ 
+           <button style={styles.button} onClick={handleSubmit}>
+             send
+           </button>
+         </div>
+ 
+         {/* RIGHT LOGO */}
+         <img src="/images/LAF Logo.png" style={styles.logo} />
+       </div>
+     </div>
+   );
+ }
+ 
+ export default Recovery;
+ 

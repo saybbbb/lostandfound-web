@@ -1,39 +1,30 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import React from "react";
+import { Navigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
-function Dashboard() {
-  const navigate = useNavigate();
-  const [message, setMessage] = useState("");
+function ProtectedRoute({ children }) {
+  const token = localStorage.getItem("token");
 
-  const logout = () => {
+  // No token → redirect
+  if (!token) {
+    return <Navigate to="/" replace />;
+  }
+
+  // Token exists but invalid or expired → force logout
+  try {
+    const decoded = jwtDecode(token);
+    const now = Date.now() / 1000;
+
+    if (decoded.exp < now) {
+      localStorage.removeItem("token");
+      return <Navigate to="/" replace />;
+    }
+  } catch (err) {
     localStorage.removeItem("token");
-    navigate("/");
-  };
+    return <Navigate to="/" replace />;
+  }
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await axios.get("http://localhost:5000/api/auth/protected", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setMessage(res.data.message);
-      } catch (err) {
-        alert("Unauthorized. Please login again.");
-        navigate("/");
-      }
-    };
-    fetchData();
-  }, [navigate]);
-
-  return (
-    <div>
-      <h1>Dashboard</h1>
-      <p>{message}</p>
-      <button onClick={logout}>Logout</button>
-    </div>
-  );
+  return children;
 }
 
-export default Dashboard;
+export default ProtectedRoute;

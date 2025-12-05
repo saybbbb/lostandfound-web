@@ -12,7 +12,7 @@ app.use(express.json());
 // Connect DB
 connectDB();
 
-// Routes
+// Routes Automatic Import
 app.use("/api/auth", require("./routes/authRoutes"));
 
 // Start server
