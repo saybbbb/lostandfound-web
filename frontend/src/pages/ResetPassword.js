@@ -1,15 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
-function Register() {
+function ResetPassword() {
+  const { token } = useParams();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    birthday: "",
-    password: "",
-  });
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const styles = {
     wrapper: {
@@ -22,6 +19,7 @@ function Register() {
       justifyContent: "center",
       alignItems: "center",
       position: "relative",
+      gap: "3rem",
     },
 
     overlay: {
@@ -29,6 +27,7 @@ function Register() {
       inset: 0,
       background: "rgba(0, 0, 0, 0.35)",
       backdropFilter: "blur(4px)",
+      pointerEvents: "none",
     },
 
     container: {
@@ -53,24 +52,11 @@ function Register() {
     },
 
     title: {
-      fontSize: "34px",
+      fontSize: "32px",
       fontWeight: "700",
       color: "#fff",
-      marginBottom: "8px",
-      textShadow: "0 2px 4px rgba(0,0,0,0.7)",
-    },
-
-    subtitle: {
-      color: "black",
       marginBottom: "20px",
-      fontSize: "15px",
-    },
-
-    link: {
-      color: "#1C60DF",
-      fontWeight: "600",
-      textDecoration: "underline",
-      cursor: "pointer",
+      textShadow: "0 2px 4px rgba(0,0,0,0.7)",
     },
 
     inputWrapper: {
@@ -79,7 +65,7 @@ function Register() {
       background: "white",
       padding: "12px",
       borderRadius: "12px",
-      marginBottom: "10px",
+      marginBottom: "15px",
       boxShadow: "0 3px 8px rgba(0,0,0,0.18)",
     },
 
@@ -110,27 +96,29 @@ function Register() {
     },
 
     logo: {
-      width: window.innerWidth >= 900 ? "400px" : "200px",
+      width: window.innerWidth >= 900 ? "350px" : "200px",
       filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.5))",
     },
   };
 
-  const handleChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/auth/register",
-        formData
+        `http://localhost:5000/api/auth/reset-password/${token}`,
+        { password }
       );
-      if (res.data.success) {
-        alert("Registration successful!");
-        navigate("/");
-      }
+
+      alert("Password reset successful! Please log in.");
+      navigate("/");
     } catch (err) {
-      alert(err.response?.data?.message || "Registration failed");
+      alert(err.response?.data?.message || "Reset failed");
     }
   };
 
@@ -139,71 +127,44 @@ function Register() {
       <div style={styles.overlay}></div>
 
       <div style={styles.container}>
-
-        {/* LEFT CARD */}
+        
+        {/* LEFT SIDE CARD */}
         <div style={styles.card}>
-          <h2 style={styles.title}>Create Account</h2>
+          <h2 style={styles.title}>Reset your Password</h2>
 
-          <p style={styles.subtitle}>
-            Already have an Account?{" "}
-            <Link to="/" style={styles.link}>Login</Link>
-          </p>
-
-          {/* FULL NAME */}
-          <div style={styles.inputWrapper}>
-            <span style={styles.icon}>👤</span>
-            <input
-              style={styles.input}
-              name="name"
-              placeholder="Full Name"
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* EMAIL */}
-          <div style={styles.inputWrapper}>
-            <span style={styles.icon}>📧</span>
-            <input
-              style={styles.input}
-              name="email"
-              placeholder="Email"
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* BIRTHDAY */}
-          <div style={styles.inputWrapper}>
-            <span style={styles.icon}>🎂</span>
-            <input
-              style={styles.input}
-              type="date"
-              name="birthday"
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* PASSWORD */}
           <div style={styles.inputWrapper}>
             <span style={styles.icon}>🔒</span>
             <input
-              style={styles.input}
-              name="password"
               type="password"
-              placeholder="Password"
-              onChange={handleChange}
+              placeholder="Enter your new password"
+              style={styles.input}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <div style={styles.inputWrapper}>
+            <span style={styles.icon}>🔒</span>
+            <input
+              type="password"
+              placeholder="Confirm your new password"
+              style={styles.input}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
             />
           </div>
 
           <button style={styles.button} onClick={handleSubmit}>
-            Register
+            Reset Password
           </button>
         </div>
 
-        {/* RIGHT LOGO */}
-        <img src="/images/LAF Logo.png" style={styles.logo} />
+        {/* RIGHT SIDE LOGO */}
+        <img src="/images/LAF Logo.png" alt="Logo" style={styles.logo} />
+
       </div>
     </div>
   );
 }
 
-export default Register;
+export default ResetPassword;

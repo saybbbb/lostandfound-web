@@ -2,13 +2,10 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 
-function Register() {
+function Recovery() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: "",
     email: "",
-    birthday: "",
-    password: "",
   });
 
   const styles = {
@@ -110,7 +107,7 @@ function Register() {
     },
 
     logo: {
-      width: window.innerWidth >= 900 ? "400px" : "200px",
+      width: window.innerWidth >= 900 ? "350px" : "200px",
       filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.5))",
     },
   };
@@ -118,19 +115,20 @@ function Register() {
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
+  // 🔥 FIXED Forgot Password Logic
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/auth/register",
-        formData
+        "http://localhost:5000/api/auth/forgot-password",
+        { email: formData.email }
       );
-      if (res.data.success) {
-        alert("Registration successful!");
-        navigate("/");
-      }
+
+      alert("A password reset link has been sent to your email.");
+      navigate("/");
     } catch (err) {
-      alert(err.response?.data?.message || "Registration failed");
+      alert(err.response?.data?.message || "Unable to send reset link.");
     }
   };
 
@@ -139,26 +137,16 @@ function Register() {
       <div style={styles.overlay}></div>
 
       <div style={styles.container}>
-
         {/* LEFT CARD */}
         <div style={styles.card}>
-          <h2 style={styles.title}>Create Account</h2>
+          <h2 style={styles.title}>Account Recovery</h2>
 
           <p style={styles.subtitle}>
             Already have an Account?{" "}
-            <Link to="/" style={styles.link}>Login</Link>
+            <Link to="/" style={styles.link}>
+              Login
+            </Link>
           </p>
-
-          {/* FULL NAME */}
-          <div style={styles.inputWrapper}>
-            <span style={styles.icon}>👤</span>
-            <input
-              style={styles.input}
-              name="name"
-              placeholder="Full Name"
-              onChange={handleChange}
-            />
-          </div>
 
           {/* EMAIL */}
           <div style={styles.inputWrapper}>
@@ -171,31 +159,8 @@ function Register() {
             />
           </div>
 
-          {/* BIRTHDAY */}
-          <div style={styles.inputWrapper}>
-            <span style={styles.icon}>🎂</span>
-            <input
-              style={styles.input}
-              type="date"
-              name="birthday"
-              onChange={handleChange}
-            />
-          </div>
-
-          {/* PASSWORD */}
-          <div style={styles.inputWrapper}>
-            <span style={styles.icon}>🔒</span>
-            <input
-              style={styles.input}
-              name="password"
-              type="password"
-              placeholder="Password"
-              onChange={handleChange}
-            />
-          </div>
-
           <button style={styles.button} onClick={handleSubmit}>
-            Register
+            Send
           </button>
         </div>
 
@@ -206,4 +171,4 @@ function Register() {
   );
 }
 
-export default Register;
+export default Recovery;
