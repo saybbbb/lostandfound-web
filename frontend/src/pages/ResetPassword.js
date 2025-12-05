@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
-function Recovery() {
+function ResetPassword() {
+  const { token } = useParams();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: "",
-  });
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const styles = {
     wrapper: {
@@ -19,6 +19,7 @@ function Recovery() {
       justifyContent: "center",
       alignItems: "center",
       position: "relative",
+      gap: "3rem",
     },
 
     overlay: {
@@ -26,6 +27,7 @@ function Recovery() {
       inset: 0,
       background: "rgba(0, 0, 0, 0.35)",
       backdropFilter: "blur(4px)",
+      pointerEvents: "none",
     },
 
     container: {
@@ -50,24 +52,11 @@ function Recovery() {
     },
 
     title: {
-      fontSize: "34px",
+      fontSize: "32px",
       fontWeight: "700",
       color: "#fff",
-      marginBottom: "8px",
-      textShadow: "0 2px 4px rgba(0,0,0,0.7)",
-    },
-
-    subtitle: {
-      color: "black",
       marginBottom: "20px",
-      fontSize: "15px",
-    },
-
-    link: {
-      color: "#1C60DF",
-      fontWeight: "600",
-      textDecoration: "underline",
-      cursor: "pointer",
+      textShadow: "0 2px 4px rgba(0,0,0,0.7)",
     },
 
     inputWrapper: {
@@ -76,7 +65,7 @@ function Recovery() {
       background: "white",
       padding: "12px",
       borderRadius: "12px",
-      marginBottom: "10px",
+      marginBottom: "15px",
       boxShadow: "0 3px 8px rgba(0,0,0,0.18)",
     },
 
@@ -112,23 +101,24 @@ function Recovery() {
     },
   };
 
-  const handleChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-
-  // 🔥 FIXED Forgot Password Logic
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/auth/forgot-password",
-        { email: formData.email }
+        `http://localhost:5000/api/auth/reset-password/${token}`,
+        { password }
       );
 
-      alert("A password reset link has been sent to your email.");
+      alert("Password reset successful! Please log in.");
       navigate("/");
     } catch (err) {
-      alert(err.response?.data?.message || "Unable to send reset link.");
+      alert(err.response?.data?.message || "Reset failed");
     }
   };
 
@@ -137,38 +127,44 @@ function Recovery() {
       <div style={styles.overlay}></div>
 
       <div style={styles.container}>
-        {/* LEFT CARD */}
+        
+        {/* LEFT SIDE CARD */}
         <div style={styles.card}>
-          <h2 style={styles.title}>Account Recovery</h2>
+          <h2 style={styles.title}>Reset your Password</h2>
 
-          <p style={styles.subtitle}>
-            Already have an Account?{" "}
-            <Link to="/" style={styles.link}>
-              Login
-            </Link>
-          </p>
-
-          {/* EMAIL */}
           <div style={styles.inputWrapper}>
-            <span style={styles.icon}>📧</span>
+            <span style={styles.icon}>🔒</span>
             <input
+              type="password"
+              placeholder="Enter your new password"
               style={styles.input}
-              name="email"
-              placeholder="Email"
-              onChange={handleChange}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <div style={styles.inputWrapper}>
+            <span style={styles.icon}>🔒</span>
+            <input
+              type="password"
+              placeholder="Confirm your new password"
+              style={styles.input}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
             />
           </div>
 
           <button style={styles.button} onClick={handleSubmit}>
-            Send
+            Reset Password
           </button>
         </div>
 
-        {/* RIGHT LOGO */}
-        <img src="/images/LAF Logo.png" style={styles.logo} />
+        {/* RIGHT SIDE LOGO */}
+        <img src="/images/LAF Logo.png" alt="Logo" style={styles.logo} />
+
       </div>
     </div>
   );
 }
 
-export default Recovery;
+export default ResetPassword;

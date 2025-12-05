@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const { register, login, protected } = require("../controllers/authController");
+const { forgotPassword, resetPassword } = require("../controllers/authController");
 const adminController = require("../controllers/adminController");
 const staffController = require("../controllers/staffController");
 
@@ -43,6 +44,13 @@ const authorizeRole = (requiredRole) => {
 router.post("/register", register);
 router.post("/login", login);
 router.get("/protected", authMiddleware, protected);
+
+/* ======================================================
+   FORGOT PASSWORD ROUTES
+======================================================*/
+
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:token", resetPassword);
 
 /* ======================================================
    ADMIN ROUTES
