@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import { IoMailOutline } from "react-icons/io5"; 
 
 function Recovery() {
   const navigate = useNavigate();
@@ -150,7 +151,7 @@ function Recovery() {
 
           {/* EMAIL */}
           <div style={styles.inputWrapper}>
-            <span style={styles.icon}>📧</span>
+            <IoMailOutline style={{ fontSize: 20, marginRight: 10 }} />
             <input
               style={styles.input}
               name="email"

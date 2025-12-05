@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import { IoLockClosedOutline } from "react-icons/io5";
 
 function ResetPassword() {
   const { token } = useParams();
@@ -133,7 +134,7 @@ function ResetPassword() {
           <h2 style={styles.title}>Reset your Password</h2>
 
           <div style={styles.inputWrapper}>
-            <span style={styles.icon}>🔒</span>
+            <IoLockClosedOutline style={{ fontSize: 20, marginRight: 10 }} />
             <input
               type="password"
               placeholder="Enter your new password"
@@ -144,7 +145,7 @@ function ResetPassword() {
           </div>
 
           <div style={styles.inputWrapper}>
-            <span style={styles.icon}>🔒</span>
+            <IoLockClosedOutline style={{ fontSize: 20, marginRight: 10 }} />
             <input
               type="password"
               placeholder="Confirm your new password"
