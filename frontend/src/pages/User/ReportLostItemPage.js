@@ -38,7 +38,15 @@ function ReportLostItemPage() {
   const submitLostItem = async (e) => {
     e.preventDefault();
     try {
-     const res = await axios.post("http://localhost:5000/api/auth/lost-items", form);
+     const res = await axios.post(
+  "http://localhost:5000/api/auth/lost-items",
+  form,
+  {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`
+    }
+  }
+);
       
 
       setForm({
@@ -49,11 +57,10 @@ function ReportLostItemPage() {
         date_lost: "",
         image_url: "",
         contact_info: "",
-        reported_by: localStorage.getItem("userId"),
       });
 
       if (res.data.success) {
-  navigate("/ReportSuccessPage?type=found");
+  navigate("/ReportSuccessPage?type=lost");
 }
  
     } catch (err) {

@@ -98,6 +98,12 @@ verified_at: {
     default: null
 },
 
+lost_item_id: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "LostItem",
+  required: null
+},
+
 
 
 }, { timestamps: true });

@@ -73,7 +73,27 @@ reviewed_at: {
 rejection_reason: {
     type: String,
     default: null
-}
+
+},
+verified_claim: {
+  type: Boolean,
+  default: false
+},
+claim_status: {
+  type: String,
+  enum: ["none", "claimed"],
+  default: "none"
+},
+proof_description: {
+  type: String,
+  default: null
+},
+
+lost_item_id: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "LostItem",
+  default: null
+},
 
   },
 
