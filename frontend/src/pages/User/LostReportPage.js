@@ -1,0 +1,135 @@
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
+import Header from "../../components/NavigationBars/Header";
+import Footer from "../../components/NavigationBars/Footer";
+
+function LostReportPage() {
+  const navigate = useNavigate();
+  const { id } = useParams();
+
+  const [lostItem, setLostItem] = useState(null);
+  const [form, setForm] = useState({
+    found_location: "",
+    description: "",
+    date_found: "",
+    image_url: "",
+    contact_info: "",
+  });
+
+  // LOAD SINGLE LOST ITEM SAFELY
+  useEffect(() => {
+    const loadItem = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:5000/api/auth/lost-items/${id}`
+        );
+
+        // ❗ If backend returns null or undefined item → avoid infinite loading
+        if (!res.data || !res.data.item) {
+          alert("Lost item not found.");
+          navigate("/LostItemPage");
+          return;
+        }
+
+        setLostItem(res.data.item);
+      } catch (err) {
+        console.log(err);
+        alert("Error loading item.");
+        navigate("/LostItemPage");
+      }
+    };
+
+    loadItem();
+  }, [id, navigate]);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  // SUBMIT FOUND REPORT (Mirrors how claim works)
+  const submitFoundReport = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/auth/lost-items/report-found",
+        {
+          ...form,
+          lost_item_id: id,
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+
+      if (!res.data.success) {
+        alert(res.data.message || "Error submitting report.");
+        return;
+      }
+
+      navigate("/ReportSuccessPage?type=found");
+    } catch (err) {
+      console.log(err);
+      alert("Error submitting found item report.");
+    }
+  };
+
+  if (!lostItem) return null;
+
+  return (
+    <>
+      <Header />
+      <div style={{ padding: "40px 120px" }}>
+        <h1 style={{ fontSize: 32, color: "#1A1851", fontWeight: "bold" }}>
+          Found Item Report
+        </h1>
+
+        <p>You are reporting that you found: <strong>{lostItem.name}</strong></p>
+
+        <form
+          onSubmit={submitFoundReport}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "12px",
+            maxWidth: "700px",
+          }}
+        >
+          <label>Found Location*</label>
+          <input name="found_location" required onChange={handleChange} />
+
+          <label>Date Found*</label>
+          <input type="date" name="date_found" required onChange={handleChange} />
+
+          <label>Description*</label>
+          <textarea name="description" required onChange={handleChange}></textarea>
+
+          <label>Contact Info*</label>
+          <input name="contact_info" required onChange={handleChange} />
+
+          <label>Image URL (optional)</label>
+          <input name="image_url" onChange={handleChange} />
+
+          <button
+            type="submit"
+            style={{
+              marginTop: 15,
+              padding: "12px",
+              backgroundColor: "#1A1851",
+              color: "white",
+              fontWeight: "bold",
+              borderRadius: 6,
+            }}
+          >
+            Submit Found Item Report
+          </button>
+        </form>
+      </div>
+
+      <Footer />
+    </>
+  );
+}
+
+export default LostReportPage;

@@ -18,6 +18,7 @@ import FoundItemPage from "./pages/User/FoundItemPage";
 import ReportSuccessPage from "./pages/User/ReportSuccessPage";
 import ClaimFoundItemPage from "./pages/User/ClaimFoundItemPage";
 import StaffClaimReview from "./pages/Staff/StaffClaimReview";
+import LostReportPage from "./pages/User/LostReportPage";
 
 
 
@@ -40,16 +41,15 @@ function App() {
         <Route 
         path="/register" 
         element={
-          <ProtectedRoute>
+          
           <Register />
-          </ProtectedRoute>} />
+          } />
 
         <Route 
         path="/recovery" 
         element={
-          <ProtectedRoute>
           <Recovery />
-          </ProtectedRoute>} />
+          } />
 
 
         <Route 
@@ -139,6 +139,13 @@ function App() {
         }
         />
 
+        <Route
+        path="/LostReportPage/:id"
+        element={
+          <ProtectedRoute>
+            <LostReportPage />
+          </ProtectedRoute>
+        }/>
         
 
         
