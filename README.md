@@ -19,7 +19,7 @@ The **Lost and Found Web System** is a centralized platform designed to moderniz
 - View and manage all submitted items  
 - Approve, reject, or review claims  
 - Update item statuses (Pending, Verified, Claimed, Rejected)  
-- Manage user accounts and access levels  
+- Manage user accounts and give roles to users  
 - Monitor system activity through an organized dashboard  
 
 ### **Core Functionalities**
