@@ -63,6 +63,14 @@ The **Lost and Found Web System** is a centralized platform designed to moderniz
 
 ---
 
+## Root Installation
+
+Run the following commands inside the **root** directory:
+
+```bash
+npm install --save-dev concurrently nodemon
+```
+
 ## Backend Installation
 
 Run the following commands inside the **backend** directory:
