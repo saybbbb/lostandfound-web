@@ -1,12 +1,12 @@
 # USTP Lost and Found
 
-## 📖 Introduction
+## Introduction
 
 The **Lost and Found Web System** is a centralized platform designed to modernize and automate the reporting, tracking, and management of lost and found items within an institution. It provides a structured, secure, and efficient process for returning items to their rightful owners. By eliminating manual workflows, the system ensures accuracy, transparency, and faster item recovery through an intuitive interface for users, staff, and administrators.
 
 ---
 
-## 🚀 System Features
+## System Features
 
 ### **User Features**
 - Submit detailed reports for lost or found items  
@@ -32,7 +32,7 @@ The **Lost and Found Web System** is a centralized platform designed to moderniz
 
 ---
 
-## 🛠 Technologies Used
+## Technologies Used
 
 ### **Frontend**
 - React.js  
@@ -53,7 +53,7 @@ The **Lost and Found Web System** is a centralized platform designed to moderniz
 
 ---
 
-## 👥 Team Members (Contributors)
+## Team Members (Contributors)
 
 - [Cyber Storm Montejo](https://github.com/saybbbb)
 - [Charlie Omongos](https://github.com/Zeke033104)
@@ -63,18 +63,18 @@ The **Lost and Found Web System** is a centralized platform designed to moderniz
 
 ---
 
-## 📌 Backend Installation
+## Backend Installation
 
 Run the following commands inside the **backend** directory:
 
 ```bash
-npm install express cors mongoose dotenv
+npm install express cors mongoose dotenv nodemailer
 ```
 
-## 📌 Frontend Installation
+## Frontend Installation
 
 Run the following commands inside the **frontend** directory:
 
 ```bash
-npm install react axios react-router-dom react-icons jwt-decode
+npm install react axios react-router-dom react-icons jwt-decode 
 ```
