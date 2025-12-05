@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-
+import { IoMailOutline } from "react-icons/io5";
+import { IoLockClosedOutline } from "react-icons/io5";
 
 function Login() {
   const navigate = useNavigate();
@@ -228,28 +229,29 @@ function Login() {
             <Link to="/register" style={styles.link}>Sign Up</Link>
           </p>
 
-          {/* EMAIL INPUT */}
-          <div style={styles.inputWrapper}>
-            <span style={styles.icon}>📧</span>
-            <input
-              style={styles.input}
-              name="email"
-              placeholder="Email Address"
-              onChange={handleChange}
-            />
-          </div>
+      {/* EMAIL INPUT */}
+      <div style={styles.inputWrapper}>
+        <IoMailOutline style={{ fontSize: 20, marginRight: 10 }} />
+        <input
+          style={styles.input}
+          name="email"
+          placeholder="Email Address"
+          onChange={handleChange}
+        />
+      </div>
 
-          {/* PASSWORD INPUT */}
-          <div style={styles.inputWrapper}>
-            <span style={styles.icon}>🔒</span>
-            <input
-              style={styles.input}
-              type="password"
-              name="password"
-              placeholder="Password"
-              onChange={handleChange}
-            />
-          </div>
+      {/* PASSWORD INPUT */}
+      <div style={styles.inputWrapper}>
+        <IoLockClosedOutline style={{ fontSize: 20, marginRight: 10 }} />
+        <input
+          style={styles.input}
+          type="password"
+          name="password"
+          placeholder="Password"
+          onChange={handleChange}
+        />
+      </div>
+
           <br></br>
           <Link to="/recovery" style={styles.forgot}>
   Forgot Your Password?
