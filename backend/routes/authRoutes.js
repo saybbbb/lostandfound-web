@@ -367,8 +367,6 @@ router.get("/found-reports/all", async (req, res) => {
 
 // CREATE FOUND ITEM
 router.post("/found-items", authMiddleware, async (req, res) => {
-// USER CREATES FOUND ITEM
-router.post("/found-items", async (req, res) => {
   try {
     const {
       name,
