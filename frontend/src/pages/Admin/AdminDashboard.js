@@ -4,7 +4,6 @@ import AdminNavBar from "../../components/NavigationBars/AdminNavBar";
 import Footer from "../../components/NavigationBars/Footer";
 
 function AdminDashboard() {
-  usePageMetadata("Admin Dashboard", "/images/LAFLogo.png");
   const [adminName, setAdminName] = useState("");
   const [counts, setCounts] = useState({
     lost: 0,
