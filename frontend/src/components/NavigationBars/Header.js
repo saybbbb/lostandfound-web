@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { IoNotificationsOutline } from "react-icons/io5";
+import { IoNotificationsOutline, IoPersonCircleOutline } from "react-icons/io5";
 import axios from "axios";
 
 function Header() {
@@ -160,12 +160,10 @@ function Header() {
           onClick={() => navigate("/settings")}
           style={styles.iconBtn}
         >
-          {profilePhoto && (
-            <img 
-              src={profilePhoto} 
-              alt="Profile" 
-              style={{ width: 26, height: 26, borderRadius: '50%', objectFit: 'cover' }} 
-            />
+          {profilePhoto ? (
+            <img src={profilePhoto} alt="Profile" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover' }} />
+          ) : (
+            <IoPersonCircleOutline size={28} color="white" />
           )}
         </div>
       </div>
