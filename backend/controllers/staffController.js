@@ -26,7 +26,7 @@ exports.approveItem = async (req, res) => {
     const { itemId, type } = req.body;
 
     const Model = type === "lost" ? LostItem : FoundItem;
-    const item = await Model.findById(itemId);
+    const item = await Model.findById(itemId).populate(type === "lost" ? "reported_by" : "posted_by");
 
     if (!item) return res.status(404).json({ success: false, message: "Item not found" });
 
@@ -37,6 +37,50 @@ exports.approveItem = async (req, res) => {
     item.rejection_reason = null;
 
     await item.save({ validateBeforeSave: false }); // ← IMPORTANT FIX
+
+    // 🔔 1. NOTIFICATION: Report Verified
+    const ownerId = type === "lost" ? item.reported_by._id : item.posted_by._id;
+    await Notification.create({
+        user_id: ownerId,
+        message: `Your ${type} item report for "${item.name}" has been verified and published.`,
+        type: "report_verified"
+    });
+
+    // 🔔 2. AUTOMATIC MATCHING LOGIC
+    // If a LOST item is approved -> Search FOUND items for a match
+    if (type === "lost") {
+        const potentialMatches = await FoundItem.find({
+            category: item.category, // Same category
+            approval_status: "approved", // Must be public
+            claim_status: "none" // Not yet taken
+        });
+
+        if (potentialMatches.length > 0) {
+            await Notification.create({
+                user_id: ownerId,
+                message: `Potential Match Found: Someone found an item matching your lost "${item.name}".`,
+                type: "match"
+            });
+        }
+    }
+
+    // If a FOUND item is approved -> Search LOST items to notify owners
+    if (type === "found") {
+        const matchingLostItems = await LostItem.find({
+            category: item.category,
+            approval_status: "approved",
+            status: "open"
+        });
+
+        // Notify all users who lost something similar
+        for (const lostItem of matchingLostItems) {
+            await Notification.create({
+                user_id: lostItem.reported_by,
+                message: `Potential Match Found: An item matching your lost "${lostItem.name}" was just reported found.`,
+                type: "match"
+            });
+        }
+    }
 
     res.json({ success: true, message: "Item approved" });
   } catch (err) {

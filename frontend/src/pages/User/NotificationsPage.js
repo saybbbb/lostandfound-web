@@ -2,18 +2,12 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Header from "../../components/NavigationBars/Header";
 import Footer from "../../components/NavigationBars/Footer";
-import { 
-  IoCheckmarkDoneOutline, 
-  IoNotificationsOutline, 
-  IoSearchOutline, 
-  IoRefreshOutline,
-  IoInformationCircleOutline,
-  IoShieldCheckmarkOutline
+import {IoNotificationsOutline,IoSearchOutline,IoRefreshOutline,IoCheckmarkCircleOutline,IoAlertCircleOutline,IoDocumentTextOutline,IoInformationCircleOutline,IoShieldCheckmarkOutline
 } from "react-icons/io5";
 
 function NotificationsPage() {
   const [notifications, setNotifications] = useState([]);
-  const [filter, setFilter] = useState("all"); // all, unread, matches, claims
+  const [filter, setFilter] = useState("all"); 
   const [loading, setLoading] = useState(true);
 
   // FETCH NOTIFICATIONS
@@ -45,49 +39,74 @@ function NotificationsPage() {
       await axios.put("http://localhost:5000/api/auth/notifications/read-all", {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      // Update local state immediately
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
     } catch (err) {
       console.log("Error marking as read");
     }
   };
 
-  // HELPER: Format Time (e.g., "2 hours ago")
   const timeAgo = (date) => {
     const seconds = Math.floor((new Date() - new Date(date)) / 1000);
-    let interval = seconds / 31536000;
-    if (interval > 1) return Math.floor(interval) + " years ago";
-    interval = seconds / 2592000;
-    if (interval > 1) return Math.floor(interval) + " months ago";
-    interval = seconds / 86400;
-    if (interval > 1) return Math.floor(interval) + " days ago";
-    interval = seconds / 3600;
-    if (interval > 1) return Math.floor(interval) + " hours ago";
-    interval = seconds / 60;
-    if (interval > 1) return Math.floor(interval) + " minutes ago";
-    return "Just now";
+    if (seconds < 60) return "Just now";
+    if (seconds < 3600) return Math.floor(seconds / 60) + " minutes ago";
+    if (seconds < 86400) return Math.floor(seconds / 3600) + " hours ago";
+    return Math.floor(seconds / 86400) + " days ago";
   };
 
-  // HELPER: Get Icon & Title based on Backend 'type'
+  // ✅ ADJUSTMENT 1: Added missing types (Verified, Submitted, Request)
   const getNotificationDetails = (type) => {
     switch (type) {
       case "match":
-        return { icon: <IoSearchOutline size={24} />, title: "Potential Match Found", color: "#F59E0B" }; // Yellow
+        return { 
+            icon: <IoSearchOutline size={24} />, 
+            title: "Potential Match Found", 
+            color: "#F59E0B" // Yellow
+        }; 
+      case "claim_request":
+        return { 
+            icon: <IoNotificationsOutline size={24} />, 
+            title: "Item Claim Request", 
+            color: "#F59E0B" // Yellow
+        }; 
+      case "report_verified":
+        return { 
+            icon: <IoCheckmarkCircleOutline size={24} />, 
+            title: "Report Verified", 
+            color: "#10B981" // Green
+        };
+      case "report_submitted":
+        return { 
+            icon: <IoDocumentTextOutline size={24} />, 
+            title: "Report Submitted", 
+            color: "#3B82F6" // Blue
+        };
       case "claim_update":
-        return { icon: <IoShieldCheckmarkOutline size={24} />, title: "Item Claim Update", color: "#10B981" }; // Green
+        return { 
+            icon: <IoShieldCheckmarkOutline size={24} />, 
+            title: "Item Claim Update", 
+            color: "#10B981" // Green
+        };
       case "status_update":
-        return { icon: <IoRefreshOutline size={24} />, title: "Status Update", color: "#3B82F6" }; // Blue
+        return { 
+            icon: <IoRefreshOutline size={24} />, 
+            title: "Status Update", 
+            color: "#3B82F6" // Blue
+        }; 
       default:
-        return { icon: <IoInformationCircleOutline size={24} />, title: "System Notification", color: "#6366F1" }; // Indigo
+        return { 
+            icon: <IoInformationCircleOutline size={24} />, 
+            title: "System Notification", 
+            color: "#6366F1" // Indigo
+        }; 
     }
   };
 
-  // FILTER LOGIC
+
   const filteredNotifications = notifications.filter((n) => {
     if (filter === "unread") return !n.is_read;
     if (filter === "matches") return n.type === "match";
-    if (filter === "claims") return n.type === "claim_update";
-    return true; // 'all'
+    if (filter === "claims") return n.type === "claim_request" || n.type === "claim_update";
+    return true; 
   });
 
   return (
@@ -95,7 +114,6 @@ function NotificationsPage() {
       <Header />
       
       <div style={styles.container}>
-        {/* PAGE HEADER */}
         <div style={styles.pageHeader}>
           <div>
             <h1 style={styles.title}>Notifications</h1>
@@ -106,7 +124,7 @@ function NotificationsPage() {
           </button>
         </div>
 
-        {/* TABS / FILTERS */}
+        
         <div style={styles.tabs}>
           {[
             { id: "all", label: "All Notifications" },
@@ -114,20 +132,15 @@ function NotificationsPage() {
             { id: "matches", label: "Matches" },
             { id: "claims", label: "Claims" }
           ].map((tab) => (
-            <button
-              key={tab.id}
-              style={{
-                ...styles.tab,
-                ...(filter === tab.id ? styles.activeTab : {})
-              }}
+            <TabButton 
+              key={tab.id} 
+              active={filter === tab.id} 
               onClick={() => setFilter(tab.id)}
-            >
-              {tab.label}
-            </button>
+              label={tab.label}
+            />
           ))}
         </div>
 
-        {/* LIST */}
         <div style={styles.list}>
           {loading ? (
             <p style={{ textAlign: "center", color: "#888" }}>Loading...</p>
@@ -137,7 +150,26 @@ function NotificationsPage() {
               <p>No notifications found</p>
             </div>
           ) : (
-            filteredItems(filteredNotifications, getNotificationDetails, timeAgo)
+            filteredNotifications.map((n) => {
+              const details = getNotificationDetails(n.type);
+              return (
+                <div key={n._id} style={{ 
+                  ...styles.card, 
+                  borderLeft: n.is_read ? "1px solid #E5E7EB" : `4px solid ${details.color}` 
+                }}>
+                  <div style={{ ...styles.iconContainer, color: "black" }}>
+                    {details.icon}
+                  </div>
+                  <div style={styles.content}>
+                    <div style={styles.cardHeader}>
+                      <h3 style={styles.cardTitle}>{details.title}</h3>
+                      <span style={styles.time}>{timeAgo(n.createdAt)}</span>
+                    </div>
+                    <p style={styles.message}>{n.message}</p>
+                  </div>
+                </div>
+              );
+            })
           )}
         </div>
       </div>
@@ -146,135 +178,53 @@ function NotificationsPage() {
   );
 }
 
-// Helper component to render list items clean
-const filteredItems = (items, getDetails, timeAgo) => {
-  return items.map((n) => {
-    const details = getDetails(n.type);
-    return (
-      <div key={n._id} style={{ ...styles.card, borderLeft: n.is_read ? "none" : `4px solid #F59E0B` }}>
-        <div style={styles.iconContainer}>
-          {details.icon}
-        </div>
-        <div style={styles.content}>
-          <div style={styles.cardHeader}>
-            <h3 style={styles.cardTitle}>{details.title}</h3>
-            <span style={styles.time}>{timeAgo(n.createdAt)}</span>
-          </div>
-          <p style={styles.message}>{n.message}</p>
-        </div>
-      </div>
-    );
-  });
-};
 
-const styles = {
-  wrapper: {
-    backgroundColor: "#F9FAFB",
-    minHeight: "100vh",
-    display: "flex",
-    flexDirection: "column",
-  },
-  container: {
-    maxWidth: "900px",
-    width: "100%",
-    margin: "0 auto",
-    padding: "40px 20px",
-    flex: 1,
-  },
-  pageHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: "30px",
-  },
-  title: {
-    fontSize: "32px",
-    fontWeight: "bold",
-    color: "#1F2937",
-    margin: "0 0 8px 0",
-  },
-  subtitle: {
-    color: "#6B7280",
-    fontSize: "16px",
-    margin: 0,
-  },
-  markReadBtn: {
-    background: "none",
-    border: "none",
-    color: "#6B7280",
-    cursor: "pointer",
-    fontSize: "14px",
-    fontWeight: "500",
-  },
-  tabs: {
-    display: "flex",
-    gap: "10px",
-    marginBottom: "24px",
-  },
-  tab: {
+const TabButton = ({ active, onClick, label }) => {
+  const [hover, setHover] = useState(false);
+
+  const baseStyle = {
     padding: "8px 16px",
     borderRadius: "6px",
     border: "1px solid transparent",
-    background: "transparent",
-    color: "#6B7280",
-    cursor: "pointer",
     fontSize: "14px",
     fontWeight: "500",
-    transition: "all 0.2s",
-  },
-  activeTab: {
-    backgroundColor: "#1A1851",
-    color: "white",
-    borderColor: "#1A1851",
-  },
-  list: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "16px",
-  },
-  card: {
-    backgroundColor: "white",
-    borderRadius: "12px",
-    padding: "20px",
-    display: "flex",
-    gap: "20px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-    border: "1px solid #E5E7EB", // Default border
-    alignItems: "flex-start",
-  },
-  iconContainer: {
-    marginTop: "2px",
-    color: "#1A1851",
-  },
-  content: {
-    flex: 1,
-  },
-  cardHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    marginBottom: "4px",
-  },
-  cardTitle: {
-    fontSize: "16px",
-    fontWeight: "600",
-    color: "#111827",
-    margin: 0,
-  },
-  time: {
-    fontSize: "13px",
-    color: "#9CA3AF",
-  },
-  message: {
-    fontSize: "14px",
-    color: "#4B5563",
-    margin: 0,
-    lineHeight: "1.5",
-  },
-  emptyState: {
-    textAlign: "center",
-    padding: "60px 0",
-    color: "#9CA3AF",
-  }
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    backgroundColor: active ? "#1A1851" : (hover ? "#E5E7EB" : "transparent"), // Hover grey, Active Blue
+    color: active ? "white" : "#6B7280",
+  };
+
+  return (
+    <button
+      style={baseStyle}
+      onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      {label}
+    </button>
+  );
+};
+
+const styles = {
+  wrapper: { backgroundColor: "#F9FAFB", minHeight: "100vh", display: "flex", flexDirection: "column" },
+  container: { maxWidth: "900px", width: "100%", margin: "0 auto", padding: "40px 20px", flex: 1 },
+  pageHeader: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "30px" },
+  title: { fontSize: "32px", fontWeight: "bold", color: "#1A1851", margin: "0 0 8px 0" },
+  subtitle: { color: "#6B7280", fontSize: "16px", margin: 0 },
+  markReadBtn: { background: "none", border: "none", color: "#6B7280", cursor: "pointer", fontSize: "14px", fontWeight: "500" },
+  tabs: { display: "flex", gap: "10px", marginBottom: "24px" },
+  
+
+  list: { display: "flex", flexDirection: "column", gap: "16px" },
+  card: { backgroundColor: "white", borderRadius: "12px", padding: "20px", display: "flex", gap: "20px", boxShadow: "0 1px 3px rgba(0,0,0,0.1)", border: "1px solid #E5E7EB", alignItems: "flex-start" },
+  iconContainer: { marginTop: "2px" },
+  content: { flex: 1 },
+  cardHeader: { display: "flex", justifyContent: "space-between", marginBottom: "4px" },
+  cardTitle: { fontSize: "16px", fontWeight: "600", color: "#111827", margin: 0 },
+  time: { fontSize: "13px", color: "#9CA3AF" },
+  message: { fontSize: "14px", color: "#4B5563", margin: 0, lineHeight: "1.5" },
+  emptyState: { textAlign: "center", padding: "60px 0", color: "#9CA3AF" }
 };
 
 export default NotificationsPage;

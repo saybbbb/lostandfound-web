@@ -566,9 +566,99 @@ router.post("/claims", authMiddleware, async (req, res) => {
 });
 
 /* ======================================================
-   NOTIFICATION ROUTES (Add this section near the bottom)
+   LOST ITEM ROUTES (Updated with Notification)
 ======================================================*/
-router.get("/notifications", authMiddleware, getUserNotifications);
-router.put("/notifications/read-all", authMiddleware, markAllAsRead);
+router.post("/lost-items", authMiddleware, async (req, res) => {
+  try {
+    const { name, category, lost_location, description, date_lost, image_url, contact_info } = req.body;
+
+    const newItem = await LostItem.create({
+      name, category, lost_location, description, date_lost, image_url, contact_info,
+      reported_by: req.user.id,
+      approval_status: "pending"
+    });
+
+    // 🔔 NOTIFICATION: Report Submitted
+    await Notification.create({
+        user_id: req.user.id,
+        message: `You reported a lost "${name}". It is currently pending approval.`,
+        type: "report_submitted"
+    });
+
+    res.json({ success: true, item: newItem });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+/* ======================================================
+   FOUND ITEM ROUTES (Updated with Notification)
+======================================================*/
+router.post("/found-items", authMiddleware, async (req, res) => {
+  try {
+    const { name, category, found_location, description, date_found, image_url, contact_info } = req.body;
+
+    const newItem = await FoundItem.create({
+      name, category, found_location, description, date_found, image_url, contact_info,
+      posted_by: req.user.id,
+      approval_status: "pending"
+    });
+
+    // 🔔 NOTIFICATION: Report Submitted
+    await Notification.create({
+        user_id: req.user.id,
+        message: `You reported a found "${name}". It is currently pending approval.`,
+        type: "report_submitted"
+    });
+
+    res.json({ success: true, item: newItem });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+/* ======================================================
+   CLAIM ROUTES (Updated with "Claim Request" Notification)
+======================================================*/
+router.post("/claims", authMiddleware, async (req, res) => {
+  try {
+    const { found_item, proof_description } = req.body;
+
+    const item = await FoundItem.findById(found_item).populate("posted_by"); // Populate to get finder's ID
+    if (!item) return res.status(404).json({ success: false, message: "Item not found" });
+
+    if (item.claim_status === "claimed") {
+      return res.json({ success: false, message: "Item already claimed" });
+    }
+
+    item.claim_status = "claimed";
+    item.claimed_by = req.user.id;
+    item.claimed_at = new Date();
+    item.proof_description = proof_description;
+    item.verified_claim = false;
+
+    await item.save({ validateBeforeSave: false });
+
+    // 🔔 1. NOTIFY THE CLAIMER (User who clicked claim)
+    await Notification.create({
+        user_id: req.user.id,
+        message: `You submitted a claim for "${item.name}". Awaiting staff review.`,
+        type: "status_update"
+    });
+
+    // 🔔 2. NOTIFY THE FINDER (User who posted the item) - "Item Claim Request"
+    if (item.posted_by) {
+        await Notification.create({
+            user_id: item.posted_by._id, 
+            message: `${req.user.name || "Someone"} wants to claim the "${item.name}" you found.`,
+            type: "claim_request"
+        });
+    }
+
+    res.json({ success: true, message: "Item successfully claimed" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
 
 module.exports = router;
