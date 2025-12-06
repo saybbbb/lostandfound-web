@@ -3,8 +3,10 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { IoMailOutline } from "react-icons/io5";
 import { IoLockClosedOutline } from "react-icons/io5";
+import usePageMetadata from "../hooks/usePageMetadata";
 
 function Login() {
+  usePageMetadata("Login", "/images/LAF Logo.png");
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",

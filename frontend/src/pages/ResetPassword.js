@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+import usePageMetadata from "../hooks/usePageMetadata";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { IoLockClosedOutline } from "react-icons/io5";
 
 function ResetPassword() {
+  usePageMetadata("Reset Password", "/images/LAF Logo.png");
   const { token } = useParams();
   const navigate = useNavigate();
   const [password, setPassword] = useState("");

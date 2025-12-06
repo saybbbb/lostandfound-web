@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+import usePageMetadata from "../hooks/usePageMetadata";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { IoCalendarOutline, IoLockClosedOutline, IoMailOutline, IoPersonOutline } from "react-icons/io5";
 
 function Register() {
+  usePageMetadata("Register", "/images/LAF Logo.png");
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",

@@ -1,4 +1,5 @@
 import React from "react";
+import usePageMetadata from "../../hooks/usePageMetadata";
 import Header from "../../components/NavigationBars/Header";
 import Footer from "../../components/NavigationBars/Footer";
 import { 
@@ -13,6 +14,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
+  usePageMetadata("Dashboard", "/images/LAF Logo.png");
 
   const navigate = useNavigate(); 
 

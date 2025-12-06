@@ -51,6 +51,22 @@ router.post("/register", register);
 router.post("/login", login);
 router.get("/protected", authMiddleware, protected);
 
+router.put("/profile/update", authMiddleware, async (req, res) => {
+  try {
+    const { name, phone, profile_photo } = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      { name, phone, profile_photo },
+      { new: true }
+    );
+
+    res.json({ success: true, message: "Profile updated", user: updatedUser });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+});
+
 /* ======================================================
    FORGOT PASSWORD ROUTES
    FORGOT PASSWORD ROUTES
@@ -282,7 +298,7 @@ router.get("/lost-items/my", authMiddleware, async (req, res) => {
 
 router.get("/lost-items-with-status", async (req, res) => {
   try {
-    const lost = await LostItem.find()
+    const lost = await LostItem.find({ approval_status: "approved" })
       .populate("category", "name")
       .populate("reported_by", "name email");
 
@@ -303,16 +319,46 @@ router.get("/lost-items-with-status", async (req, res) => {
 
 
 // ✅ FIXED: GET SINGLE LOST ITEM — correct placement
-router.get("/lost-items/:id", async (req, res) => {
+router.get("/lost-items/:id", authMiddleware, async (req, res) => {
   try {
     const item = await LostItem.findById(req.params.id)
       .populate("category", "name")
       .populate("reported_by", "name email");
 
-    if (!item)
+    if (!item) {
       return res.status(404).json({ success: false, message: "Item not found" });
+    }
+
+    // Allow access only if approved, or if the user is the owner or staff/admin
+    const isOwner = item.reported_by._id.toString() === req.user.id;
+    const isStaffOrAdmin = req.user.role === 'staff' || req.user.role === 'admin';
+
+    if (item.approval_status !== 'approved' && !isOwner && !isStaffOrAdmin) {
+      return res.status(403).json({ success: false, message: "Access denied" });
+    }
 
     res.json({ success: true, item });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// DELETE a user's own lost item
+router.delete("/lost-items/:id", authMiddleware, async (req, res) => {
+  try {
+    const item = await LostItem.findById(req.params.id);
+
+    if (!item) {
+      return res.status(404).json({ success: false, message: "Item not found" });
+    }
+
+    if (item.reported_by.toString() !== req.user.id) {
+      return res.status(403).json({ success: false, message: "Access denied: You are not the owner of this item." });
+    }
+
+    await LostItem.findByIdAndDelete(req.params.id);
+
+    res.json({ success: true, message: "Lost item report cancelled successfully." });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -415,6 +461,11 @@ router.post("/lost-items/report-found", authMiddleware, async (req, res) => {
     if (!lostItem)
       return res.status(404).json({ success: false, message: "Lost item not found" });
 
+    // Prevent user from reporting their own lost item as found
+    if (lostItem.reported_by.toString() === req.user.id) {
+      return res.status(403).json({ success: false, message: "You cannot report your own lost item as found." });
+    }
+
     const foundItem = await FoundItem.create({
       lost_item_id: lost_item_id,
       name: lostItem.name,
@@ -446,19 +497,11 @@ router.post("/claims", authMiddleware, async (req, res) => {
     const item = await FoundItem.findById(found_item);
     if (!item) return res.status(404).json({ success: false, message: "Item not found" });
 
-    if (item.approval_status !== "approved") {
-      return res.json({
-        success: false,
-        message: "Item is waiting for staff approval",
-      });
+    // Prevent user from claiming their own found item
+    if (item.posted_by.toString() === req.user.id) {
+      return res.status(403).json({ success: false, message: "You cannot claim an item you reported." });
     }
 
-    if (item.claim_status === "claimed") {
-      return res.json({
-        success: false,
-        message: "Item already claimed",
-      });
-    }
     // Prevent double claiming
     if (item.claim_status === "claimed") {
       return res.json({ success: false, message: "Item already claimed" });

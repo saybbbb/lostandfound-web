@@ -23,3 +23,6 @@ app.get('/api/ping', (req, res) => {
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Cloudinary Upload
+app.use("/api/upload", require("./routes/upload"));

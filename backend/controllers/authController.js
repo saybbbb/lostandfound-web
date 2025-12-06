@@ -131,8 +131,16 @@ exports.resetPassword = async (req, res) => {
 
 // Protected route example
 exports.protected = async (req, res) => {
-  res.json({
-    success: true,
-    user: req.user
-  });
+  try {
+    const user = await User.findById(req.user.id).select("-password"); // Exclude password
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    res.json({
+      success: true,
+      user: user,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
 };

@@ -3,6 +3,7 @@ import axios from "axios";
 import Header from "../../components/NavigationBars/Header";
 import Footer from "../../components/NavigationBars/Footer";
 import { useNavigate } from "react-router-dom";
+import { uploadToCloudinary } from "../../utils/uploadImage";
 
 function ReportFoundItemPage() {
   const navigate = useNavigate();
@@ -18,9 +19,9 @@ function ReportFoundItemPage() {
     posted_by: localStorage.getItem("userId"),
   });
 
+  const [isUploading, setIsUploading] = useState(false);
   const [categories, setCategories] = useState([]);
 
-  // Load categories
   useEffect(() => {
     axios
       .get("http://localhost:5000/api/auth/categories")
@@ -36,28 +37,30 @@ function ReportFoundItemPage() {
   };
 
   const submitFoundItem = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const res = await axios.post(
-      "http://localhost:5000/api/auth/found-items",
-      form,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/auth/found-items",
+        form,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      if (res.data.success) {
+        navigate("/ReportSuccessPage?type=found");
       }
-    );
-
-    if (res.data.success) {
-      navigate("/ReportSuccessPage?type=found");
+    } catch (err) {
+      console.log(
+        "Submit Found Item ERROR:",
+        err.response?.data || err.message
+      );
+      alert("Error submitting found item");
     }
-  } catch (err) {
-    console.log("Submit Found Item ERROR:", err.response?.data || err.message);
-    alert("Error submitting found item");
-  }
-};
-
+  };
 
   return (
     <>
@@ -69,7 +72,7 @@ function ReportFoundItemPage() {
           Please provide as much detail as possible to help with identification.
         </p>
 
-        {/* Toggle Buttons */}
+        {/* Toggle */}
         <div style={styles.toggleContainer}>
           <button
             style={styles.inactiveToggle}
@@ -83,7 +86,6 @@ function ReportFoundItemPage() {
 
         {/* FORM */}
         <form onSubmit={submitFoundItem} style={styles.form}>
-          {/* ITEM NAME */}
           <label style={styles.label}>Item Name*</label>
           <input
             name="name"
@@ -93,7 +95,6 @@ function ReportFoundItemPage() {
             required
           />
 
-          {/* CATEGORY */}
           <label style={styles.label}>Category*</label>
           <select
             name="category"
@@ -110,7 +111,6 @@ function ReportFoundItemPage() {
             ))}
           </select>
 
-          {/* LOCATION + DATE */}
           <div style={styles.row}>
             <div style={styles.col}>
               <label style={styles.label}>Location*</label>
@@ -136,7 +136,6 @@ function ReportFoundItemPage() {
             </div>
           </div>
 
-          {/* DESCRIPTION */}
           <label style={styles.label}>Description*</label>
           <textarea
             name="description"
@@ -146,18 +145,40 @@ function ReportFoundItemPage() {
             required
           />
 
-          {/* CONTACT INFO */}
           <label style={styles.label}>Contact Information*</label>
           <input
             name="contact_info"
-            placeholder="Your email or phone number"
             value={form.contact_info}
             onChange={handleChange}
             style={styles.input}
             required
           />
 
-          {/* BUTTON ROW */}
+          {/* CLOUDINARY UPLOAD */}
+          <label style={styles.label}>Upload Image</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={async (e) => {
+              const file = e.target.files[0];
+              if (!file) return;
+
+              setIsUploading(true);
+              try {
+                const url = await uploadToCloudinary(file);
+                if (url) {
+                  setForm({ ...form, image_url: url });
+                }
+              } catch (error) {
+                console.error("Upload failed:", error);
+                alert("Image upload failed. Please try again.");
+              } finally {
+                setIsUploading(false);
+              }
+            }}
+            style={styles.input}
+          />
+
           <div style={styles.buttonRow}>
             <button
               type="button"
@@ -167,8 +188,12 @@ function ReportFoundItemPage() {
               Cancel
             </button>
 
-            <button type="submit" style={styles.submitBtn}>
-              Submit Report
+            <button
+              type="submit"
+              style={isUploading ? { ...styles.submitBtn, backgroundColor: "#ccc" } : styles.submitBtn}
+              disabled={isUploading}
+            >
+              {isUploading ? "Uploading..." : "Submit Report"}
             </button>
           </div>
         </form>
