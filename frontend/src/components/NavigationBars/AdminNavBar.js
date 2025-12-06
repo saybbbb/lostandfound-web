@@ -5,7 +5,7 @@ import {
   IoPeopleOutline,
   IoAnalyticsOutline,
   IoPersonOutline,
-  IoLogOutOutline
+  IoLogOutOutline,
 } from "react-icons/io5";
 
 function AdminNavBar() {
@@ -34,21 +34,35 @@ function AdminNavBar() {
   }, [location]);
 
   const navItems = [
-    { icon: IoHomeOutline, page: "home", path: "/AdminDashboard", label: "Home" },
-    { icon: IoPeopleOutline, page: "users", path: "/AdminUser", label: "Users" },
-    { icon: IoAnalyticsOutline, page: "logs", path: "/AdminActivityLogs", label: "Activity Logs" },
+    {
+      icon: IoHomeOutline,
+      page: "home",
+      path: "/AdminDashboard",
+      label: "Home",
+    },
+    {
+      icon: IoPeopleOutline,
+      page: "users",
+      path: "/AdminUser",
+      label: "Users",
+    },
+    {
+      icon: IoAnalyticsOutline,
+      page: "logs",
+      path: "/AdminActivityLogs",
+      label: "Activity Logs",
+    },
   ];
 
   return (
     <div style={styles.sidebar}>
       <div style={styles.sidebarContent}>
-
         {/* TOP CLUSTER (LOGO + NAVIGATION) */}
         <div style={styles.topCluster}>
           {/* LOGO */}
           <div style={styles.logoContainer}>
             <img
-              src="/images/LAFLogog"
+              src="/images/LAFLogo.png"
               alt="Logo"
               style={styles.logo}
               onClick={() => navigate("/AdminDashboard")}
@@ -91,12 +105,15 @@ function AdminNavBar() {
           </div>
 
           {/* LOGOUT BUTTON */}
-          <div className="logout-button" style={styles.logoutButton} onClick={logout}>
+          <div
+            className="logout-button"
+            style={styles.logoutButton}
+            onClick={logout}
+          >
             <IoLogOutOutline size={18} color="#ffffff" />
             <span style={styles.logoutText}>Logout</span>
           </div>
         </div>
-
       </div>
     </div>
   );
@@ -153,7 +170,8 @@ const styles = {
     width: "110px",
     height: "110px",
     borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(248,194,46,0.25) 0%, transparent 70%)",
+    background:
+      "radial-gradient(circle, rgba(248,194,46,0.25) 0%, transparent 70%)",
   },
 
   /* NAVIGATION */

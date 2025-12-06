@@ -76,7 +76,7 @@ npm install --save-dev concurrently nodemon
 Run the following commands inside the **backend** directory:
 
 ```bash
-npm install express cors mongoose dotenv nodemailer
+npm install express cors mongoose dotenv nodemailer cloudinary multer multer-storage-cloudinary
 ```
 
 ## Frontend Installation

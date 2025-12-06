@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const Notification = require("../models/Notification");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
@@ -127,6 +128,37 @@ exports.resetPassword = async (req, res) => {
   await user.save();
 
   res.json({ message: "Password has been reset successfully." });
+};
+
+/* ======================================================
+   NOTIFICATION LOGIC (Added from Step 2)
+======================================================*/
+
+// GET: Fetch notifications for the currently logged-in user
+exports.getUserNotifications = async (req, res) => {
+  try {
+    const notifications = await Notification.find({ user_id: req.user.id })
+      .sort({ createdAt: -1 }) // Newest first
+      .limit(10); // Limit to 10 items
+
+    res.json({ success: true, notifications });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+// PUT: Mark all notifications as read
+exports.markAllAsRead = async (req, res) => {
+  try {
+    await Notification.updateMany(
+      { user_id: req.user.id, is_read: false },
+      { is_read: true }
+    );
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Error updating status" });
+  }
 };
 
 // Protected route example

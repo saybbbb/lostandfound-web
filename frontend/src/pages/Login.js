@@ -13,8 +13,6 @@ function Login() {
     password: "",
   });
 
-  
-
   // =========================
   //     INLINE STYLES
   // =========================
@@ -165,7 +163,7 @@ function Login() {
       filter: "drop-shadow(0 8px 18px rgba(0,0,0,0.5))",
     },
 
-    adminTextLink:{
+    adminTextLink: {
       color: "#white",
       marginTop: "4px",
       textDecoration: "underline",
@@ -179,43 +177,48 @@ function Login() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const res = await axios.post(
-      "http://localhost:5000/api/auth/login",
-      formData
-    );
+    e.preventDefault();
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        formData
+      );
 
-    if (res.data.token) {
+      if (res.data.token) {
+        // Store the token
+        localStorage.setItem("token", res.data.token);
 
-      // Store the token
-      localStorage.setItem("token", res.data.token);
+        // Decode JWT to extract role + ID
+        const decoded = JSON.parse(atob(res.data.token.split(".")[1]));
 
-      // Decode JWT to extract role + ID
-      const decoded = JSON.parse(atob(res.data.token.split(".")[1]));
+        // ⭐⭐⭐ STORE USER ID HERE (FIX) ⭐⭐⭐
+        localStorage.setItem("userId", decoded.id || decoded._id);
 
-      // ⭐⭐⭐ STORE USER ID HERE (FIX) ⭐⭐⭐
-      localStorage.setItem("userId", decoded.id || decoded._id);
+        // Store role
+        localStorage.setItem("role", decoded.role);
 
-      // Store role
-      localStorage.setItem("role", decoded.role);
+        localStorage.setItem("userName", decoded.name);
 
-      // Redirect user based on role
-      if (decoded.role === "admin") {
-        navigate("/AdminDashboard");
-      } 
-      else if (decoded.role === "staff") {
-        navigate("/StaffDashboard");
-      } 
-      else {
-        navigate("/Dashboard");
+        if (decoded.role === "staff") {
+          localStorage.setItem("staffName", decoded.name);
+        }
+        if (decoded.role === "admin") {
+          localStorage.setItem("adminName", decoded.name);
+        }
+
+        // Redirect user based on role
+        if (decoded.role === "admin") {
+          navigate("/AdminDashboard");
+        } else if (decoded.role === "staff") {
+          navigate("/StaffDashboard");
+        } else {
+          navigate("/Dashboard");
+        }
       }
+    } catch (err) {
+      alert(err.response?.data?.message || "Login failed");
     }
-
-  } catch (err) {
-    alert(err.response?.data?.message || "Login failed");
-  }
-};
+  };
 
   return (
     <div style={styles.wrapper}>
@@ -224,56 +227,52 @@ function Login() {
       <div style={styles.container}>
         {/* LEFT LOGIN CARD */}
         <div style={styles.card}>
-          <h2 style={styles.title}>Sign in to your <br /> Account</h2>
+          <h2 style={styles.title}>
+            Sign in to your <br /> Account
+          </h2>
 
           <p style={styles.subtitle}>
             Don’t have an account?{" "}
-            <Link to="/register" style={styles.link}>Sign Up</Link>
+            <Link to="/register" style={styles.link}>
+              Sign Up
+            </Link>
           </p>
 
-      {/* EMAIL INPUT */}
-      <div style={styles.inputWrapper}>
-        <IoMailOutline style={{ fontSize: 20, marginRight: 10 }} />
-        <input
-          style={styles.input}
-          name="email"
-          placeholder="Email Address"
-          onChange={handleChange}
-        />
-      </div>
+          {/* EMAIL INPUT */}
+          <div style={styles.inputWrapper}>
+            <IoMailOutline style={{ fontSize: 20, marginRight: 10 }} />
+            <input
+              style={styles.input}
+              name="email"
+              placeholder="Email Address"
+              onChange={handleChange}
+            />
+          </div>
 
-      {/* PASSWORD INPUT */}
-      <div style={styles.inputWrapper}>
-        <IoLockClosedOutline style={{ fontSize: 20, marginRight: 10 }} />
-        <input
-          style={styles.input}
-          type="password"
-          name="password"
-          placeholder="Password"
-          onChange={handleChange}
-        />
-      </div>
+          {/* PASSWORD INPUT */}
+          <div style={styles.inputWrapper}>
+            <IoLockClosedOutline style={{ fontSize: 20, marginRight: 10 }} />
+            <input
+              style={styles.input}
+              type="password"
+              name="password"
+              placeholder="Password"
+              onChange={handleChange}
+            />
+          </div>
 
           <br></br>
           <Link to="/recovery" style={styles.forgot}>
-  Forgot Your Password?
-</Link>
-            
-          
+            Forgot Your Password?
+          </Link>
 
           <button style={styles.button} onClick={handleSubmit}>
             Log In
           </button>
-
-      
         </div>
 
         {/* RIGHT LOGO */}
-        <img
-          src="/images/LAFLogo.png"
-          alt=""
-          style={styles.logo}
-        />
+        <img src="/images/LAFLogo.png" alt="" style={styles.logo} />
       </div>
     </div>
   );

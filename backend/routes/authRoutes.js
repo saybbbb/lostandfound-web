@@ -1,17 +1,17 @@
 const express = require("express");
 const router = express.Router();
 
+const { register, login, protected } = require("../controllers/authController");
 const {
-  register,
-  login,
-  protected,
   forgotPassword,
   resetPassword,
 } = require("../controllers/authController");
-
+const {
+  getUserNotifications,
+  markAllAsRead,
+} = require("../controllers/authController");
 const adminController = require("../controllers/adminController");
 const staffController = require("../controllers/staffController");
-
 
 const User = require("../models/User");
 const LostItem = require("../models/LostItem");
@@ -115,10 +115,14 @@ router.put(
       const MAIN_ADMIN_ID = "64f5e9b8c1234567890abcd";
 
       if (req.params.id === MAIN_ADMIN_ID) {
-        return res.status(403).json({ message: "Cannot change main admin role" });
+        return res
+          .status(403)
+          .json({ message: "Cannot change main admin role" });
       }
       if (req.params.id === MAIN_ADMIN_ID) {
-        return res.status(403).json({ message: "Cannot change main admin role" });
+        return res
+          .status(403)
+          .json({ message: "Cannot change main admin role" });
       }
 
       if (!["user", "staff", "admin"].includes(role.toLowerCase())) {
@@ -166,7 +170,6 @@ router.delete(
     }
   }
 );
-
 
 /* ======================================================
    STAFF ROUTES
@@ -274,8 +277,11 @@ router.post("/lost-items", authMiddleware, async (req, res) => {
 router.get("/lost-items", async (req, res) => {
   try {
     const foundReports = await FoundItem.find().select("lost_item_id");
-    const foundIDs = foundReports.map(f => f.lost_item_id);
-    const items = await LostItem.find({ approval_status: "approved", _id: { $nin: foundIDs  }})
+    const foundIDs = foundReports.map((f) => f.lost_item_id);
+    const items = await LostItem.find({
+      approval_status: "approved",
+      _id: { $nin: foundIDs },
+    })
       .populate("category", "name")
       .populate("reported_by", "name email");
 
@@ -287,8 +293,10 @@ router.get("/lost-items", async (req, res) => {
 
 router.get("/lost-items/my", authMiddleware, async (req, res) => {
   try {
-    const items = await LostItem.find({ reported_by: req.user.id })
-      .populate("category", "name");
+    const items = await LostItem.find({ reported_by: req.user.id }).populate(
+      "category",
+      "name"
+    );
 
     res.json({ success: true, items });
   } catch (err) {
@@ -302,23 +310,21 @@ router.get("/lost-items-with-status", async (req, res) => {
       .populate("category", "name")
       .populate("reported_by", "name email");
 
-    const foundReports = await FoundItem.find()
-      .select("lost_item_id approval_status");
+    const foundReports = await FoundItem.find().select(
+      "lost_item_id approval_status"
+    );
 
     res.json({
       success: true,
       lost,
-      foundReports
+      foundReports,
     });
-
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 });
 
-
-
-// ✅ FIXED: GET SINGLE LOST ITEM — correct placement
+//  FIXED: GET SINGLE LOST ITEM — correct placement
 router.get("/lost-items/:id", authMiddleware, async (req, res) => {
   try {
     const item = await LostItem.findById(req.params.id)
@@ -326,14 +332,17 @@ router.get("/lost-items/:id", authMiddleware, async (req, res) => {
       .populate("reported_by", "name email");
 
     if (!item) {
-      return res.status(404).json({ success: false, message: "Item not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Item not found" });
     }
 
     // Allow access only if approved, or if the user is the owner or staff/admin
     const isOwner = item.reported_by._id.toString() === req.user.id;
-    const isStaffOrAdmin = req.user.role === 'staff' || req.user.role === 'admin';
+    const isStaffOrAdmin =
+      req.user.role === "staff" || req.user.role === "admin";
 
-    if (item.approval_status !== 'approved' && !isOwner && !isStaffOrAdmin) {
+    if (item.approval_status !== "approved" && !isOwner && !isStaffOrAdmin) {
       return res.status(403).json({ success: false, message: "Access denied" });
     }
 
@@ -349,16 +358,26 @@ router.delete("/lost-items/:id", authMiddleware, async (req, res) => {
     const item = await LostItem.findById(req.params.id);
 
     if (!item) {
-      return res.status(404).json({ success: false, message: "Item not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Item not found" });
     }
 
     if (item.reported_by.toString() !== req.user.id) {
-      return res.status(403).json({ success: false, message: "Access denied: You are not the owner of this item." });
+      return res
+        .status(403)
+        .json({
+          success: false,
+          message: "Access denied: You are not the owner of this item.",
+        });
     }
 
     await LostItem.findByIdAndDelete(req.params.id);
 
-    res.json({ success: true, message: "Lost item report cancelled successfully." });
+    res.json({
+      success: true,
+      message: "Lost item report cancelled successfully.",
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -373,7 +392,7 @@ router.get("/found-items", async (req, res) => {
   try {
     const items = await FoundItem.find({
       approval_status: "approved",
-      verified_claim: false
+      verified_claim: false,
     })
       .populate("category", "name")
       .populate("posted_by", "name email");
@@ -391,7 +410,9 @@ router.get("/found-items/:id", async (req, res) => {
       .populate("posted_by", "name email");
 
     if (!item)
-      return res.status(404).json({ success: false, message: "Item not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Item not found" });
 
     res.json({ success: true, item });
   } catch (err) {
@@ -401,7 +422,7 @@ router.get("/found-items/:id", async (req, res) => {
 
 router.get("/found-reports/all", async (req, res) => {
   try {
-    const reports = await FoundItem.find()  // <-- return ALL found reports (approved + pending)
+    const reports = await FoundItem.find() // <-- return ALL found reports (approved + pending)
       .select("lost_item_id approval_status");
 
     res.json({ success: true, reports });
@@ -409,7 +430,6 @@ router.get("/found-reports/all", async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
-
 
 // CREATE FOUND ITEM
 router.post("/found-items", authMiddleware, async (req, res) => {
@@ -435,7 +455,7 @@ router.post("/found-items", authMiddleware, async (req, res) => {
       approval_status: "pending",
       posted_by: req.user.id,
       contact_info,
-      approval_status: "pending"
+      approval_status: "pending",
     });
 
     res.json({ success: true, item: newItem });
@@ -454,16 +474,23 @@ router.post("/lost-items/report-found", authMiddleware, async (req, res) => {
       description,
       date_found,
       image_url,
-      contact_info
+      contact_info,
     } = req.body;
 
     const lostItem = await LostItem.findById(lost_item_id);
     if (!lostItem)
-      return res.status(404).json({ success: false, message: "Lost item not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Lost item not found" });
 
     // Prevent user from reporting their own lost item as found
     if (lostItem.reported_by.toString() === req.user.id) {
-      return res.status(403).json({ success: false, message: "You cannot report your own lost item as found." });
+      return res
+        .status(403)
+        .json({
+          success: false,
+          message: "You cannot report your own lost item as found.",
+        });
     }
 
     const foundItem = await FoundItem.create({
@@ -495,11 +522,19 @@ router.post("/claims", authMiddleware, async (req, res) => {
     const { found_item, proof_description } = req.body;
 
     const item = await FoundItem.findById(found_item);
-    if (!item) return res.status(404).json({ success: false, message: "Item not found" });
+    if (!item)
+      return res
+        .status(404)
+        .json({ success: false, message: "Item not found" });
 
     // Prevent user from claiming their own found item
     if (item.posted_by.toString() === req.user.id) {
-      return res.status(403).json({ success: false, message: "You cannot claim an item you reported." });
+      return res
+        .status(403)
+        .json({
+          success: false,
+          message: "You cannot claim an item you reported.",
+        });
     }
 
     // Prevent double claiming
@@ -512,7 +547,7 @@ router.post("/claims", authMiddleware, async (req, res) => {
     item.claimed_by = req.user.id;
     item.claimed_at = new Date();
     item.proof_description = proof_description;
-    item.verified_claim = false;  // pending staff decision
+    item.verified_claim = false; // pending staff decision
 
     await item.save({ validateBeforeSave: false });
     // Save claim data
@@ -529,5 +564,11 @@ router.post("/claims", authMiddleware, async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+
+/* ======================================================
+   NOTIFICATION ROUTES (Add this section near the bottom)
+======================================================*/
+router.get("/notifications", authMiddleware, getUserNotifications);
+router.put("/notifications/read-all", authMiddleware, markAllAsRead);
 
 module.exports = router;

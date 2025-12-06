@@ -24,6 +24,8 @@ import AdminUser from "./pages/Admin/AdminUser";
 import AdminActivityLogs from "./pages/Admin/AdminActivityLogs";
 
 import Settings from "./pages/User/Settings";
+import NotificationsPage from "./pages/User/NotificationsPage";
+
 
 function App() {
   return (
@@ -174,6 +176,14 @@ function App() {
               <LostReportPage />
             </ProtectedRoute>
           }
+        />
+        <Route 
+          path="/Notifications" 
+          element={
+            <ProtectedRoute>
+              <NotificationsPage />
+            </ProtectedRoute>
+          } 
         />
 
         <Route
