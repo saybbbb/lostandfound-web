@@ -440,13 +440,7 @@ router.post("/lost-items/report-found", authMiddleware, async (req, res) => {
 /* ======================================================
    USER CLAIM FOUND ITEM
 ======================================================*/
-/* ======================================================
-   CLAIMING FOUND ITEMS
-======================================================*/
 
-router.post("/claims", authMiddleware, async (req, res) => {
-  try {
-    const { found_item, proof_description } = req.body;
 router.post("/claims", authMiddleware, async (req, res) => {
   try {
     const { found_item, proof_description } = req.body;
