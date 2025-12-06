@@ -6,7 +6,7 @@ import { IoNotificationsOutline, IoAddCircleOutline, IoEyeOutline } from "react-
 import axios from "axios";
 
 function StaffDashboard() {
-  usePageMetadata("Staff Dashboard", "/images/LAF Logo.png");
+  usePageMetadata("Staff Dashboard", "/images/LAFLogo.png");
   const [counts, setCounts] = useState({ lost: 0, found: 0, claims: 0 });
   const [recentItems, setRecentItems] = useState([]);
   const [time, setTime] = useState(new Date());

@@ -6,7 +6,7 @@ import { IoLockClosedOutline } from "react-icons/io5";
 import usePageMetadata from "../hooks/usePageMetadata";
 
 function Login() {
-  usePageMetadata("Login", "/images/LAF Logo.png");
+  usePageMetadata("Login", "/images/LAFLogo.png");
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
@@ -270,7 +270,7 @@ function Login() {
 
         {/* RIGHT LOGO */}
         <img
-          src="/images/LAF Logo.png"
+          src="/images/LAFLogo.png"
           alt=""
           style={styles.logo}
         />

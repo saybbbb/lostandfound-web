@@ -5,7 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { IoMailOutline } from "react-icons/io5"; 
 
 function Recovery() {
-  usePageMetadata("Account Recovery", "/images/LAF Logo.png");
+  usePageMetadata("Account Recovery", "/images/LAFLogopng");
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
@@ -168,7 +168,7 @@ function Recovery() {
         </div>
 
         {/* RIGHT LOGO */}
-        <img src="/images/LAF Logo.png" style={styles.logo} />
+        <img src="/images/LAFLogo.png" style={styles.logo} />
       </div>
     </div>
   );

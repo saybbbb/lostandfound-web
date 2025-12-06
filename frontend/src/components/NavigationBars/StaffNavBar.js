@@ -49,7 +49,7 @@ function StaffNavBar() {
         {/* LOGO */}
         <div style={styles.logoContainer}>
           <img 
-            src="/images/LAF Logo.png" 
+            src="/images/LAFLogo.png" 
             alt="Logo" 
             style={styles.logo}
             onClick={() => navigate("/StaffDashboard")}

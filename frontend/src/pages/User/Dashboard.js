@@ -14,7 +14,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
-  usePageMetadata("Dashboard", "/images/LAF Logo.png");
+  usePageMetadata("Dashboard", "/images/LAFLogo.png");
 
   const navigate = useNavigate(); 
 

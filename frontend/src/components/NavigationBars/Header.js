@@ -79,7 +79,7 @@ function Header() {
   return (
     <header style={styles.header}>
       <div style={styles.logo}>
-        <img src="/images/LAF Logo.png" alt="Logo" style={styles.headerLogo} />
+        <img src="/images/LAFLogo.png" alt="Logo" style={styles.headerLogo} />
         <div>USTP LOST AND FOUND</div>
       </div>
 

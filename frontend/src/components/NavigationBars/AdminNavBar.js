@@ -48,7 +48,7 @@ function AdminNavBar() {
           {/* LOGO */}
           <div style={styles.logoContainer}>
             <img
-              src="/images/LAF Logo.png"
+              src="/images/LAFLogog"
               alt="Logo"
               style={styles.logo}
               onClick={() => navigate("/AdminDashboard")}

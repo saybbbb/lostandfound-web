@@ -5,7 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { IoLockClosedOutline } from "react-icons/io5";
 
 function ResetPassword() {
-  usePageMetadata("Reset Password", "/images/LAF Logo.png");
+  usePageMetadata("Reset Password", "/images/LAFLogopng");
   const { token } = useParams();
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
@@ -163,7 +163,7 @@ function ResetPassword() {
         </div>
 
         {/* RIGHT SIDE LOGO */}
-        <img src="/images/LAF Logo.png" alt="Logo" style={styles.logo} />
+        <img src="/images/LAFLogong" alt="Logo" style={styles.logo} />
 
       </div>
     </div>

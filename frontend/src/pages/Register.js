@@ -5,7 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { IoCalendarOutline, IoLockClosedOutline, IoMailOutline, IoPersonOutline } from "react-icons/io5";
 
 function Register() {
-  usePageMetadata("Register", "/images/LAF Logo.png");
+  usePageMetadata("Register", "/images/LAFLogo.png");
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
@@ -203,7 +203,7 @@ function Register() {
         </div>
 
         {/* RIGHT LOGO */}
-        <img src="/images/LAF Logo.png" style={styles.logo} />
+        <img src="/images/LAFLogo.png" style={styles.logo} />
       </div>
     </div>
   );
