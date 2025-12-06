@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../components/NavigationBars/Header";
 import Footer from "../../components/NavigationBars/Footer";
+import { uploadToCloudinary } from "../../utils/uploadImage";
 
 function LostReportPage() {
   const navigate = useNavigate();
@@ -22,10 +23,12 @@ function LostReportPage() {
     const loadItem = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/auth/lost-items/${id}`
+          `http://localhost:5000/api/auth/lost-items/${id}`,
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          }
         );
 
-        // ❗ If backend returns null or undefined item → avoid infinite loading
         if (!res.data || !res.data.item) {
           alert("Lost item not found.");
           navigate("/LostItemPage");
@@ -47,7 +50,7 @@ function LostReportPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // SUBMIT FOUND REPORT (Mirrors how claim works)
+  // SUBMIT FOUND REPORT
   const submitFoundReport = async (e) => {
     e.preventDefault();
 
@@ -85,7 +88,9 @@ function LostReportPage() {
           Found Item Report
         </h1>
 
-        <p>You are reporting that you found: <strong>{lostItem.name}</strong></p>
+        <p>
+          You are reporting that you found: <strong>{lostItem.name}</strong>
+        </p>
 
         <form
           onSubmit={submitFoundReport}
@@ -100,16 +105,38 @@ function LostReportPage() {
           <input name="found_location" required onChange={handleChange} />
 
           <label>Date Found*</label>
-          <input type="date" name="date_found" required onChange={handleChange} />
+          <input
+            type="date"
+            name="date_found"
+            required
+            onChange={handleChange}
+          />
 
           <label>Description*</label>
-          <textarea name="description" required onChange={handleChange}></textarea>
+          <textarea
+            name="description"
+            required
+            onChange={handleChange}
+          ></textarea>
 
           <label>Contact Info*</label>
           <input name="contact_info" required onChange={handleChange} />
 
-          <label>Image URL (optional)</label>
-          <input name="image_url" onChange={handleChange} />
+          {/* CLOUDINARY UPLOAD */}
+          <label>Upload Image (optional)</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={async (e) => {
+              const file = e.target.files[0];
+              if (!file) return;
+
+              const url = await uploadToCloudinary(file);
+              if (url) {
+                setForm({ ...form, image_url: url });
+              }
+            }}
+          />
 
           <button
             type="submit"

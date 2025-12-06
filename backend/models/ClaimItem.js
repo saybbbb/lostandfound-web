@@ -6,7 +6,6 @@ const ClaimItemSchema = new mongoose.Schema(
     lost_item: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "LostItem",
-        required: true,
     },
 
     // ERD: The found item matched with the claim

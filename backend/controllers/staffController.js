@@ -1,5 +1,6 @@
 const LostItem = require("../models/LostItem");
 const FoundItem = require("../models/FoundItem");
+const ClaimItem = require("../models/ClaimItem");
 const Notification = require("../models/Notification");
 
 
@@ -106,6 +107,25 @@ exports.verifyClaim = async (req, res) => {
     item.status = "returned"; // Optional but consistent with your earlier logic
 
     await item.save({ validateBeforeSave: false });
+
+    // Create a new ClaimItem
+    await ClaimItem.create({
+      lost_item: item.lost_item_id,
+      found_item: item._id,
+      claimant: item.claimed_by,
+      reviewed_by: req.user.id,
+      proof_description: item.proof_description,
+      claim_status: "approved",
+      date_reviewed: new Date(),
+    });
+
+    // Delete the FoundItem
+    await FoundItem.findByIdAndDelete(itemId);
+
+    // If there was a matching LostItem, delete it as well
+    if (item.lost_item_id) {
+      await LostItem.findByIdAndDelete(item.lost_item_id);
+    }
 
     // Send notification
     try {

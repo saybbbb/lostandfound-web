@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
+import usePageMetadata from "../../hooks/usePageMetadata";
 import StaffNavBar from "../../components/NavigationBars/StaffNavBar";
 import Footer from "../../components/NavigationBars/Footer";
 import { IoNotificationsOutline, IoAddCircleOutline, IoEyeOutline } from "react-icons/io5";
 import axios from "axios";
 
 function StaffDashboard() {
+  usePageMetadata("Staff Dashboard", "/images/LAF Logo.png");
   const [counts, setCounts] = useState({ lost: 0, found: 0, claims: 0 });
   const [recentItems, setRecentItems] = useState([]);
   const [time, setTime] = useState(new Date());

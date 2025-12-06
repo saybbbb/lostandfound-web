@@ -1,9 +1,11 @@
 import React, { useState } from "react";
+import usePageMetadata from "../hooks/usePageMetadata";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { IoMailOutline } from "react-icons/io5"; 
 
 function Recovery() {
+  usePageMetadata("Account Recovery", "/images/LAF Logo.png");
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",

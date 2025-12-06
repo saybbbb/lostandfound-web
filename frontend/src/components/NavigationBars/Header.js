@@ -1,30 +1,66 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { IoNotificationsOutline, IoPersonCircleOutline } from "react-icons/io5";
-import ProfileBar from "./ProfileBar";
-import NotificationBar from "./NotificationBar";
+import axios from "axios";
 
 function Header() {
   const navigate = useNavigate();
 
+  // KEEPING YOUR EXISTING PROFILE LOGIC
+  const [profilePhoto, setProfilePhoto] = useState(null);
   const [openProfile, setOpenProfile] = useState(false);
-  const [openNotif, setOpenNotif] = useState(false);
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    navigate("/");
+  // CHANGED: Replaced 'openNotif' with 'unreadCount' for the badge
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // KEEPING YOUR EXISTING USER FETCH LOGIC
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get(
+          "http://localhost:5000/api/auth/protected",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setProfilePhoto(res.data.user.profile_photo);
+      } catch (err) {
+        console.log("Error loading user data for header", err);
+      }
+    };
+    fetchUserData();
+  }, []);
+
+  // ADDED: Fetch Unread Notification Count
+  const fetchUnreadCount = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const res = await axios.get("http://localhost:5000/api/auth/notifications", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.data.success) {
+        // Count only unread items
+        setUnreadCount(res.data.notifications.filter(n => !n.is_read).length);
+      }
+    } catch (err) {
+      console.log("Error fetching notifications");
+    }
   };
 
-  const toggleProfile = () => {
-    // clicking icon should toggle; ensure notif panel closes
-    setOpenNotif(false);
-    setOpenProfile((s) => !s);
-  };
+  // ADDED: Poll for notifications every 15 seconds
+  useEffect(() => {
+    fetchUnreadCount();
+    const interval = setInterval(fetchUnreadCount, 15000);
+    return () => clearInterval(interval);
+  }, []);
 
-  const toggleNotif = () => {
-    // clicking icon should toggle; ensure profile panel closes
-    setOpenProfile(false);
-    setOpenNotif((s) => !s);
+  // CHANGED: Navigate to page instead of toggling popup
+  const handleNotificationClick = () => {
+    setOpenProfile(false); // Close profile if open
+    navigate("/Notifications");
   };
 
   const styles = {
@@ -36,7 +72,7 @@ function Header() {
       padding: "10px 24px",
       backgroundColor: "#1a1851",
       position: "relative",
-      zIndex: 100, // ensure header sits above page content but below menus
+      zIndex: 100,
     },
     logo: {
       fontWeight: "bold",
@@ -60,13 +96,29 @@ function Header() {
       alignItems: "center",
     },
     linkItem: { cursor: "pointer" },
-    iconBtn: { cursor: "pointer", display: "flex", alignItems: "center" },
+    iconBtn: { 
+      cursor: "pointer", 
+      display: "flex", 
+      alignItems: "center",
+      position: "relative" // Added for badge positioning
+    },
+    // ADDED: Badge style
+    badge: {
+      position: "absolute",
+      top: -5,
+      right: -5,
+      backgroundColor: "#EF4444",
+      color: "white",
+      fontSize: "11px",
+      borderRadius: "50%",
+      width: "18px",
+      height: "18px",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      border: "1px solid #1a1851"
+    }
   };
-
-  const notifications = [
-    { message: "Your claim was approved.", time: "Nov 29, 2025 14:12" },
-    { message: "A new item reported near ICT.", time: "Nov 28, 2025 09:01" },
-  ];
 
   return (
     <header style={styles.header}>
@@ -76,41 +128,47 @@ function Header() {
       </div>
 
       <div style={styles.links}>
-        <div style={styles.linkItem} onClick={() => navigate("/Dashboard")}>Home</div>
-        <div style={styles.linkItem} onClick={() => navigate("/LostItemPage")}>Lost Items</div>
-        <div style={styles.linkItem} onClick={() => navigate("/FoundItemPage")}>Found Items</div>
-        <div style={styles.linkItem} onClick={() => navigate("/ReportLostItemPage")}>Report Item</div>
+        <div style={styles.linkItem} onClick={() => navigate("/Dashboard")}>
+          Home
+        </div>
+        <div style={styles.linkItem} onClick={() => navigate("/LostItemPage")}>
+          Lost Items
+        </div>
+        <div style={styles.linkItem} onClick={() => navigate("/FoundItemPage")}>
+          Found Items
+        </div>
+        <div
+          style={styles.linkItem}
+          onClick={() => navigate("/ReportLostItemPage")}
+        >
+          Report Item
+        </div>
 
+        {/* UPDATED: Notification Bell */}
         <div
           aria-label="Notifications"
-          onClick={toggleNotif}
+          onClick={handleNotificationClick} // Updated handler
           style={styles.iconBtn}
         >
           <IoNotificationsOutline size={26} color="white" />
+          {/* ADDED: Badge */}
+          {unreadCount > 0 && <div style={styles.badge}>{unreadCount}</div>}
         </div>
 
         <div
           aria-label="Profile"
-          onClick={toggleProfile}
+          onClick={() => navigate("/settings")}
           style={styles.iconBtn}
         >
-          <IoPersonCircleOutline size={26} color="white" />
+          {profilePhoto ? (
+            <img src={profilePhoto} alt="Profile" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover' }} />
+          ) : (
+            <IoPersonCircleOutline size={28} color="white" />
+          )}
         </div>
       </div>
-
-      {/* Panels */}
-      <NotificationBar
-        open={openNotif}
-        onClose={() => setOpenNotif(false)}
-        notifications={notifications}
-      />
-
-      <ProfileBar
-        open={openProfile}
-        onClose={() => setOpenProfile(false)}
-        onNavigate={(path) => navigate(path)}
-        onLogout={logout}
-      />
+      
+      {/* REMOVED: <NotificationBar /> panel */}
     </header>
   );
 }
