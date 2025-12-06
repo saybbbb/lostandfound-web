@@ -20,6 +20,9 @@ import ReportSuccessPage from "./pages/User/ReportSuccessPage";
 import ClaimFoundItemPage from "./pages/User/ClaimFoundItemPage";
 import StaffClaimReview from "./pages/Staff/StaffClaimReview";
 import LostReportPage from "./pages/User/LostReportPage";
+import AdminUser from "./pages/Admin/AdminUser";
+import AdminActivityLogs from "./pages/Admin/AdminActivityLogs";
+
 import Settings from "./pages/User/Settings";
 import NotificationsPage from "./pages/User/NotificationsPage";
 
@@ -135,14 +138,27 @@ function App() {
           }
         />
 
-        <Route
-          path="/AdminDashboard"
-          element={
-            <AdminProtectedRoute>
-              <AdminDashboard />
-            </AdminProtectedRoute>
-          }
-        />
+        <Route 
+        path="/AdminDashboard" 
+        element={
+          <AdminProtectedRoute>
+          <AdminDashboard />
+          </AdminProtectedRoute>}/>
+
+        <Route 
+        path="/AdminUser" 
+        element={
+          <AdminProtectedRoute>
+          <AdminUser />
+          </AdminProtectedRoute>}/>
+
+        <Route 
+        path="/AdminActivityLogs" 
+        element={
+          <AdminProtectedRoute>
+          <AdminActivityLogs />
+          </AdminProtectedRoute>}/>
+
 
         <Route
           path="/StaffClaimReview/:claimId"

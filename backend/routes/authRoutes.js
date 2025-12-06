@@ -1,11 +1,23 @@
 const express = require("express");
 const router = express.Router();
 
+<<<<<<< HEAD
 const { register, login, protected } = require("../controllers/authController");
 const { forgotPassword, resetPassword } = require("../controllers/authController");
 const { getUserNotifications,markAllAsRead} = require("../controllers/userController");
+=======
+const {
+  register,
+  login,
+  protected,
+  forgotPassword,
+  resetPassword,
+} = require("../controllers/authController");
+
+>>>>>>> a317928cf6ea0d6739f0f2748be91f8988ac50d3
 const adminController = require("../controllers/adminController");
 const staffController = require("../controllers/staffController");
+
 
 const User = require("../models/User");
 const LostItem = require("../models/LostItem");
@@ -41,7 +53,6 @@ const authorizeRole = (requiredRole) => {
 /* ======================================================
    AUTH ROUTES
 ======================================================*/
-
 router.post("/register", register);
 router.post("/login", login);
 router.get("/protected", authMiddleware, protected);
@@ -64,6 +75,7 @@ router.put("/profile/update", authMiddleware, async (req, res) => {
 
 /* ======================================================
    FORGOT PASSWORD ROUTES
+   FORGOT PASSWORD ROUTES
 ======================================================*/
 
 router.post("/forgot-password", forgotPassword);
@@ -73,6 +85,7 @@ router.post("/reset-password/:token", resetPassword);
    ADMIN ROUTES
 ======================================================*/
 
+// GET ALL USERS
 router.get(
   "/admin/users",
   authMiddleware,
@@ -80,6 +93,23 @@ router.get(
   adminController.getUsers
 );
 
+// ADMIN DASHBOARD
+router.get(
+  "/admin/dashboard",
+  authMiddleware,
+  authorizeRole("admin"),
+  adminController.getDashboardStats
+);
+
+// ADMIN ACTIVITY LOGS (FIXED)
+router.get(
+  "/admin/activity-logs",
+  authMiddleware,
+  authorizeRole("admin"),
+  adminController.getActivityLogs
+);
+
+// UPDATE USER ROLE
 router.put(
   "/admin/set-role/:id",
   authMiddleware,
@@ -87,12 +117,19 @@ router.put(
   async (req, res) => {
     try {
       const { role } = req.body;
+
       const MAIN_ADMIN_ID = "64f5e9b8c1234567890abcd";
 
       if (req.params.id === MAIN_ADMIN_ID) {
         return res.status(403).json({ message: "Cannot change main admin role" });
       }
+      if (req.params.id === MAIN_ADMIN_ID) {
+        return res.status(403).json({ message: "Cannot change main admin role" });
+      }
 
+      if (!["user", "staff", "admin"].includes(role.toLowerCase())) {
+        return res.status(400).json({ message: "Invalid role" });
+      }
       if (!["user", "staff", "admin"].includes(role.toLowerCase())) {
         return res.status(400).json({ message: "Invalid role" });
       }
@@ -105,10 +142,43 @@ router.put(
   }
 );
 
+// ======================================================
+// DELETE USER (ADMIN ONLY)
+// ======================================================
+router.delete(
+  "/admin/delete/:id",
+  authMiddleware,
+  authorizeRole("admin"),
+  async (req, res) => {
+    try {
+      const userId = req.params.id;
+
+      // Prevent deletion of main admin account
+      const MAIN_ADMIN_ID = "64f5e9b8c1234567890abcd";
+      if (userId === MAIN_ADMIN_ID) {
+        return res.status(403).json({ message: "Cannot delete main admin" });
+      }
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      await User.findByIdAndDelete(userId);
+
+      res.json({ success: true, message: "User deleted successfully" });
+    } catch (err) {
+      res.status(500).json({ message: "Server error", error: err.message });
+    }
+  }
+);
+
+
 /* ======================================================
-   STAFF APPROVAL ROUTES
+   STAFF ROUTES
 ======================================================*/
 
+// GET PENDING LOST/FOUND POSTS
 router.get(
   "/staff/pending",
   authMiddleware,
@@ -116,6 +186,7 @@ router.get(
   staffController.getPendingPosts
 );
 
+// APPROVE ITEM
 router.post(
   "/staff/approve",
   authMiddleware,
@@ -123,6 +194,7 @@ router.post(
   staffController.approveItem
 );
 
+// REJECT ITEM
 router.post(
   "/staff/reject",
   authMiddleware,
@@ -130,6 +202,7 @@ router.post(
   staffController.rejectItem
 );
 
+// GET PENDING CLAIMS
 router.get(
   "/staff/claims/pending",
   authMiddleware,
@@ -137,6 +210,7 @@ router.get(
   staffController.getPendingClaims
 );
 
+// VERIFY CLAIM
 router.post(
   "/staff/claims/verify",
   authMiddleware,
@@ -144,6 +218,7 @@ router.post(
   staffController.verifyClaim
 );
 
+// REJECT CLAIM
 router.post(
   "/staff/claims/reject",
   authMiddleware,
@@ -165,10 +240,10 @@ router.get("/categories", async (req, res) => {
 });
 
 /* ======================================================
-   LOST ITEM ROUTES
+   LOST ITEMS ROUTES
 ======================================================*/
 
-// CREATE LOST ITEM
+// USER CREATES LOST ITEM
 router.post("/lost-items", authMiddleware, async (req, res) => {
   try {
     const {
@@ -179,7 +254,7 @@ router.post("/lost-items", authMiddleware, async (req, res) => {
       date_lost,
       image_url,
       reported_by,
-      contact_info
+      contact_info,
     } = req.body;
 
     const newItem = await LostItem.create({
@@ -191,7 +266,7 @@ router.post("/lost-items", authMiddleware, async (req, res) => {
       image_url,
       reported_by: req.user.id,
       contact_info,
-      approval_status: "pending"
+      approval_status: "pending",
     });
 
     res.json({ success: true, item: newItem });
@@ -201,7 +276,7 @@ router.post("/lost-items", authMiddleware, async (req, res) => {
   }
 });
 
-// GET ALL APPROVED LOST ITEMS
+// GET APPROVED LOST ITEMS
 router.get("/lost-items", async (req, res) => {
   try {
     const foundReports = await FoundItem.find().select("lost_item_id");
@@ -315,7 +390,6 @@ router.get("/found-items", async (req, res) => {
   }
 });
 
-
 router.get("/found-items/:id", async (req, res) => {
   try {
     const item = await FoundItem.findById(req.params.id)
@@ -354,7 +428,6 @@ router.post("/found-items", authMiddleware, async (req, res) => {
       date_found,
       image_url,
       posted_by,
-      contact_info
     } = req.body;
 
     const newItem = await FoundItem.create({
@@ -364,6 +437,8 @@ router.post("/found-items", authMiddleware, async (req, res) => {
       description,
       date_found,
       image_url,
+      posted_by,
+      approval_status: "pending",
       posted_by: req.user.id,
       contact_info,
       approval_status: "pending"
@@ -446,6 +521,14 @@ router.post("/claims", authMiddleware, async (req, res) => {
     item.verified_claim = false;  // pending staff decision
 
     await item.save({ validateBeforeSave: false });
+    // Save claim data
+    item.claim_status = "claimed";
+    item.claimed_by = req.user.id;
+    item.claimed_at = new Date();
+    item.proof_description = proof_description;
+    item.verified_claim = false;
+
+    await item.save();
 
     res.json({ success: true, message: "Item successfully claimed" });
   } catch (err) {

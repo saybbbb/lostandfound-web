@@ -2,160 +2,155 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import usePageMetadata from "../../hooks/usePageMetadata";
 import axios from "axios";
-import Footer from "../../components/NavigationBars/Footer";
 import AdminNavBar from "../../components/NavigationBars/AdminNavBar";
-import { IoSearchOutline } from "react-icons/io5";
+import Footer from "../../components/NavigationBars/Footer";
 
 function AdminDashboard() {
   usePageMetadata("Admin Dashboard", "/images/LAF Logo.png");
-  const navigate = useNavigate();
-  const [message, setMessage] = useState("");
-  const [users, setUsers] = useState([]);
-  const [search, setSearch] = useState("");
   const [adminName, setAdminName] = useState("");
+  const [counts, setCounts] = useState({
+    lost: 0,
+    found: 0,
+    claimed: 0,
+    pendingToday: 0,
+    verifiedToday: 0,
+    totalUsers: 0,
+    totalStaff: 0,
+    totalAdmin: 0,
+  });
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    navigate("/admin");
+  const [time, setTime] = useState("");
+  const [date, setDate] = useState("");
+
+  useEffect(() => {
+    const admin = JSON.parse(localStorage.getItem("admin"));
+    if (admin?.name) setAdminName(admin.name);
+
+    // If a token exists, set it as the default Authorization header for axios
+    const token = localStorage.getItem("token");
+    if (token) {
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    }
+
+    updateTime();
+    fetchDashboardData();
+  }, []);
+
+  const updateTime = () => {
+    const now = new Date();
+
+    setTime(
+      now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    );
+
+    setDate(
+      now.toLocaleDateString("en-US", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    );
   };
 
-  // Fetch users
-  const fetchUsers = async () => {
+  const fetchDashboardData = async () => {
     try {
       const token = localStorage.getItem("token");
 
-      const usersRes = await axios.get(
-        "http://localhost:5000/api/auth/admin/users",
+      const res = await axios.get(
+        "http://localhost:5000/api/auth/admin/dashboard",
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
-      setUsers(usersRes.data.users || []);
+      const data = res.data;
+
+      setCounts({
+        lost: data.lost,
+        found: data.found,
+        claimed: data.claimed,
+        pendingToday: data.pendingToday,
+        verifiedToday: data.verifiedToday,
+        totalUsers: data.totalStudents,
+        totalStaff: data.totalStaff,
+        totalAdmin: data.totalAdmin,
+      });
+
+      setError(null);
     } catch (err) {
-      console.log(err);
-    }
-  };
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) throw new Error("No token found");
-
-        // Validate token
-        const res = await axios.get(
-          "http://localhost:5000/api/auth/protected",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        
-        setAdminName(res.data.user?.name || "Admin");
-
-        fetchUsers();
-      } catch (err) {
-        alert("Unauthorized. Please login again.");
-        navigate("/admin");
-      }
-    };
-
-    load();
-  }, [navigate]);
-
-  // Update role
-  const updateRole = async (userId, newRole) => {
-    try {
-      const token = localStorage.getItem("token");
-
-      await axios.put(
-        `http://localhost:5000/api/auth/admin/set-role/${userId}`,
-        { role: newRole },
-        { headers: { Authorization: `Bearer ${token}` } }
+      console.error("ADMIN DASHBOARD ERROR:", err?.response?.data || err);
+      setError(
+        err?.response?.data?.message ||
+        err?.response?.data ||
+        err.message ||
+        "Admin dashboard failed."
       );
-
-      alert("Role updated successfully!");
-      fetchUsers();
-    } catch (err) {
-      alert("Failed to update role.");
-      console.error(err);
     }
   };
 
-  // Search filter
-  const filteredUsers = users.filter((u) =>
-    u.name.toLowerCase().includes(search.toLowerCase())
-  );
+
+  const [error, setError] = useState(null);
 
   return (
     <div style={styles.container}>
-
-      {/* ⬇️ LEFT SIDEBAR */}
       <AdminNavBar />
 
-      {/* ⬇️ MAIN CONTENT */}
-      <div style={styles.mainContent}>
+      <div style={styles.main}>
+        {/* HEADER */}
         <div style={styles.header}>
-          <p>MANAGE USER ACCOUNTS</p>
-          <div style={styles.buttonContainer}>
-            <button style={styles.button}>User</button>
-            <button style={styles.button}>Admin</button>
-            <button style={styles.button}>Unverified</button>
+          <div>
+            <h1 style={styles.greeting}>
+              Good day, {adminName || "Admin"}!
+            </h1>
+            <p style={styles.subtext}>System Overview & Analytics</p>
+          </div>
+
+          <div style={styles.timeBox}>
+            <div style={styles.timeIcon}>☀️</div>
+            <div style={styles.timeText}>
+              <strong>{time}</strong>
+              <br />
+              <span style={{ fontSize: 13 }}>TODAY:</span>
+              <br />
+              <strong>{date.toUpperCase()}</strong>
+            </div>
           </div>
         </div>
 
-        <div style={styles.body}>
-          <div style={styles.searchbar}>
-            <input
-              type="text"
-              placeholder="Search User Here..."
-              style={styles.searchinput}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            <IoSearchOutline size={20} color="#ffffff" style={styles.searchicon} />
+        {error && (
+          <div style={{ margin: '10px 0', padding: 12, backgroundColor: '#ffe6e6', color: '#900', borderRadius: 6 }}>
+            Error loading dashboard: {String(error)}
           </div>
+        )}
 
-          <div style={styles.userList}>
-            {filteredUsers.length > 0 ? (
-              <table style={styles.table}>
-                <thead>
-                  <tr>
-                    <th style={styles.th}>Index</th>
-                    <th style={styles.th}>Full Name</th>
-                    <th style={styles.th}>Email</th>
-                    <th style={styles.th}>Birthday</th>
-                    <th style={styles.th}>Role</th>
-                  </tr>
-                </thead>
+        {/* TOP STAT CARDS */}
+        <div style={styles.cardGrid}>
+          <div style={styles.card}>Total Lost Items<br /><b>{counts.lost}</b></div>
+          <div style={styles.card}>Total Found Items<br /><b>{counts.found}</b></div>
+          <div style={styles.card}>Total Claimed Items<br /><b>{counts.claimed}</b></div>
+          <div style={styles.card}>Pending Today<br /><b>{counts.pendingToday}</b></div>
+          <div style={styles.card}>Verified Today<br /><b>{counts.verifiedToday}</b></div>
+        </div>
 
-                <tbody>
-                  {filteredUsers.map((u, index) => (
-                    <tr key={u._id || index}>
-                      <td style={styles.td}>{index + 1}</td>
-                      <td style={styles.td}>{u.name}</td>
-                      <td style={styles.td}>{u.email}</td>
-                      <td style={styles.td}>{u.birthday ? new Date(u.birthday).toISOString().split("T")[0] : "—"}</td>
+        {/* USER COUNTS */}
+        <div style={styles.cardGrid}>
+          <div style={styles.bigCard}>TOTAL USERS<br /><span style={styles.bigNumber}>{counts.totalUsers}</span></div>
+          <div style={styles.bigCard}>TOTAL STAFF<br /><span style={styles.bigNumber}>{counts.totalStaff}</span></div>
+          <div style={styles.bigCard}>TOTAL ADMIN<br /><span style={styles.bigNumber}>{counts.totalAdmin}</span></div>
+        </div>
 
-                      <td style={styles.td}>
-                        <select
-                          value={u.role?.toLowerCase() || ""}
-                          style={styles.select}
-                          onChange={(e) => updateRole(u._id, e.target.value)}
-                        >
-                          <option value="user">User</option>
-                          <option value="staff">Staff</option>
-                          <option value="admin">Admin</option>
-                        </select>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <p>No users found.</p>
-            )}
+        {/* POST ACTIVITY */}
+        <div style={styles.section}>
+          <h3 style={styles.sectionTitle}>Post Statistics Overview</h3>
+
+          <div style={styles.cardGrid}>
+            <div style={styles.chartCard}>Lost<br /><b>{counts.lost}</b></div>
+            <div style={styles.chartCard}>Found<br /><b>{counts.found}</b></div>
+            <div style={styles.chartCard}>Claimed<br /><b>{counts.claimed}</b></div>
+            <div style={styles.chartCard}>Pending Today<br /><b>{counts.pendingToday}</b></div>
+            <div style={styles.chartCard}>Verified Today<br /><b>{counts.verifiedToday}</b></div>
           </div>
         </div>
 
@@ -165,92 +160,111 @@ function AdminDashboard() {
   );
 }
 
-// Styles (same as before)
+/* ===========================================
+   💄 RESPONSIVE, NON-COMPRESSING, CLEAN STYLES
+=========================================== */
+
 const styles = {
   container: {
-    fontFamily: "Arial",
     display: "flex",
-    minHeight: "100vh",
-  },
-  mainContent: {
-    flex: 6,
     backgroundColor: "#F5F5F5",
+    minHeight: "100vh",
+    fontFamily: "Arial",
   },
-  header: {
-    fontSize: "30px",
-    fontWeight: "bold",
-    marginBottom: "20px",
+
+  main: {
+    flexGrow: 1,
+    paddingLeft: "230px",    // match your AdminNavBar width
     display: "flex",
     flexDirection: "column",
-    gap: "10px",
-    color: "#1A1851",
-    backgroundColor: "#FFFFFF",
-    padding: "20px",
-    minHeight: "15vh",
+    minHeight: "100vh",
   },
-  buttonContainer: {
+
+  header: {
     display: "flex",
-    flexDirection: "row",
-    gap: "10px",
-  },
-  button: {
-    padding: "8px 16px",
-    backgroundColor: "#1A1851",
-    color: "#FFFFFF",
-    fontSize: "16px",
-    fontWeight: "bold",
-    cursor: "pointer",
-    borderRadius: "6px",
-  },
-  body: {
-    backgroundColor: "#ffffff",
-    padding: "20px",
-    minHeight: "65vh",
-    marginBottom: "20px",
-  },
-  searchbar: {
-    display: "flex",
+    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: "20px",
+    flexWrap: "wrap",
+    gap: 20,
+    marginBottom: 25,
   },
-  searchinput: {
-    flex: 1,
-    fontSize: 16,
-    padding: "10px",
-    width: "90%",
-    border: "1px solid #ccc",
-    borderRadius: "6px 0px 6px 6px",
+
+  greeting: {
+    margin: 0,
+    fontSize: 30,
+    fontWeight: "bold",
+    color: "#1B1B3A",
   },
-  searchicon: {
-    backgroundColor: "#1A1851",
-    alignSelf: "center",
-    padding: "10px",
-    cursor: "pointer",
-    borderRadius: "0px 6px 6px 0px",
+
+  subtext: {
+    marginTop: -5,
+    color: "#6A6A6A",
   },
-  userList: {
-    width: "100%",
-    overflowX: "auto",
+
+  timeBox: {
+    display: "flex",
+    gap: 10,
+    padding: "15px 20px",
+    backgroundColor: "white",
+    borderRadius: 8,
+    boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+    minWidth: 160,
+    justifyContent: "center",
   },
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-    border: "2px solid #ccc",
-    padding: "10px",
+
+  timeIcon: { fontSize: 32 },
+  timeText: { fontSize: 16, lineHeight: "20px" },
+
+  /** RESPONSIVE CARD GRID */
+  cardGrid: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 15,
+    marginBottom: 20,
   },
-  th: {
-    border: "1px solid #ccc",
-    padding: "10px",
-    backgroundColor: "#f4f4f4",
-    textAlign: "left",
+
+  card: {
+    flex: "1 1 200px",
+    backgroundColor: "white",
+    padding: 15,
+    borderRadius: 8,
+    textAlign: "center",
+    boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
+  },
+
+  bigCard: {
+    flex: "1 1 250px",
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 8,
+    textAlign: "center",
+    boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
+  },
+
+  bigNumber: {
+    fontSize: 40,
     fontWeight: "bold",
   },
-  td: {
-    border: "1px solid #ccc",
-    padding: "8px",
+
+  section: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 8,
+    boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
   },
-  select: {
-    padding: "4px",
+
+  sectionTitle: {
+    marginBottom: 12,
+    fontWeight: "bold",
+    fontSize: 18,
+  },
+
+  chartCard: {
+    flex: "1 1 180px",
+    padding: 15,
+    backgroundColor: "#EFEFEF",
+    borderRadius: 8,
+    textAlign: "center",
   },
 };
 
