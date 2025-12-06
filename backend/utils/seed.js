@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 require("dotenv").config();
 
-const Category = require("./models/Category");
+const Category = require("../models/Category");
 
 async function seedCategories() {
     try {
