@@ -38,12 +38,15 @@ function Header() {
     if (!token) return;
 
     try {
-      const res = await axios.get("http://localhost:5000/api/auth/notifications", {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await axios.get(
+        "http://localhost:5000/api/auth/notifications",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       if (res.data.success) {
         // Count only unread items
-        setUnreadCount(res.data.notifications.filter(n => !n.is_read).length);
+        setUnreadCount(res.data.notifications.filter((n) => !n.is_read).length);
       }
     } catch (err) {
       console.log("Error fetching notifications");
@@ -96,11 +99,11 @@ function Header() {
       alignItems: "center",
     },
     linkItem: { cursor: "pointer" },
-    iconBtn: { 
-      cursor: "pointer", 
-      display: "flex", 
+    iconBtn: {
+      cursor: "pointer",
+      display: "flex",
       alignItems: "center",
-      position: "relative" // Added for badge positioning
+      position: "relative", // Added for badge positioning
     },
     // ADDED: Badge style
     badge: {
@@ -116,14 +119,14 @@ function Header() {
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      border: "1px solid #1a1851"
-    }
+      border: "1px solid #1a1851",
+    },
   };
 
   return (
     <header style={styles.header}>
       <div style={styles.logo}>
-        <img src="/images/LAF Logo.png" alt="Logo" style={styles.headerLogo} />
+        <img src="/images/LAFLogo.png" alt="Logo" style={styles.headerLogo} />
         <div>USTP LOST AND FOUND</div>
       </div>
 
@@ -161,13 +164,22 @@ function Header() {
           style={styles.iconBtn}
         >
           {profilePhoto ? (
-            <img src={profilePhoto} alt="Profile" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover' }} />
+            <img
+              src={profilePhoto}
+              alt="Profile"
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: "50%",
+                objectFit: "cover",
+              }}
+            />
           ) : (
             <IoPersonCircleOutline size={28} color="white" />
           )}
         </div>
       </div>
-      
+
       {/* REMOVED: <NotificationBar /> panel */}
     </header>
   );

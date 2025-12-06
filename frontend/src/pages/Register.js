@@ -2,10 +2,15 @@ import React, { useState } from "react";
 import usePageMetadata from "../hooks/usePageMetadata";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-import { IoCalendarOutline, IoLockClosedOutline, IoMailOutline, IoPersonOutline } from "react-icons/io5";
+import {
+  IoCalendarOutline,
+  IoLockClosedOutline,
+  IoMailOutline,
+  IoPersonOutline,
+} from "react-icons/io5";
 
 function Register() {
-  usePageMetadata("Register", "/images/LAF Logo.png");
+  usePageMetadata("Register", "/images/LAFLogo.png");
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
@@ -142,14 +147,15 @@ function Register() {
       <div style={styles.overlay}></div>
 
       <div style={styles.container}>
-
         {/* LEFT CARD */}
         <div style={styles.card}>
           <h2 style={styles.title}>Create Account</h2>
 
           <p style={styles.subtitle}>
             Already have an Account?{" "}
-            <Link to="/" style={styles.link}>Login</Link>
+            <Link to="/" style={styles.link}>
+              Login
+            </Link>
           </p>
 
           {/* FULL NAME */}
@@ -203,7 +209,7 @@ function Register() {
         </div>
 
         {/* RIGHT LOGO */}
-        <img src="/images/LAF Logo.png" style={styles.logo} />
+        <img src="/images/LAFLogo.png" style={styles.logo} />
       </div>
     </div>
   );

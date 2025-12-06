@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { 
-  IoHomeOutline, 
-  IoPersonOutline, 
-  IoCubeOutline, 
+import {
+  IoHomeOutline,
+  IoPersonOutline,
+  IoCubeOutline,
   IoCheckmarkCircleOutline,
   IoHourglassOutline,
-  IoLogOutOutline
+  IoLogOutOutline,
 } from "react-icons/io5";
 
 function StaffNavBar() {
@@ -37,10 +37,30 @@ function StaffNavBar() {
   }, [location]);
 
   const navItems = [
-    { icon: IoHomeOutline, page: "home", path: "/StaffDashboard", label: "Dashboard" },
-    { icon: IoCheckmarkCircleOutline, page: "lost", path: "/StaffLostApproval", label: "Lost" },
-    { icon: IoCubeOutline, page: "found", path: "/StaffFoundApproval", label: "Found" },
-    { icon: IoHourglassOutline, page: "claims", path: "/StaffPendingClaim", label: "Claims" },
+    {
+      icon: IoHomeOutline,
+      page: "home",
+      path: "/StaffDashboard",
+      label: "Dashboard",
+    },
+    {
+      icon: IoCheckmarkCircleOutline,
+      page: "lost",
+      path: "/StaffLostApproval",
+      label: "Lost",
+    },
+    {
+      icon: IoCubeOutline,
+      page: "found",
+      path: "/StaffFoundApproval",
+      label: "Found",
+    },
+    {
+      icon: IoHourglassOutline,
+      page: "claims",
+      path: "/StaffPendingClaim",
+      label: "Claims",
+    },
   ];
 
   return (
@@ -48,9 +68,9 @@ function StaffNavBar() {
       <div style={styles.sidebarContent}>
         {/* LOGO */}
         <div style={styles.logoContainer}>
-          <img 
-            src="/images/LAF Logo.png" 
-            alt="Logo" 
+          <img
+            src="/images/LAFLogo.png"
+            alt="Logo"
             style={styles.logo}
             onClick={() => navigate("/StaffDashboard")}
           />
@@ -89,11 +109,15 @@ function StaffNavBar() {
             </div>
             <p style={styles.accountName}>{adminName}</p>
           </div>
-          <div 
+          <div
             style={styles.logoutButton}
             onClick={logout}
-            onMouseEnter={(e) => e.currentTarget.style.transform = "translateX(-3px)"}
-            onMouseLeave={(e) => e.currentTarget.style.transform = "translateX(0)"}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.transform = "translateX(-3px)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.transform = "translateX(0)")
+            }
           >
             <IoLogOutOutline size={18} color="#ffffff" />
             <span style={styles.logoutText}>Logout</span>
@@ -146,7 +170,8 @@ const styles = {
     width: "110px",
     height: "110px",
     borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(248, 194, 46, 0.2) 0%, transparent 70%)",
+    background:
+      "radial-gradient(circle, rgba(248, 194, 46, 0.2) 0%, transparent 70%)",
     zIndex: 1,
   },
   navSection: {
@@ -201,7 +226,8 @@ const styles = {
     left: "-100%",
     width: "100%",
     height: "100%",
-    background: "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent)",
+    background:
+      "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent)",
     transition: "left 0.6s ease",
   },
   accountSection: {
@@ -254,7 +280,7 @@ const styles = {
 
 // Add hover effects
 const addHoverEffects = () => {
-  const style = document.createElement('style');
+  const style = document.createElement("style");
   style.textContent = `
     .nav-item:hover .nav-hover-effect {
       left: 100%;

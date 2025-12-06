@@ -2,33 +2,33 @@ import React from "react";
 import usePageMetadata from "../../hooks/usePageMetadata";
 import Header from "../../components/NavigationBars/Header";
 import Footer from "../../components/NavigationBars/Footer";
-import { 
-  IoCloseCircleOutline, 
+import {
+  IoCloseCircleOutline,
   IoSearchOutline,
-  IoFileTrayFullOutline, 
-  IoAlertCircle, 
+  IoFileTrayFullOutline,
+  IoAlertCircle,
   IoCopyOutline,
-  IoAlbumsOutline
+  IoAlbumsOutline,
 } from "react-icons/io5";
 
 import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
-  usePageMetadata("Dashboard", "/images/LAF Logo.png");
+  usePageMetadata("Dashboard", "/images/LAFLogo.png");
 
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const styles = {
     dashboardcontainer: {
       alignItems: "center",
       padding: "20px 40px",
-      margin:"0px 20px",
+      margin: "0px 20px",
       minHeight: "65vh",
     },
     text: {
       textAlign: "center",
       color: "#64748B",
-      margin:"0px 0px 40px 0px",
+      margin: "0px 0px 40px 0px",
     },
     systemName: {
       fontSize: 50,
@@ -40,12 +40,12 @@ function Dashboard() {
       flexDirection: "row",
       justifyContent: "center",
       gap: "10px",
-      margin: "10px 0px"
+      margin: "10px 0px",
     },
     buttonBlue: {
-      display:"flex",
-      justifyContent:"center",
-      alignItems:"center",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
       gap: "10px",
       padding: "20px 20px",
       backgroundColor: "#1A1851",
@@ -56,9 +56,9 @@ function Dashboard() {
       fontSize: "16px",
     },
     button: {
-      display:"flex",
-      justifyContent:"center",
-      alignItems:"center",  
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
       gap: "10px",
       padding: "20px 20px",
       backgroundColor: "#FFFFFF",
@@ -84,24 +84,23 @@ function Dashboard() {
       width: "30%",
       textAlign: "center",
       boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-      cursor: "pointer",  // add cursor for clickable card
+      cursor: "pointer", // add cursor for clickable card
     },
-    cardTitle:{
-      fontWight:"bold",
-      fontSize:25,
+    cardTitle: {
+      fontWight: "bold",
+      fontSize: 25,
     },
-    cardText:{
-      fontSize:20,
-      color:"#64748B",
+    cardText: {
+      fontSize: 20,
+      color: "#64748B",
       margin: "0px 10px",
     },
   };
 
   return (
     <div>
+      <Header />
 
-     <Header />
-     
       <div style={styles.dashboardcontainer}>
         <div style={{ flex: 5 }}>
           <div style={styles.text}>
@@ -111,19 +110,17 @@ function Dashboard() {
           </div>
 
           <div style={styles.buttonContainer}>
-            <button 
-            style={styles.buttonBlue}
-            onClick={() => navigate("/ReportLostItemPage")}
+            <button
+              style={styles.buttonBlue}
+              onClick={() => navigate("/ReportLostItemPage")}
             >
-            <IoAlertCircle 
-            size={40} 
-            color="#EF4444" 
-            />
-            Report an Item
+              <IoAlertCircle size={40} color="#EF4444" />
+              Report an Item
             </button>
-            
-            <button style={styles.button}
-            onClick={() => navigate("/FoundItemPage")}
+
+            <button
+              style={styles.button}
+              onClick={() => navigate("/FoundItemPage")}
             >
               <IoFileTrayFullOutline size={40} color="#64748B" />
               Search Found Items
@@ -131,8 +128,8 @@ function Dashboard() {
           </div>
 
           <div style={styles.cardContainer}>
-
-            <div style={styles.card}
+            <div
+              style={styles.card}
               onClick={() => navigate("/ReportLostItemPage")}
             >
               <IoAlertCircle size={50} color="#EF4444" />
@@ -140,31 +137,23 @@ function Dashboard() {
               <p style={styles.cardText}>Report your lost item here.</p>
             </div>
 
-            <div 
-              style={styles.card}
-              onClick={() => navigate("/FoundItemPage")}
-            >
+            <div style={styles.card} onClick={() => navigate("/FoundItemPage")}>
               <IoSearchOutline size={50} color="black" />
               <h5 style={styles.cardTitle}>Found Item</h5>
               <p style={styles.cardText}>Find found items here.</p>
             </div>
 
             {/* FIXED CLICKABLE CARD */}
-            <div 
-              style={styles.card}
-              onClick={() => navigate("/LostItemPage")}
-            >
+            <div style={styles.card} onClick={() => navigate("/LostItemPage")}>
               <IoAlbumsOutline size={50} color="black" />
               <h5 style={styles.cardTitle}>Lost Item</h5>
               <p style={styles.cardText}>Find your lost items here.</p>
             </div>
-
           </div>
         </div>
       </div>
 
       <Footer />
-
     </div>
   );
 }

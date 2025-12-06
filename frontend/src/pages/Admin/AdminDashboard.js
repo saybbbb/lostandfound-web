@@ -6,7 +6,7 @@ import AdminNavBar from "../../components/NavigationBars/AdminNavBar";
 import Footer from "../../components/NavigationBars/Footer";
 
 function AdminDashboard() {
-  usePageMetadata("Admin Dashboard", "/images/LAF Logo.png");
+  usePageMetadata("Admin Dashboard", "/images/LAFLogo.png");
   const [adminName, setAdminName] = useState("");
   const [counts, setCounts] = useState({
     lost: 0,
@@ -39,9 +39,7 @@ function AdminDashboard() {
   const updateTime = () => {
     const now = new Date();
 
-    setTime(
-      now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-    );
+    setTime(now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
 
     setDate(
       now.toLocaleDateString("en-US", {
@@ -83,13 +81,12 @@ function AdminDashboard() {
       console.error("ADMIN DASHBOARD ERROR:", err?.response?.data || err);
       setError(
         err?.response?.data?.message ||
-        err?.response?.data ||
-        err.message ||
-        "Admin dashboard failed."
+          err?.response?.data ||
+          err.message ||
+          "Admin dashboard failed."
       );
     }
   };
-
 
   const [error, setError] = useState(null);
 
@@ -101,9 +98,7 @@ function AdminDashboard() {
         {/* HEADER */}
         <div style={styles.header}>
           <div>
-            <h1 style={styles.greeting}>
-              Good day, {adminName || "Admin"}!
-            </h1>
+            <h1 style={styles.greeting}>Good day, {adminName || "Admin"}!</h1>
             <p style={styles.subtext}>System Overview & Analytics</p>
           </div>
 
@@ -120,25 +115,65 @@ function AdminDashboard() {
         </div>
 
         {error && (
-          <div style={{ margin: '10px 0', padding: 12, backgroundColor: '#ffe6e6', color: '#900', borderRadius: 6 }}>
+          <div
+            style={{
+              margin: "10px 0",
+              padding: 12,
+              backgroundColor: "#ffe6e6",
+              color: "#900",
+              borderRadius: 6,
+            }}
+          >
             Error loading dashboard: {String(error)}
           </div>
         )}
 
         {/* TOP STAT CARDS */}
         <div style={styles.cardGrid}>
-          <div style={styles.card}>Total Lost Items<br /><b>{counts.lost}</b></div>
-          <div style={styles.card}>Total Found Items<br /><b>{counts.found}</b></div>
-          <div style={styles.card}>Total Claimed Items<br /><b>{counts.claimed}</b></div>
-          <div style={styles.card}>Pending Today<br /><b>{counts.pendingToday}</b></div>
-          <div style={styles.card}>Verified Today<br /><b>{counts.verifiedToday}</b></div>
+          <div style={styles.card}>
+            Total Lost Items
+            <br />
+            <b>{counts.lost}</b>
+          </div>
+          <div style={styles.card}>
+            Total Found Items
+            <br />
+            <b>{counts.found}</b>
+          </div>
+          <div style={styles.card}>
+            Total Claimed Items
+            <br />
+            <b>{counts.claimed}</b>
+          </div>
+          <div style={styles.card}>
+            Pending Today
+            <br />
+            <b>{counts.pendingToday}</b>
+          </div>
+          <div style={styles.card}>
+            Verified Today
+            <br />
+            <b>{counts.verifiedToday}</b>
+          </div>
         </div>
 
         {/* USER COUNTS */}
         <div style={styles.cardGrid}>
-          <div style={styles.bigCard}>TOTAL USERS<br /><span style={styles.bigNumber}>{counts.totalUsers}</span></div>
-          <div style={styles.bigCard}>TOTAL STAFF<br /><span style={styles.bigNumber}>{counts.totalStaff}</span></div>
-          <div style={styles.bigCard}>TOTAL ADMIN<br /><span style={styles.bigNumber}>{counts.totalAdmin}</span></div>
+          <div style={styles.bigCard}>
+            TOTAL USERS
+            <br />
+            <span style={styles.bigNumber}>{counts.totalUsers}</span>
+          </div>
+          <div style={styles.bigCard}>
+            TOTAL STAFF
+            <br />
+            <span style={styles.bigNumber}>{counts.totalStaff}</span>
+          </div>
+          <div style={styles.bigCard}>
+            TOTAL ADMIN
+            <br />
+            <span style={styles.bigNumber}>{counts.totalAdmin}</span>
+          </div>
         </div>
 
         {/* POST ACTIVITY */}
@@ -146,11 +181,31 @@ function AdminDashboard() {
           <h3 style={styles.sectionTitle}>Post Statistics Overview</h3>
 
           <div style={styles.cardGrid}>
-            <div style={styles.chartCard}>Lost<br /><b>{counts.lost}</b></div>
-            <div style={styles.chartCard}>Found<br /><b>{counts.found}</b></div>
-            <div style={styles.chartCard}>Claimed<br /><b>{counts.claimed}</b></div>
-            <div style={styles.chartCard}>Pending Today<br /><b>{counts.pendingToday}</b></div>
-            <div style={styles.chartCard}>Verified Today<br /><b>{counts.verifiedToday}</b></div>
+            <div style={styles.chartCard}>
+              Lost
+              <br />
+              <b>{counts.lost}</b>
+            </div>
+            <div style={styles.chartCard}>
+              Found
+              <br />
+              <b>{counts.found}</b>
+            </div>
+            <div style={styles.chartCard}>
+              Claimed
+              <br />
+              <b>{counts.claimed}</b>
+            </div>
+            <div style={styles.chartCard}>
+              Pending Today
+              <br />
+              <b>{counts.pendingToday}</b>
+            </div>
+            <div style={styles.chartCard}>
+              Verified Today
+              <br />
+              <b>{counts.verifiedToday}</b>
+            </div>
           </div>
         </div>
 
@@ -174,7 +229,7 @@ const styles = {
 
   main: {
     flexGrow: 1,
-    paddingLeft: "230px",    // match your AdminNavBar width
+    paddingLeft: "230px", // match your AdminNavBar width
     display: "flex",
     flexDirection: "column",
     minHeight: "100vh",

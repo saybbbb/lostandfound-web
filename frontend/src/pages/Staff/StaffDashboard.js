@@ -2,11 +2,15 @@ import React, { useEffect, useState } from "react";
 import usePageMetadata from "../../hooks/usePageMetadata";
 import StaffNavBar from "../../components/NavigationBars/StaffNavBar";
 import Footer from "../../components/NavigationBars/Footer";
-import { IoNotificationsOutline, IoAddCircleOutline, IoEyeOutline } from "react-icons/io5";
+import {
+  IoNotificationsOutline,
+  IoAddCircleOutline,
+  IoEyeOutline,
+} from "react-icons/io5";
 import axios from "axios";
 
 function StaffDashboard() {
-  usePageMetadata("Staff Dashboard", "/images/LAF Logo.png");
+  usePageMetadata("Staff Dashboard", "/images/LAFLogo.png");
   const [counts, setCounts] = useState({ lost: 0, found: 0, claims: 0 });
   const [recentItems, setRecentItems] = useState([]);
   const [time, setTime] = useState(new Date());
@@ -31,11 +35,11 @@ function StaffDashboard() {
     try {
       const [postsRes, claimsRes] = await Promise.all([
         axios.get("http://localhost:5000/api/auth/staff/pending", {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         }),
         axios.get("http://localhost:5000/api/auth/staff/claims/pending", {
-          headers: { Authorization: `Bearer ${token}` }
-        })
+          headers: { Authorization: `Bearer ${token}` },
+        }),
       ]);
 
       const lost = postsRes.data.lost || [];
@@ -55,9 +59,13 @@ function StaffDashboard() {
 
       // Recent activity
       const combined = [
-        ...lost.map(i => ({ ...i, type: "Lost Report", color: "#F65164" })),
-        ...found.map(i => ({ ...i, type: "Found Report", color: "#4ECB71" })),
-        ...claims.map(i => ({ ...i, type: "Claim Request", color: "#F8C22E" })),
+        ...lost.map((i) => ({ ...i, type: "Lost Report", color: "#F65164" })),
+        ...found.map((i) => ({ ...i, type: "Found Report", color: "#4ECB71" })),
+        ...claims.map((i) => ({
+          ...i,
+          type: "Claim Request",
+          color: "#F8C22E",
+        })),
       ]
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
         .slice(0, 5);
@@ -71,20 +79,22 @@ function StaffDashboard() {
   };
 
   const formatTime = (date) => {
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: true 
+    return date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
     });
   };
 
   const StatCircle = ({ number, label, borderColor, description, delay }) => (
     <div style={styles.statBox}>
-      <div 
+      <div
         style={{
           ...styles.circle,
           borderColor,
-          animation: statsAnimation ? `pulse ${0.5 + delay}s ease-in-out` : 'none',
+          animation: statsAnimation
+            ? `pulse ${0.5 + delay}s ease-in-out`
+            : "none",
         }}
       >
         <p style={styles.circleNumber}>{loading ? "..." : number}</p>
@@ -122,23 +132,23 @@ function StaffDashboard() {
               <p style={styles.statsSubtitle}>Items awaiting approval</p>
             </div>
             <div style={styles.statsRow}>
-              <StatCircle 
-                number={counts.claims} 
-                label="Claim Reviews" 
+              <StatCircle
+                number={counts.claims}
+                label="Claim Reviews"
                 borderColor="#F8C22E"
                 description="New Claim Requests"
                 delay={0.1}
               />
-              <StatCircle 
-                number={counts.lost} 
-                label="Lost Report" 
+              <StatCircle
+                number={counts.lost}
+                label="Lost Report"
                 borderColor="#F65164"
                 description="New Lost Reports"
                 delay={0.2}
               />
-              <StatCircle 
-                number={counts.found} 
-                label="Found Report" 
+              <StatCircle
+                number={counts.found}
+                label="Found Report"
                 borderColor="#4ECB71"
                 description="New Found Items"
                 delay={0.3}
@@ -153,13 +163,16 @@ function StaffDashboard() {
                 <p style={styles.time}>{formatTime(time)}</p>
                 <div style={styles.timeDots}>
                   {[...Array(3)].map((_, i) => (
-                    <div 
-                      key={i} 
+                    <div
+                      key={i}
                       style={{
                         ...styles.timeDot,
                         animationDelay: `${i * 0.2}s`,
-                        backgroundColor: i === Math.floor(time.getSeconds() / 20) ? '#F8C22E' : 'rgba(255,255,255,0.3)'
-                      }} 
+                        backgroundColor:
+                          i === Math.floor(time.getSeconds() / 20)
+                            ? "#F8C22E"
+                            : "rgba(255,255,255,0.3)",
+                      }}
                     />
                   ))}
                 </div>
@@ -167,7 +180,7 @@ function StaffDashboard() {
               <p style={styles.todayLabel}>Today</p>
               <p style={styles.todayDate}>
                 {time.toLocaleDateString("en-US", {
-                  weekday: 'long',
+                  weekday: "long",
                   day: "numeric",
                   month: "long",
                   year: "numeric",
@@ -176,7 +189,9 @@ function StaffDashboard() {
             </div>
             <div style={styles.dateDecorations}>
               <div style={styles.decorationCircle} />
-              <div style={{ ...styles.decorationCircle, left: '60%', top: '20%' }} />
+              <div
+                style={{ ...styles.decorationCircle, left: "60%", top: "20%" }}
+              />
             </div>
           </div>
         </div>
@@ -185,15 +200,15 @@ function StaffDashboard() {
         <div style={styles.recentBox}>
           <div style={styles.recentHeader}>
             <h3 style={styles.recentTitle}>Recent Activity</h3>
-            <button 
+            <button
               style={styles.refreshButton}
               onClick={loadDashboardData}
               disabled={loading}
             >
-              {loading ? 'Refreshing...' : 'Refresh'}
+              {loading ? "Refreshing..." : "Refresh"}
             </button>
           </div>
-          
+
           <div style={styles.recentList}>
             {recentItems.length === 0 ? (
               <div style={styles.emptyState}>
@@ -202,27 +217,30 @@ function StaffDashboard() {
               </div>
             ) : (
               recentItems.map((item, index) => (
-                <div 
-                  key={item._id} 
+                <div
+                  key={item._id}
                   style={{
                     ...styles.recentItem,
-                    animationDelay: `${index * 0.1}s`
+                    animationDelay: `${index * 0.1}s`,
                   }}
                 >
                   <div style={styles.itemTypeIndicator}>
-                    <div 
-                      style={{ 
-                        ...styles.typeDot, 
-                        backgroundColor: item.color 
-                      }} 
+                    <div
+                      style={{
+                        ...styles.typeDot,
+                        backgroundColor: item.color,
+                      }}
                     />
                     <span style={styles.itemType}>{item.type}</span>
                   </div>
                   <div style={styles.itemDetails}>
-                    <b>{item.name || item.itemName || 'Unnamed Item'}</b>
+                    <b>{item.name || item.itemName || "Unnamed Item"}</b>
                     <span style={styles.itemDate}>
-                      {new Date(item.createdAt).toLocaleDateString()} • 
-                      {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {new Date(item.createdAt).toLocaleDateString()} •
+                      {new Date(item.createdAt).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </span>
                   </div>
                   <div style={styles.itemActions}>
@@ -460,7 +478,8 @@ const styles = {
     width: "120px",
     height: "120px",
     borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(248, 194, 46, 0.1) 0%, transparent 70%)",
+    background:
+      "radial-gradient(circle, rgba(248, 194, 46, 0.1) 0%, transparent 70%)",
     top: "-40px",
     left: "30%",
   },
@@ -596,7 +615,7 @@ const styles = {
 };
 
 // Add CSS animations
-const style = document.createElement('style');
+const style = document.createElement("style");
 style.textContent = `
   @keyframes pulse {
     0%, 100% { transform: scale(1); }
