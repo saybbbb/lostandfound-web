@@ -15,6 +15,11 @@ connectDB();
 // Routes Automatic Import
 app.use("/api/auth", require("./routes/authRoutes"));
 
+// Simple ping route for diagnostics
+app.get('/api/ping', (req, res) => {
+	res.json({ success: true, msg: 'pong' });
+});
+
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

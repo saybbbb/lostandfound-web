@@ -19,10 +19,8 @@ import FoundItemPage from "./pages/User/FoundItemPage";
 import ReportSuccessPage from "./pages/User/ReportSuccessPage";
 import ClaimFoundItemPage from "./pages/User/ClaimFoundItemPage";
 import StaffClaimReview from "./pages/Staff/StaffClaimReview";
-
-
-
-
+import AdminUser from "./pages/Admin/AdminUser";
+import AdminActivityLogs from "./pages/Admin/AdminActivityLogs";
 
 
 function App() {
@@ -136,6 +134,21 @@ function App() {
           <AdminProtectedRoute>
           <AdminDashboard />
           </AdminProtectedRoute>}/>
+
+        <Route 
+        path="/AdminUser" 
+        element={
+          <AdminProtectedRoute>
+          <AdminUser />
+          </AdminProtectedRoute>}/>
+
+        <Route 
+        path="/AdminActivityLogs" 
+        element={
+          <AdminProtectedRoute>
+          <AdminActivityLogs />
+          </AdminProtectedRoute>}/>
+
 
         <Route
         path="/StaffClaimReview/:claimId"
