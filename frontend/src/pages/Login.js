@@ -200,6 +200,18 @@ function Login() {
       // Store role
       localStorage.setItem("role", decoded.role);
 
+      localStorage.setItem("userName", decoded.name);
+
+       
+      if (decoded.role === "staff") {
+        localStorage.setItem("staffName", decoded.name);
+      }
+      if (decoded.role === "admin") {
+        localStorage.setItem("adminName", decoded.name);
+      }
+            
+
+
       // Redirect user based on role
       if (decoded.role === "admin") {
         navigate("/AdminDashboard");
