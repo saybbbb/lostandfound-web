@@ -11,6 +11,10 @@ const userSchema = new mongoose.Schema({
     enum: ["user", "staff", "admin"],
     default: "user"
   },
+  profile_photo: {
+    type: String,
+    default: null
+  },
 
   // Fields required for "Forgot Password"
   resetPasswordToken: String,

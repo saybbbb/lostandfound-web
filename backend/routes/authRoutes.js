@@ -45,6 +45,22 @@ router.post("/register", register);
 router.post("/login", login);
 router.get("/protected", authMiddleware, protected);
 
+router.put("/profile/update", authMiddleware, async (req, res) => {
+  try {
+    const { name, phone, profile_photo } = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      { name, phone, profile_photo },
+      { new: true }
+    );
+
+    res.json({ success: true, message: "Profile updated", user: updatedUser });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+});
+
 /* ======================================================
    FORGOT PASSWORD ROUTES
 ======================================================*/

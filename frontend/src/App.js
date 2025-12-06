@@ -20,11 +20,7 @@ import ReportSuccessPage from "./pages/User/ReportSuccessPage";
 import ClaimFoundItemPage from "./pages/User/ClaimFoundItemPage";
 import StaffClaimReview from "./pages/Staff/StaffClaimReview";
 import LostReportPage from "./pages/User/LostReportPage";
-
-
-
-
-
+import Settings from "./pages/User/Settings";
 
 function App() {
   return (
@@ -32,130 +28,146 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
 
-        <Route 
-        path="/Dashboard" 
-        element={
-          <ProtectedRoute>
-          <Dashboard />
-          </ProtectedRoute>} />
+        <Route
+          path="/Dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route 
-        path="/register" 
-        element={
-          
-          <Register />
-          } />
+        <Route path="/register" element={<Register />} />
 
-        <Route 
-        path="/recovery" 
-        element={
-          <Recovery />
-          } />
+        <Route path="/recovery" element={<Recovery />} />
 
-          
-        <Route 
-        path="/reset-password/:token"
-        element={
-        <ResetPassword />} />
-
-
-        <Route 
-        path="/StaffLostApproval" 
-        element={
-          <ProtectedRoute>
-          <StaffLostApproval />
-          </ProtectedRoute>}/>
-
-        <Route 
-        path="/StaffFoundApproval" 
-        element={
-          <ProtectedRoute>
-          <StaffFoundApproval />
-          </ProtectedRoute>}/>
-
-        <Route 
-        path="/StaffPendingClaim" 
-        element={
-          <ProtectedRoute>
-          <StaffPendingClaim />
-          </ProtectedRoute>}/>
-
-        <Route 
-        path="/LostItemPage" 
-        element={
-          <ProtectedRoute>
-          <LostItemPage />
-          </ProtectedRoute>}/>
-
-        <Route 
-        path="/ReportFoundItemPage" 
-        element={
-          <ProtectedRoute>
-          <ReportFoundItemPage />
-          </ProtectedRoute>}/>
-
-        <Route 
-        path="/ReportLostItemPage" 
-        element={
-          <ProtectedRoute>
-          <ReportLostItemPage />
-          </ProtectedRoute>}/>
-
-        <Route 
-        path="/FoundItemPage" 
-        element={
-          <ProtectedRoute>
-          <FoundItemPage />
-          </ProtectedRoute>}/>
-
-        <Route 
-        path="/ReportSuccessPage" 
-        element={
-          <ProtectedRoute>
-          <ReportSuccessPage />
-          </ProtectedRoute>}/>
-
-        <Route 
-        path="/ClaimFoundItemPage/:foundId" 
-        element={
-          <ProtectedRoute>
-          <ClaimFoundItemPage />
-          </ProtectedRoute>}/>
-
-        <Route 
-        path="/StaffDashboard" 
-        element={
-          <StaffProtectedRoute>
-          <StaffDashboard />
-          </StaffProtectedRoute>}/>
-
-
-        <Route 
-        path="/AdminDashboard" 
-        element={
-          <AdminProtectedRoute>
-          <AdminDashboard />
-          </AdminProtectedRoute>}/>
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
         <Route
-        path="/StaffClaimReview/:claimId"
-        element={
-          <StaffProtectedRoute>
-            <StaffClaimReview />
-          </StaffProtectedRoute>
-        }
+          path="/StaffLostApproval"
+          element={
+            <ProtectedRoute>
+              <StaffLostApproval />
+            </ProtectedRoute>
+          }
         />
 
         <Route
-        path="/LostReportPage/:id"
-        element={
-          <ProtectedRoute>
-            <LostReportPage />
-          </ProtectedRoute>
-        }/>
-        
+          path="/StaffFoundApproval"
+          element={
+            <ProtectedRoute>
+              <StaffFoundApproval />
+            </ProtectedRoute>
+          }
+        />
 
-        
+        <Route
+          path="/StaffPendingClaim"
+          element={
+            <ProtectedRoute>
+              <StaffPendingClaim />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/LostItemPage"
+          element={
+            <ProtectedRoute>
+              <LostItemPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/ReportFoundItemPage"
+          element={
+            <ProtectedRoute>
+              <ReportFoundItemPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/ReportLostItemPage"
+          element={
+            <ProtectedRoute>
+              <ReportLostItemPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/FoundItemPage"
+          element={
+            <ProtectedRoute>
+              <FoundItemPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/ReportSuccessPage"
+          element={
+            <ProtectedRoute>
+              <ReportSuccessPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/ClaimFoundItemPage/:foundId"
+          element={
+            <ProtectedRoute>
+              <ClaimFoundItemPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/StaffDashboard"
+          element={
+            <StaffProtectedRoute>
+              <StaffDashboard />
+            </StaffProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/AdminDashboard"
+          element={
+            <AdminProtectedRoute>
+              <AdminDashboard />
+            </AdminProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/StaffClaimReview/:claimId"
+          element={
+            <StaffProtectedRoute>
+              <StaffClaimReview />
+            </StaffProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/LostReportPage/:id"
+          element={
+            <ProtectedRoute>
+              <LostReportPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );

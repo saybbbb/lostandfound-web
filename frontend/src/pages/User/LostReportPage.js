@@ -23,7 +23,10 @@ function LostReportPage() {
     const loadItem = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/auth/lost-items/${id}`
+          `http://localhost:5000/api/auth/lost-items/${id}`,
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          }
         );
 
         if (!res.data || !res.data.item) {
