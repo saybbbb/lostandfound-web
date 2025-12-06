@@ -3,6 +3,7 @@ const router = express.Router();
 
 const { register, login, protected } = require("../controllers/authController");
 const { forgotPassword, resetPassword } = require("../controllers/authController");
+const { getUserNotifications,markAllAsRead} = require("../controllers/userController");
 const adminController = require("../controllers/adminController");
 const staffController = require("../controllers/staffController");
 
@@ -248,7 +249,7 @@ router.get("/lost-items-with-status", async (req, res) => {
 
 
 
-// ✅ FIXED: GET SINGLE LOST ITEM — correct placement
+//  FIXED: GET SINGLE LOST ITEM — correct placement
 router.get("/lost-items/:id", authMiddleware, async (req, res) => {
   try {
     const item = await LostItem.findById(req.params.id)
@@ -451,5 +452,11 @@ router.post("/claims", authMiddleware, async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+
+/* ======================================================
+   NOTIFICATION ROUTES (Add this section near the bottom)
+======================================================*/
+router.get("/notifications", authMiddleware, getUserNotifications);
+router.put("/notifications/read-all", authMiddleware, markAllAsRead);
 
 module.exports = router;

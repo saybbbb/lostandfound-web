@@ -21,6 +21,8 @@ import ClaimFoundItemPage from "./pages/User/ClaimFoundItemPage";
 import StaffClaimReview from "./pages/Staff/StaffClaimReview";
 import LostReportPage from "./pages/User/LostReportPage";
 import Settings from "./pages/User/Settings";
+import NotificationsPage from "./pages/User/NotificationsPage";
+
 
 function App() {
   return (
@@ -158,6 +160,14 @@ function App() {
               <LostReportPage />
             </ProtectedRoute>
           }
+        />
+        <Route 
+          path="/Notifications" 
+          element={
+            <ProtectedRoute>
+              <NotificationsPage />
+            </ProtectedRoute>
+          } 
         />
 
         <Route
