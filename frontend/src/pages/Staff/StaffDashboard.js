@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import usePageMetadata from "../../hooks/usePageMetadata";
 import StaffNavBar from "../../components/NavigationBars/StaffNavBar";
 import Footer from "../../components/NavigationBars/Footer";
 import {
   IoNotificationsOutline,
-  IoAddCircleOutline,
+  IoAddCircleOutline, 
   IoEyeOutline,
 } from "react-icons/io5";
 import axios from "axios";
@@ -16,6 +17,9 @@ function StaffDashboard() {
   const [time, setTime] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [statsAnimation, setStatsAnimation] = useState(false);
+  const navigate = useNavigate();
+
+  
 
   // Update time every second
   useEffect(() => {
@@ -104,6 +108,16 @@ function StaffDashboard() {
       <div style={{ ...styles.statGlow, backgroundColor: borderColor }} />
     </div>
   );
+
+  const handleReviewClick = (item) => {
+    if (item.type === "Claim Request") {
+      navigate(`/StaffClaimReview/${item._id}`);
+    } else if (item.type === "Found Report") {
+      navigate(`/StaffFoundReview/${item._id}`); // Assumes you will create this page
+    } else if (item.type === "Lost Report") {
+      navigate(`/StaffLostReview/${item._id}`); // Assumes you will create this page
+    }
+  };
 
   return (
     <div style={styles.container}>
@@ -244,7 +258,11 @@ function StaffDashboard() {
                     </span>
                   </div>
                   <div style={styles.itemActions}>
-                    <button style={styles.viewButton}>Review</button>
+                    <button style={styles.viewButton}
+                    onClick={() => handleReviewClick(item)}
+                    >Review
+                    </button>
+
                   </div>
                 </div>
               ))

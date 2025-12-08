@@ -22,6 +22,8 @@ import StaffClaimReview from "./pages/Staff/StaffClaimReview";
 import LostReportPage from "./pages/User/LostReportPage";
 import AdminUser from "./pages/Admin/AdminUser";
 import AdminActivityLogs from "./pages/Admin/AdminActivityLogs";
+import StaffFoundReview from "./pages/Staff/StaffFoundReview";
+import StaffLostReview from "./pages/Staff/StaffLostReview";
 
 import Settings from "./pages/User/Settings";
 import NotificationsPage from "./pages/User/NotificationsPage";
@@ -194,6 +196,27 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+        path="/StaffLostReview/:id"
+        element={
+          <StaffProtectedRoute>
+            <StaffLostReview />
+          </StaffProtectedRoute>
+        }
+        />
+
+        <Route
+        path="/StaffFoundReview/:id"
+        element={
+          <StaffProtectedRoute>
+            <StaffFoundReview />
+          </StaffProtectedRoute>
+        }
+        />
+
+
+
       </Routes>
     </Router>
   );

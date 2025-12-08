@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import StaffNavBar from "../../components/NavigationBars/StaffNavBar";
 import Footer from "../../components/NavigationBars/Footer";
 import { 
@@ -7,24 +7,24 @@ import {
   IoCloseCircleOutline,
   IoTimeOutline,
   IoInformationCircleOutline,
-  IoLocationOutline
+  IoLocationOutline,
+  IoEyeOutline 
 } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function StaffFoundApproval() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [foundItems, setFoundItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [approvingId, setApprovingId] = useState(null);
   const [rejectingId, setRejectingId] = useState(null);
-  const [filter, setFilter] = useState("all"); // "all", "recent", "oldest"
+  const [filter, setFilter] = useState("all"); 
   const token = localStorage.getItem("token");
 
-  useEffect(() => {
-    fetchFoundItems();
-  }, [token]);
-
-  const fetchFoundItems = async () => {
+  // FIX: Wrapped in useCallback to make it a stable dependency for useEffect
+  const fetchFoundItems = useCallback(async () => {
     setLoading(true);
     try {
       const res = await axios.get("http://localhost:5000/api/auth/staff/pending", {
@@ -36,7 +36,12 @@ function StaffFoundApproval() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  // FIX: Added fetchFoundItems to dependency array
+  useEffect(() => {
+    fetchFoundItems();
+  }, [fetchFoundItems]);
 
   const approveItem = async (itemId) => {
     setApprovingId(itemId);
@@ -136,14 +141,7 @@ function StaffFoundApproval() {
     });
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'pending': return '#F59E0B';
-      case 'approved': return '#10B981';
-      case 'rejected': return '#EF4444';
-      default: return '#94a3b8';
-    }
-  };
+  // FIX: Removed unused 'getStatusColor' function
 
   const filteredItems = foundItems
     .filter(item => 
@@ -284,8 +282,9 @@ function StaffFoundApproval() {
                   <div style={styles.cardFooter}>
                     <button
                       style={styles.viewDetailsBtn}
-                      onClick={() => alert(`View details for: ${item.name}`)}
+                      onClick={() => navigate(`/StaffFoundReview/${item._id}`)}
                     >
+                      <IoEyeOutline size={18} />
                       View Details
                     </button>
                     <div style={styles.actionButtons}>
@@ -355,6 +354,7 @@ function StaffFoundApproval() {
 }
 
 const styles = {
+  // ... (Same styles as provided previously)
   container: {
     display: "flex",
     minHeight: "100vh",
@@ -613,6 +613,9 @@ const styles = {
     fontWeight: "600",
     cursor: "pointer",
     transition: "all 0.3s ease",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
   },
   actionButtons: {
     display: "flex",

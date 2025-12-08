@@ -8,17 +8,18 @@ const Notification = require("../models/Notification");
 exports.getPendingPosts = async (req, res) => {
   try {
     const lost = await LostItem.find({ approval_status: "pending" })
-      .populate("reported_by", "name email");
+      .populate("reported_by", "name email")
+      .populate("category", "name"); // <--- ADDED THIS
 
     const found = await FoundItem.find({ approval_status: "pending" })
-      .populate("posted_by", "name email");
+      .populate("posted_by", "name email")
+      .populate("category", "name"); // <--- ADDED THIS
 
     res.json({ success: true, lost, found });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
-
 
 
 exports.approveItem = async (req, res) => {
@@ -36,7 +37,7 @@ exports.approveItem = async (req, res) => {
     item.reviewed_at = new Date();
     item.rejection_reason = null;
 
-    await item.save({ validateBeforeSave: false }); // ← IMPORTANT FIX
+    await item.save({ validateBeforeSave: false }); 
 
     res.json({ success: true, message: "Item approved" });
   } catch (err) {
@@ -60,7 +61,7 @@ exports.rejectItem = async (req, res) => {
     item.reviewed_by = req.user.id;
     item.reviewed_at = new Date();
 
-    await item.save({ validateBeforeSave: false }); // ← IMPORTANT FIX
+    await item.save({ validateBeforeSave: false }); 
 
     res.json({ success: true, message: "Item rejected" });
   } catch (err) {
@@ -78,7 +79,8 @@ exports.getPendingClaims = async (req, res) => {
       verified_claim: false
     })
     .populate("claimed_by", "name email")
-    .populate("posted_by", "name email");
+    .populate("posted_by", "name email")
+    .populate("category", "name");
 
     res.json({ success: true, claims });
   } catch (err) {
@@ -104,7 +106,7 @@ exports.verifyClaim = async (req, res) => {
     item.verified_claim = true;
     item.verified_by = req.user.id;
     item.verified_at = new Date();
-    item.status = "returned"; // Optional but consistent with your earlier logic
+    item.status = "returned"; 
 
     await item.save({ validateBeforeSave: false });
 
@@ -160,7 +162,7 @@ exports.rejectClaim = async (req, res) => {
     }
 
     // Reset claim fields
-    const claimantId = item.claimed_by; // Save before clearing
+    const claimantId = item.claimed_by; 
 
     item.claim_status = "none";
     item.claimed_by = null;
