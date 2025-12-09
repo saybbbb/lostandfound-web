@@ -101,7 +101,14 @@ function Settings() {
           {/* LEFT SIDEBAR */}
           <div style={styles.sidebarCard}>
             <div style={styles.sidebarItemActive}>Profile</div>
-            <div style={styles.sidebarItem}>Notifications</div>
+            
+            {/* ✅ UPDATED: Added onClick to navigate to Notifications */}
+            <div 
+              style={styles.sidebarItem} 
+              onClick={() => navigate("/Notifications")}
+            >
+              Notifications
+            </div>
 
             <button style={styles.logoutButton} onClick={handleLogout}>
               Logout
