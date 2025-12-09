@@ -355,60 +355,403 @@ export default function StaffLostReview() {
   );
 }
 
-/* Styles - aligned with StaffClaimReview */
+/* ============================================
+   Styles – Polished & Fully Consistent
+   (Aligned with StaffClaimReview UI System)
+=============================================== */
+
 const styles = {
+  /* ========= CONTAINER ========= */
   container: {
     display: "flex",
     minHeight: "100vh",
     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
     background: "linear-gradient(135deg, #f6f8ff 0%, #f0f2ff 100%)",
   },
-  mainContent: { flex: 1, padding: "30px 40px", overflowY: "auto" },
-  loadingContainer: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "calc(100vh - 60px)", color: "#64748b" },
-  loadingSpinner: { width: 60, height: 60, border: "4px solid #e2e8f0", borderTop: "4px solid #1A1851", borderRadius: "50%", marginBottom: 20, animation: "spin 1s linear infinite" },
-  errorContainer: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "calc(100vh - 60px)", textAlign: "center", padding: 40 },
-  header: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 30, flexWrap: "wrap", gap: 20 },
-  backNavButton: { display: "flex", alignItems: "center", gap: 8, padding: "12px 20px", backgroundColor: "transparent", color: "#64748b", border: "2px solid #e2e8f0", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: "pointer", transition: "all 0.3s ease" },
-  headerInfo: { flex: 1, minWidth: 300 },
-  title: { fontSize: 32, fontWeight: 800, color: "#1A1851", margin: "0 0 8px 0" },
-  subtitle: { fontSize: 16, color: "#64748b", margin: 0 },
-  claimStatus: { display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 },
-  statusBadge: { padding: "8px 16px", backgroundColor: "#fef3c7", color: "#d97706", borderRadius: 20, fontSize: 14, fontWeight: 600, textTransform: "uppercase" },
-  claimId: { fontSize: 13, color: "#94a3b8", fontFamily: "monospace" },
-  backButton: { display: "flex", alignItems: "center", gap: 10, padding: "14px 28px", backgroundColor: "#1A1851", color: "#fff", border: "none", borderRadius: 10, fontSize: 15, fontWeight: 600, cursor: "pointer", marginTop: 20 },
-  contentGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 30, marginBottom: 40 },
-  detailsColumn: { display: "flex", flexDirection: "column", gap: 24 },
-  proofColumn: { display: "flex", flexDirection: "column", gap: 24 },
-  card: { backgroundColor: "#fff", borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.06)" },
-  cardHeader: { display: "flex", alignItems: "center", gap: 12, padding: 24, backgroundColor: "#f8fafc", borderBottom: "1px solid #e2e8f0" },
-  cardTitle: { fontSize: 18, fontWeight: 700, color: "#1e293b", margin: 0 },
-  cardBody: { padding: 24 },
-  detailItem: { display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 },
-  detailLabel: { fontSize: 14, color: "#64748b", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" },
-  detailValue: { fontSize: 16, fontWeight: 600, color: "#1e293b" },
-  description: { fontSize: 15, color: "#475569", lineHeight: 1.6, margin: 0, padding: 12, backgroundColor: "#f8fafc", borderRadius: 8, border: "1px solid #e2e8f0" },
-  claimantInfo: { display: "flex", alignItems: "center", gap: 16, padding: 16, backgroundColor: "#f8fafc", borderRadius: 12, marginBottom: 20 },
-  avatar: { width: 56, height: 56, borderRadius: "50%", backgroundColor: "#e0f2fe", color: "#0369a1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, fontWeight: 700 },
-  claimantName: { fontSize: 18, fontWeight: 700, color: "#1e293b" },
-  claimantEmail: { fontSize: 14, color: "#64748b" },
-  imageContainer: { width: "100%", borderRadius: 10, overflow: "hidden", backgroundColor: "#f1f5f9" },
-  proofImage: { width: "100%", height: "auto", display: "block" },
-  timeline: { position: "relative", paddingLeft: 20 },
-  timelineItem: { position: "relative", marginBottom: 24, display: "flex", alignItems: "flex-start" },
-  timelineDot: { position: "absolute", left: -28, top: 4, width: 12, height: 12, borderRadius: "50%", backgroundColor: "#1A1851", border: "3px solid #fff", boxShadow: "0 0 0 3px rgba(26,24,81,0.1)" },
-  timelineContent: { flex: 1 },
-  timelineTitle: { fontSize: 15, fontWeight: 600, color: "#1e293b", marginBottom: 4 },
-  timelineDate: { fontSize: 14, color: "#64748b" },
-  verificationGuidelines: { backgroundColor: "#f0f9ff", padding: 20, borderRadius: 12, marginBottom: 24, border: "1px solid #e0f2fe" },
-  guidelinesTitle: { fontSize: 16, fontWeight: 700, color: "#0369a1", margin: "0 0 12px 0" },
-  guidelinesList: { margin: 0, paddingLeft: 20, color: "#475569", fontSize: 14, lineHeight: 1.6 },
-  actionButtons: { display: "flex", flexDirection: "column", gap: 12 },
-  approveButton: { display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: 18, backgroundColor: "#10B981", color: "#fff", border: "none", borderRadius: 12, fontSize: 16, fontWeight: 700, cursor: "pointer", width: "100%" },
-  rejectButton: { display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: 18, backgroundColor: "#EF4444", color: "#fff", border: "none", borderRadius: 12, fontSize: 16, fontWeight: 700, cursor: "pointer", width: "100%" },
-  needsInfoButton: { padding: 16, backgroundColor: "transparent", color: "#1A1851", border: "2px solid #1A1851", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", width: "100%" },
-  loadingDots: { width: 24, height: 24, borderRadius: "50%", backgroundColor: "currentColor", animation: "pulse 1.5s ease-in-out infinite" },
-  actionNotes: { padding: 16, backgroundColor: "#fef3c7", color: "#92400e", borderRadius: 10, fontSize: 14, textAlign: "center", border: "1px solid #fbbf24" },
+
+  mainContent: {
+    flex: 1,
+    padding: "30px 40px",
+    overflowY: "auto",
+  },
+
+  /* ========= LOADING / ERROR ========= */
+  loadingContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "calc(100vh - 60px)",
+    color: "#64748b",
+  },
+
+  loadingSpinner: {
+    width: 60,
+    height: 60,
+    border: "4px solid #e2e8f0",
+    borderTop: "4px solid #1A1851",
+    borderRadius: "50%",
+    marginBottom: 20,
+    animation: "spin 1s linear infinite",
+  },
+
+  errorContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "calc(100vh - 60px)",
+    textAlign: "center",
+    padding: 40,
+  },
+
+  /* ========= HEADER ========= */
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 30,
+    gap: 20,
+    flexWrap: "wrap",
+  },
+
+  backNavButton: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    padding: "12px 20px",
+    backgroundColor: "transparent",
+    color: "#64748b",
+    border: "2px solid #e2e8f0",
+    borderRadius: 10,
+    fontSize: 15,
+    fontWeight: 600,
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+  },
+
+  headerInfo: {
+    flex: 1,
+    minWidth: 300,
+  },
+
+  title: {
+    fontSize: 32,
+    fontWeight: 800,
+    color: "#1A1851",
+    margin: "0 0 8px 0",
+  },
+
+  subtitle: {
+    fontSize: 16,
+    color: "#64748b",
+    margin: 0,
+  },
+
+  claimStatus: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-end",
+    gap: 8,
+  },
+
+  statusBadge: {
+    padding: "8px 16px",
+    backgroundColor: "#fef3c7",
+    color: "#d97706",
+    borderRadius: 20,
+    fontSize: 14,
+    fontWeight: 600,
+    textTransform: "uppercase",
+  },
+
+  claimId: {
+    fontSize: 13,
+    color: "#94a3b8",
+    fontFamily: "monospace",
+  },
+
+  backButton: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    padding: "14px 28px",
+    backgroundColor: "#1A1851",
+    color: "#ffffff",
+    borderRadius: 10,
+    fontSize: 15,
+    fontWeight: 600,
+    border: "none",
+    cursor: "pointer",
+    marginTop: 20,
+  },
+
+  /* ========= GRID LAYOUT ========= */
+  contentGrid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: 30,
+    marginBottom: 40,
+  },
+
+  detailsColumn: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 24,
+  },
+
+  proofColumn: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 24,
+  },
+
+  /* ========= CARD UI ========= */
+  card: {
+    backgroundColor: "#ffffff",
+    borderRadius: 18,
+    overflow: "hidden",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
+  },
+
+  cardHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    padding: 24,
+    backgroundColor: "#f8fafc",
+    borderBottom: "1px solid #e2e8f0",
+  },
+
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 700,
+    color: "#1e293b",
+    margin: 0,
+  },
+
+  cardBody: {
+    padding: 24,
+  },
+
+  /* ========= DETAIL ITEMS ========= */
+  detailItem: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 8,
+    marginBottom: 20,
+  },
+
+  detailLabel: {
+    fontSize: 14,
+    color: "#64748b",
+    fontWeight: 500,
+    textTransform: "uppercase",
+    letterSpacing: "0.05em",
+  },
+
+  detailValue: {
+    fontSize: 16,
+    fontWeight: 600,
+    color: "#1e293b",
+  },
+
+  description: {
+    fontSize: 15,
+    color: "#475569",
+    lineHeight: 1.6,
+    margin: 0,
+    padding: 12,
+    backgroundColor: "#f8fafc",
+    borderRadius: 8,
+    border: "1px solid #e2e8f0",
+  },
+
+  /* ========= CLAIMANT INFO ========= */
+  claimantInfo: {
+    display: "flex",
+    alignItems: "center",
+    gap: 16,
+    padding: 16,
+    backgroundColor: "#f8fafc",
+    borderRadius: 12,
+    marginBottom: 20,
+  },
+
+  avatar: {
+    width: 56,
+    height: 56,
+    borderRadius: "50%",
+    backgroundColor: "#e0f2fe",
+    color: "#0369a1",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 20,
+    fontWeight: 700,
+    flexShrink: 0,
+  },
+
+  claimantName: {
+    fontSize: 18,
+    fontWeight: 700,
+    color: "#1e293b",
+  },
+
+  claimantEmail: {
+    fontSize: 14,
+    color: "#64748b",
+  },
+
+  /* ========= IMAGES ========= */
+  imageContainer: {
+    width: "100%",
+    overflow: "hidden",
+    borderRadius: 10,
+    backgroundColor: "#f1f5f9",
+  },
+
+  proofImage: {
+    width: "100%",
+    height: "auto",
+    display: "block",
+  },
+
+  /* ========= TIMELINE ========= */
+  timeline: {
+    position: "relative",
+    paddingLeft: 20,
+  },
+
+  timelineItem: {
+    position: "relative",
+    marginBottom: 24,
+    display: "flex",
+    alignItems: "flex-start",
+  },
+
+  timelineDot: {
+    position: "absolute",
+    left: -28,
+    top: 4,
+    width: 12,
+    height: 12,
+    borderRadius: "50%",
+    backgroundColor: "#1A1851",
+    border: "3px solid #ffffff",
+    boxShadow: "0 0 0 3px rgba(26, 24, 81, 0.1)",
+  },
+
+  timelineContent: {
+    flex: 1,
+  },
+
+  timelineTitle: {
+    fontSize: 15,
+    fontWeight: 600,
+    color: "#1e293b",
+    marginBottom: 4,
+  },
+
+  timelineDate: {
+    fontSize: 14,
+    color: "#64748b",
+  },
+
+  /* ========= VERIFICATION GUIDELINES ========= */
+  verificationGuidelines: {
+    backgroundColor: "#f0f9ff",
+    padding: 20,
+    borderRadius: 12,
+    marginBottom: 24,
+    border: "1px solid #e0f2fe",
+  },
+
+  guidelinesTitle: {
+    fontSize: 16,
+    fontWeight: 700,
+    color: "#0369a1",
+    margin: "0 0 12px 0",
+  },
+
+  guidelinesList: {
+    margin: 0,
+    paddingLeft: 20,
+    color: "#475569",
+    fontSize: 14,
+    lineHeight: 1.6,
+  },
+
+  /* ========= ACTION BUTTONS ========= */
+  actionButtons: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 12,
+  },
+
+  approveButton: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    padding: 18,
+    backgroundColor: "#10B981",
+    color: "#ffffff",
+    borderRadius: 12,
+    fontSize: 16,
+    fontWeight: 700,
+    cursor: "pointer",
+    border: "none",
+    width: "100%",
+  },
+
+  rejectButton: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    padding: 18,
+    backgroundColor: "#EF4444",
+    color: "#ffffff",
+    borderRadius: 12,
+    fontSize: 16,
+    fontWeight: 700,
+    cursor: "pointer",
+    border: "none",
+    width: "100%",
+  },
+
+  needsInfoButton: {
+    padding: 16,
+    backgroundColor: "transparent",
+    color: "#1A1851",
+    border: "2px solid #1A1851",
+    borderRadius: 12,
+    fontSize: 15,
+    fontWeight: 600,
+    cursor: "pointer",
+    width: "100%",
+  },
+
+  loadingDots: {
+    width: 24,
+    height: 24,
+    borderRadius: "50%",
+    backgroundColor: "currentColor",
+    animation: "pulse 1.5s ease-in-out infinite",
+  },
+
+  actionNotes: {
+    padding: 16,
+    backgroundColor: "#fef3c7",
+    color: "#92400e",
+    borderRadius: 10,
+    fontSize: 14,
+    textAlign: "center",
+    border: "1px solid #fbbf24",
+  },
 };
+
 
 // Add animations/styles to document (same as ClaimReview)
 const style = document.createElement("style");

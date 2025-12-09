@@ -13,7 +13,7 @@ exports.getPendingPosts = async (req, res) => {
 
     const found = await FoundItem.find({ approval_status: "pending" })
       .populate("posted_by", "name email")
-      .populate("category", "name"); // <--- ADDED THIS
+      .populate("category", "name"); // <--- ADDED THIS 
 
     res.json({ success: true, lost, found });
   } catch (err) {

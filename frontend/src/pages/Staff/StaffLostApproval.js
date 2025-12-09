@@ -243,46 +243,352 @@ function StaffLostApproval() {
   );
 }
 
-// Consistent Styling Object
 const styles = {
-  container: { display: "flex", minHeight: "100vh", fontFamily: "'Inter', sans-serif", background: "linear-gradient(135deg, #f6f8ff 0%, #f0f2ff 100%)" },
-  mainContent: { flex: 1, padding: "30px 40px", overflowY: "auto" },
-  header: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "30px" },
-  title: { fontSize: "32px", fontWeight: "800", color: "#1A1851" },
-  subtitle: { fontSize: "16px", color: "#64748b" },
-  headerActions: { display: "flex", gap: "20px" },
-  statsBadge: { display: "flex", alignItems: "center", gap: "8px", padding: "12px 24px", background: "rgba(248, 194, 46, 0.15)", color: "#d97706", borderRadius: "12px", fontWeight: "600" },
-  controls: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px", gap: "20px" },
-  searchContainer: { flex: 1, position: "relative", maxWidth: "600px" },
-  searchInput: { width: "100%", padding: "16px 16px 16px 52px", border: "2px solid #e2e8f0", borderRadius: "12px", fontSize: "15px", outline: "none", background: "#fff" },
-  searchIcon: { position: "absolute", left: "18px", top: "50%", transform: "translateY(-50%)" },
-  controlGroup: { display: "flex", gap: "12px" },
-  refreshButton: { padding: "14px 28px", background: "#1A1851", color: "#fff", borderRadius: "12px", fontSize: "15px", fontWeight: "600", border: "none", cursor: "pointer" },
-  itemsGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(380px, 1fr))", gap: "24px" },
-  itemCard: { background: "#fff", borderRadius: "18px", overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.06)", animation: "slideInCard 0.5s forwards", opacity: 0, transform: "translateY(10px)", display: "flex", flexDirection: "column" },
-  cardHeader: { display: "flex", alignItems: "center", gap: "16px", padding: "24px", borderBottom: "1px solid #f1f5f9" },
-  itemAvatar: { width: "60px", height: "60px", background: "#dbeafe", borderRadius: "14px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "700", fontSize: "22px", color: "#1A1851" },
-  itemInfo: { flex: 1 },
-  itemTitle: { fontSize: "18px", fontWeight: "700", color: "#1e293b" },
-  itemMeta: { display: "flex", gap: "12px", alignItems: "center" },
-  itemStatus: { background: "#fef3c7", padding: "4px 12px", borderRadius: "20px", color: "#d97706", fontSize: "12px", textTransform: "uppercase", fontWeight: "600" },
-  itemDate: { fontSize: "14px", color: "#94a3b8" },
-  cardBody: { padding: "24px", flex: 1 },
-  itemDescription: { fontSize: "15px", color: "#475569", lineHeight: "1.6", marginBottom: "16px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" },
-  location: { display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", color: "#64748b", marginBottom: "20px" },
-  submitterInfo: { display: "flex", gap: "12px", alignItems: "center", padding: "16px", background: "#f8fafc", borderRadius: "12px" },
-  submitterAvatar: { width: "40px", height: "40px", borderRadius: "50%", background: "#e0f2fe", display: "flex", justifyContent: "center", alignItems: "center", fontSize: "16px", fontWeight: "600" },
-  submitterName: { fontWeight: "600", color: "#1e293b", fontSize: "15px" },
-  submitterEmail: { fontSize: "13px", color: "#94a3b8" },
-  cardFooter: { padding: "20px 24px", borderTop: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px" },
-  viewDetailsBtn: { padding: "10px 20px", background: "transparent", color: "#1A1851", border: "2px solid #1A1851", borderRadius: "10px", fontSize: "14px", fontWeight: "600", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" },
-  actionButtons: { display: "flex", gap: "10px" },
-  approveBtn: { display: "flex", alignItems: "center", justifyContent: "center", padding: "10px", width: "42px", height: "42px", background: "#10B981", color: "#fff", border: "none", borderRadius: "10px", cursor: "pointer" },
-  rejectBtn: { display: "flex", alignItems: "center", justifyContent: "center", padding: "10px", width: "42px", height: "42px", background: "#EF4444", color: "#fff", border: "none", borderRadius: "10px", cursor: "pointer" },
-  loadingDots: { width: "20px", height: "20px", borderRadius: "50%", backgroundColor: "currentColor", animation: "pulse 1.5s ease-in-out infinite" },
-  emptyState: { padding: "80px 20px", textAlign: "center", color: "#94a3b8", background: "#fff", borderRadius: "20px", boxShadow: "0 4px 20px rgba(0,0,0,0.05)" },
-  loadingContainer: { padding: "80px 20px", textAlign: "center", color: "#64748b" },
-  loadingSpinner: { width: "50px", height: "50px", border: "4px solid #e2e8f0", borderTop: "4px solid #1A1851", borderRadius: "50%", margin: "0 auto 20px", animation: "spin 1s linear infinite" },
+  /* ================================
+     LAYOUT
+  ================================== */
+  container: {
+    display: "flex",
+    minHeight: "100vh",
+    fontFamily: "'Inter', sans-serif",
+    background: "linear-gradient(135deg, #f6f8ff 0%, #f0f2ff 100%)",
+  },
+
+  mainContent: {
+    flex: 1,
+    padding: "30px 40px",
+    overflowY: "auto",
+  },
+
+  /* ================================
+     HEADER
+  ================================== */
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: "30px",
+  },
+
+  title: {
+    fontSize: "32px",
+    fontWeight: "800",
+    color: "#1A1851",
+  },
+
+  subtitle: {
+    fontSize: "16px",
+    color: "#64748b",
+    marginTop: "6px",
+  },
+
+  headerActions: {
+    display: "flex",
+    gap: "20px",
+  },
+
+  statsBadge: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    padding: "12px 24px",
+    background: "rgba(248, 194, 46, 0.15)",
+    color: "#d97706",
+    borderRadius: "12px",
+    fontWeight: "600",
+    fontSize: "15px",
+  },
+
+  /* ================================
+     CONTROLS (Search + Buttons)
+  ================================== */
+  controls: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "30px",
+    gap: "20px",
+  },
+
+  searchContainer: {
+    flex: 1,
+    position: "relative",
+    maxWidth: "600px",
+  },
+
+  searchInput: {
+    width: "100%",
+    padding: "16px 16px 16px 52px",
+    border: "2px solid #e2e8f0",
+    borderRadius: "12px",
+    fontSize: "15px",
+    background: "#fff",
+    outline: "none",
+    transition: "all 0.25s ease",
+  },
+
+  searchIcon: {
+    position: "absolute",
+    left: "18px",
+    top: "50%",
+    transform: "translateY(-50%)",
+    color: "#94a3b8",
+  },
+
+  controlGroup: {
+    display: "flex",
+    gap: "12px",
+  },
+
+  refreshButton: {
+    padding: "14px 28px",
+    background: "#1A1851",
+    color: "#ffffff",
+    borderRadius: "12px",
+    fontSize: "15px",
+    fontWeight: "600",
+    border: "none",
+    cursor: "pointer",
+    transition: "all 0.25s ease",
+  },
+
+  /* ================================
+     GRID OF CARDS
+  ================================== */
+  itemsGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(380px, 1fr))",
+    gap: "24px",
+  },
+
+  itemCard: {
+    background: "#ffffff",
+    borderRadius: "18px",
+    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.06)",
+    overflow: "hidden",
+    display: "flex",
+    flexDirection: "column",
+    opacity: 0,
+    transform: "translateY(10px)",
+    animation: "slideInCard 0.5s forwards",
+  },
+
+  /* ================================
+     CARD HEADER
+  ================================== */
+  cardHeader: {
+    display: "flex",
+    alignItems: "center",
+    gap: "16px",
+    padding: "24px",
+    borderBottom: "1px solid #f1f5f9",
+  },
+
+  itemAvatar: {
+    width: "60px",
+    height: "60px",
+    borderRadius: "14px",
+    background: "#dbeafe",
+    color: "#1A1851",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    fontWeight: "700",
+    fontSize: "22px",
+    flexShrink: 0,
+  },
+
+  itemInfo: {
+    flex: 1,
+  },
+
+  itemTitle: {
+    fontSize: "18px",
+    fontWeight: "700",
+    color: "#1e293b",
+    marginBottom: "6px",
+  },
+
+  itemMeta: {
+    display: "flex",
+    gap: "12px",
+    alignItems: "center",
+  },
+
+  itemStatus: {
+    padding: "4px 12px",
+    background: "#fef3c7",
+    color: "#d97706",
+    borderRadius: "20px",
+    fontSize: "12px",
+    fontWeight: "600",
+    textTransform: "uppercase",
+  },
+
+  itemDate: {
+    fontSize: "14px",
+    color: "#94a3b8",
+  },
+
+  /* ================================
+     CARD BODY
+  ================================== */
+  cardBody: {
+    padding: "24px",
+    flex: 1,
+  },
+
+  itemDescription: {
+    fontSize: "15px",
+    color: "#475569",
+    lineHeight: "1.6",
+    marginBottom: "16px",
+    display: "-webkit-box",
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: "vertical",
+    overflow: "hidden",
+  },
+
+  location: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    fontSize: "14px",
+    color: "#64748b",
+    marginBottom: "20px",
+  },
+
+  /* ================================
+     SUBMITTER INFO (User block)
+  ================================== */
+  submitterInfo: {
+    display: "flex",
+    gap: "12px",
+    alignItems: "center",
+    padding: "16px",
+    background: "#f8fafc",
+    borderRadius: "12px",
+  },
+
+  submitterAvatar: {
+    width: "40px",
+    height: "40px",
+    borderRadius: "50%",
+    background: "#e0f2fe",
+    color: "#0369a1",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: "16px",
+    fontWeight: "600",
+  },
+
+  submitterName: {
+    fontSize: "15px",
+    fontWeight: "600",
+    color: "#1e293b",
+  },
+
+  submitterEmail: {
+    fontSize: "13px",
+    color: "#94a3b8",
+  },
+
+  /* ================================
+     CARD FOOTER
+  ================================== */
+  cardFooter: {
+    padding: "20px 24px",
+    borderTop: "1px solid #f1f5f9",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: "16px",
+  },
+
+  viewDetailsBtn: {
+    padding: "10px 20px",
+    borderRadius: "10px",
+    border: "2px solid #1A1851",
+    background: "transparent",
+    color: "#1A1851",
+    fontSize: "14px",
+    fontWeight: "600",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    cursor: "pointer",
+    transition: "all 0.25s ease",
+  },
+
+  actionButtons: {
+    display: "flex",
+    gap: "10px",
+  },
+
+  approveBtn: {
+    width: "42px",
+    height: "42px",
+    borderRadius: "10px",
+    background: "#10B981",
+    color: "#fff",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    border: "none",
+    cursor: "pointer",
+    transition: "all 0.25s ease",
+  },
+
+  rejectBtn: {
+    width: "42px",
+    height: "42px",
+    borderRadius: "10px",
+    background: "#EF4444",
+    color: "#fff",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    border: "none",
+    cursor: "pointer",
+    transition: "all 0.25s ease",
+  },
+
+  /* ================================
+     EMPTY + LOADING STATES
+  ================================== */
+  emptyState: {
+    padding: "80px 20px",
+    background: "#ffffff",
+    borderRadius: "20px",
+    textAlign: "center",
+    color: "#94a3b8",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+  },
+
+  loadingContainer: {
+    padding: "80px 20px",
+    textAlign: "center",
+    color: "#64748b",
+  },
+
+  loadingSpinner: {
+    width: "50px",
+    height: "50px",
+    border: "4px solid #e2e8f0",
+    borderTop: "4px solid #1A1851",
+    borderRadius: "50%",
+    margin: "0 auto 20px",
+    animation: "spin 1s linear infinite",
+  },
+
+  loadingDots: {
+    width: "20px",
+    height: "20px",
+    backgroundColor: "currentColor",
+    borderRadius: "50%",
+    animation: "pulse 1.5s ease-in-out infinite",
+  },
 };
 
 // CSS Animation Injection
