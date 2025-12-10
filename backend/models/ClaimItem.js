@@ -36,6 +36,12 @@ const ClaimItemSchema = new mongoose.Schema(
         trim: true,
     },
 
+    claim_proof_image: 
+    { type: String, 
+        default: 
+        null 
+    },
+
     // ERD: Claim status (approval state)
     claim_status: {
         type: String,

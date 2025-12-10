@@ -34,6 +34,11 @@ const FoundItemSchema = new mongoose.Schema({
         default: null
     },
 
+    contact_info: {
+        type: String,
+        required: false
+    },
+
     posted_by: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
@@ -81,6 +86,11 @@ proof_description: {
     type: String,
     default: null,
 },
+
+claim_proof_image: {
+        type: String,
+        default: null
+    },
 
 verified_claim: {
     type: Boolean,

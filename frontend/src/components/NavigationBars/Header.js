@@ -103,7 +103,7 @@ function Header() {
       cursor: "pointer",
       display: "flex",
       alignItems: "center",
-      position: "relative", // Added for badge positioning
+      position: "relative", 
     },
     // ADDED: Badge style
     badge: {

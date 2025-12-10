@@ -134,7 +134,7 @@ function Register() {
         formData
       );
       if (res.data.success) {
-        alert("Registration successful!");
+        alert("Registration successful! Please wait for an email to be sent to your email address.");
         navigate("/");
       }
     } catch (err) {

@@ -113,66 +113,24 @@ function AdminDashboard() {
             </div>
           </div>
         </div>
+        <div style={styles.maincontent}>
+          {error && (
+            <div style={styles.errorBox}>{error}</div>
+          )}
 
-        {error && (
-          <div
-            style={{
-              margin: "10px 0",
-              padding: 12,
-              backgroundColor: "#ffe6e6",
-              color: "#900",
-              borderRadius: 6,
-            }}
-          >
-            Error loading dashboard: {String(error)}
+          {/* TOP STAT CARDS */}
+          <div style={styles.cardRow}>
+            <div style={styles.card}>Total Lost Items<br /><b>{counts.lost}</b></div>
+            <div style={styles.card}>Total Found Items<br /><b>{counts.found}</b></div>
+            <div style={styles.card}>Pending Claims<br /><b>{counts.pendingToday}</b></div>
+            <div style={styles.card}>Active Users Today<br /><b>{counts.verifiedToday}</b></div>
           </div>
-        )}
 
-        {/* TOP STAT CARDS */}
-        <div style={styles.cardGrid}>
-          <div style={styles.card}>
-            Total Lost Items
-            <br />
-            <b>{counts.lost}</b>
-          </div>
-          <div style={styles.card}>
-            Total Found Items
-            <br />
-            <b>{counts.found}</b>
-          </div>
-          <div style={styles.card}>
-            Total Claimed Items
-            <br />
-            <b>{counts.claimed}</b>
-          </div>
-          <div style={styles.card}>
-            Pending Today
-            <br />
-            <b>{counts.pendingToday}</b>
-          </div>
-          <div style={styles.card}>
-            Verified Today
-            <br />
-            <b>{counts.verifiedToday}</b>
-          </div>
-        </div>
-
-        {/* USER COUNTS */}
-        <div style={styles.cardGrid}>
-          <div style={styles.bigCard}>
-            TOTAL USERS
-            <br />
-            <span style={styles.bigNumber}>{counts.totalUsers}</span>
-          </div>
-          <div style={styles.bigCard}>
-            TOTAL STAFF
-            <br />
-            <span style={styles.bigNumber}>{counts.totalStaff}</span>
-          </div>
-          <div style={styles.bigCard}>
-            TOTAL ADMIN
-            <br />
-            <span style={styles.bigNumber}>{counts.totalAdmin}</span>
+          {/* USERS */}
+          <div style={styles.cardRow}>
+            <div style={styles.bigCard}>TOTAL STUDENTS<br /><span style={styles.bigNum}>{counts.totalUsers}</span></div>
+            <div style={styles.bigCard}>TOTAL STAFF<br /><span style={styles.bigNum}>{counts.totalStaff}</span></div>
+            <div style={styles.bigCard}>TOTAL ADMIN<br /><span style={styles.bigNum}>{counts.totalAdmin}</span></div>
           </div>
         </div>
 
@@ -244,6 +202,9 @@ const styles = {
     marginBottom: 25,
   },
 
+  maincontent: {
+    
+  },
   greeting: {
     margin: 0,
     fontSize: 30,

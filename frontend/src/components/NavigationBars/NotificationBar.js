@@ -1,4 +1,3 @@
-// NotificationBar.js
 import React from "react";
 
 function NotificationBar({ open, notifications }) {

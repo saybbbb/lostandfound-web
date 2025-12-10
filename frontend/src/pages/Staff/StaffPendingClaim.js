@@ -1,71 +1,57 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import StaffNavBar from "../../components/NavigationBars/StaffNavBar";
 import Footer from "../../components/NavigationBars/Footer";
 import { 
   IoSearchOutline, 
-  IoEyeOutline,
   IoTimeOutline,
   IoInformationCircleOutline,
-  IoPersonOutline,
-  IoCalendarOutline
+  IoEyeOutline 
 } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function StaffPendingClaim() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [claims, setClaims] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
-  useEffect(() => {
-    fetchClaims();
-  }, []);
-
-  const fetchClaims = async () => {
+  const fetchClaims = useCallback(async () => {
     setLoading(true);
-    const token = localStorage.getItem("token");
     try {
-      const res = await axios.get(
-        "http://localhost:5000/api/auth/staff/claims/pending",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await axios.get("http://localhost:5000/api/auth/staff/claims/pending", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setClaims(res.data.claims || []);
     } catch (err) {
       console.log(err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    fetchClaims();
+  }, [fetchClaims]);
 
   const formatRelativeTime = (dateString) => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
     const now = new Date();
-    const diffMs = now - date;
-    const mins = Math.floor(diffMs / (1000 * 60));
-    const hrs = Math.floor(diffMs / (1000 * 60 * 60));
-    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (mins < 60) return `${mins} min ago`;
-    if (hrs < 24) return `${hrs} hrs ago`;
-    if (days < 7) return `${days} days ago`;
-
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    const diffHours = Math.floor((now - date) / (1000 * 60 * 60));
+    if (diffHours < 24) return `${diffHours} hr${diffHours !== 1 ? 's' : ''} ago`;
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
-  const filtered = claims.filter((row) =>
-    row.claimed_by?.name?.toLowerCase().includes(search.toLowerCase()) ||
-    row.name?.toLowerCase().includes(search.toLowerCase()) ||
-    row.claimed_by?.email?.toLowerCase().includes(search.toLowerCase())
+  const filtered = claims.filter((claim) =>
+    claim.claimed_by?.name?.toLowerCase().includes(search.toLowerCase()) ||
+    claim.name?.toLowerCase().includes(search.toLowerCase())
   );
-
-  const handleViewClaim = (id) => navigate(`/StaffClaimReview/${id}`);
 
   return (
     <div style={styles.container}>
       <StaffNavBar />
-
       <div style={styles.mainContent}>
         
         {/* HEADER */}
@@ -74,7 +60,6 @@ function StaffPendingClaim() {
             <h1 style={styles.title}>Pending Claims</h1>
             <p style={styles.subtitle}>Review claim submissions from students</p>
           </div>
-
           <div style={styles.headerActions}>
             <div style={styles.statsBadge}>
               <IoTimeOutline size={18} />
@@ -83,26 +68,21 @@ function StaffPendingClaim() {
           </div>
         </div>
 
-        {/* CONTROLS – MATCH FOUND UI */}
+        {/* CONTROLS */}
         <div style={styles.controls}>
           <div style={styles.searchContainer}>
             <IoSearchOutline size={20} color="#94a3b8" style={styles.searchIcon} />
             <input
               type="text"
-              placeholder="Search by student, item, or email..."
+              placeholder="Search claims..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={styles.searchInput}
             />
           </div>
-
           <div style={styles.controlGroup}>
-            <button 
-              style={styles.refreshButton}
-              onClick={fetchClaims}
-              disabled={loading}
-            >
-              {loading ? "Refreshing..." : "Refresh"}
+            <button style={styles.refreshButton} onClick={fetchClaims} disabled={loading}>
+              {loading ? 'Refreshing...' : 'Refresh'}
             </button>
           </div>
         </div>
@@ -122,26 +102,18 @@ function StaffPendingClaim() {
             </div>
           ) : (
             <div style={styles.itemsGrid}>
-              
               {filtered.map((claim, index) => (
-                <div
-                  key={claim._id}
-                  style={{
-                    ...styles.itemCard,
-                    animationDelay: `${index * 0.05}s`,
-                  }}
-                >
+                <div key={claim._id} style={{ ...styles.itemCard, animationDelay: `${index * 0.05}s` }}>
                   
                   {/* CARD HEADER */}
                   <div style={styles.cardHeader}>
                     <div style={styles.itemAvatar}>
                       {claim.name?.charAt(0).toUpperCase() || "C"}
                     </div>
-
                     <div style={styles.itemInfo}>
                       <h3 style={styles.itemTitle}>{claim.name}</h3>
                       <div style={styles.itemMeta}>
-                        <span style={styles.itemStatus}>pending</span>
+                        <span style={styles.itemStatus}>Pending</span>
                         <span style={styles.itemDate}>
                           {formatRelativeTime(claim.claimed_at)}
                         </span>
@@ -155,7 +127,6 @@ function StaffPendingClaim() {
                       <div style={styles.submitterAvatar}>
                         {claim.claimed_by?.name?.charAt(0) || "U"}
                       </div>
-
                       <div>
                         <div style={styles.submitterName}>
                           {claim.claimed_by?.name}
@@ -166,48 +137,43 @@ function StaffPendingClaim() {
                       </div>
                     </div>
 
-                    <div style={styles.claimDetails}>
-                      <div style={styles.detailRow}>
-                        <span style={styles.detailLabel}>Claim Type:</span>
-                        <span style={styles.detailValue}>Item Recovery</span>
-                      </div>
-
-                      <div style={styles.detailRow}>
-                        <span style={styles.detailLabel}>Submitted:</span>
-                        <span style={styles.detailValue}>
-                          {new Date(claim.claimed_at).toLocaleDateString()}
-                        </span>
-                      </div>
+                    <div style={{ marginTop: 15, display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: 8 }}>
+                      <span style={{fontSize: 14, color: '#64748b'}}>Claim Type:</span>
+                      <span style={{fontSize: 14, fontWeight: 600, color: '#1A1851'}}>Item Recovery</span>
+                    </div>
+                    <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: 8 }}>
+                      <span style={{fontSize: 14, color: '#64748b'}}>Submitted:</span>
+                      <span style={{fontSize: 14, fontWeight: 600, color: '#1A1851'}}>
+                        {new Date(claim.claimed_at).toLocaleDateString()}
+                      </span>
                     </div>
                   </div>
 
-                  {/* FOOTER */}
+                  {/* CARD FOOTER */}
                   <div style={styles.cardFooter}>
                     <button
-                      style={styles.viewDetailsBtn}
-                      onClick={() => handleViewClaim(claim._id)}
+                      style={{...styles.viewDetailsBtn, width: '100%', justifyContent: 'center'}}
+                      onClick={() => navigate(`/StaffClaimReview/${claim._id}`)}
                     >
-                      <IoEyeOutline size={18} />
-                      Review Claim
+                      <IoEyeOutline size={18} /> Review Claim
                     </button>
                   </div>
-
                 </div>
               ))}
-
             </div>
           )}
         </div>
-
         <Footer />
       </div>
     </div>
   );
 }
 
-/* ------------------ STYLES (Copied & Matched to Found UI) ------------------ */
-
+// Consistent Styling Object – Polished & Professional
 const styles = {
+  /* ================================
+     LAYOUT
+  ================================== */
   container: {
     display: "flex",
     minHeight: "100vh",
@@ -215,23 +181,39 @@ const styles = {
     background: "linear-gradient(135deg, #f6f8ff 0%, #f0f2ff 100%)",
   },
 
-  mainContent: { flex: 1, padding: "30px 40px", overflowY: "auto" },
+  mainContent: {
+    flex: 1,
+    padding: "30px 40px",
+    overflowY: "auto",
+  },
 
-  /* HEADER */
+  /* ================================
+     HEADER
+  ================================== */
   header: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "flex-start",
     marginBottom: "30px",
   },
+
   title: {
     fontSize: "32px",
-    fontWeight: "800",
+    fontWeight: 800,
     color: "#1A1851",
+    marginBottom: "6px",
   },
-  subtitle: { fontSize: "16px", color: "#64748b" },
 
-  headerActions: { display: "flex", gap: "20px" },
+  subtitle: {
+    fontSize: "16px",
+    color: "#64748b",
+  },
+
+  headerActions: {
+    display: "flex",
+    gap: "20px",
+  },
+
   statsBadge: {
     display: "flex",
     alignItems: "center",
@@ -240,10 +222,13 @@ const styles = {
     background: "rgba(248, 194, 46, 0.15)",
     color: "#d97706",
     borderRadius: "12px",
-    fontWeight: "600",
+    fontWeight: 600,
+    fontSize: "15px",
   },
 
-  /* CONTROLS */
+  /* ================================
+     SEARCH & CONTROLS
+  ================================== */
   controls: {
     display: "flex",
     justifyContent: "space-between",
@@ -251,25 +236,30 @@ const styles = {
     marginBottom: "30px",
     gap: "20px",
   },
+
   searchContainer: {
     flex: 1,
     position: "relative",
     maxWidth: "600px",
   },
+
   searchInput: {
     width: "100%",
     padding: "16px 16px 16px 52px",
     border: "2px solid #e2e8f0",
     borderRadius: "12px",
     fontSize: "15px",
-    outline: "none",
     background: "#fff",
+    outline: "none",
+    transition: "all 0.25s ease",
   },
+
   searchIcon: {
     position: "absolute",
     left: "18px",
     top: "50%",
     transform: "translateY(-50%)",
+    color: "#94a3b8",
   },
 
   controlGroup: {
@@ -283,32 +273,36 @@ const styles = {
     color: "#fff",
     borderRadius: "12px",
     fontSize: "15px",
-    fontWeight: "600",
+    fontWeight: 600,
     border: "none",
     cursor: "pointer",
+    transition: "all 0.2s ease",
   },
 
-  /* CONTENT GRID */
+  /* ================================
+     GRID OF CARDS
+  ================================== */
   itemsGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(380px, 1fr))",
     gap: "24px",
   },
 
-  /* CARD */
   itemCard: {
-    background: "#fff",
+    background: "#ffffff",
     borderRadius: "18px",
-    overflow: "hidden",
     boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
-    animation: "slideInCard 0.5s forwards",
-    opacity: 0,
-    transform: "translateY(10px)",
+    overflow: "hidden",
     display: "flex",
     flexDirection: "column",
+    opacity: 0,
+    transform: "translateY(10px)",
+    animation: "slideInCard 0.5s forwards",
   },
 
-  /* CARD HEADER */
+  /* ================================
+     CARD HEADER
+  ================================== */
   cardHeader: {
     display: "flex",
     alignItems: "center",
@@ -316,97 +310,146 @@ const styles = {
     padding: "24px",
     borderBottom: "1px solid #f1f5f9",
   },
+
   itemAvatar: {
     width: "60px",
     height: "60px",
-    background: "#dbeafe",
     borderRadius: "14px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: "700",
-    fontSize: "22px",
+    background: "#dbeafe",
     color: "#1A1851",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: "22px",
+    fontWeight: 700,
+    flexShrink: 0,
   },
+
   itemInfo: { flex: 1 },
-  itemTitle: { fontSize: "18px", fontWeight: "700" },
-  itemMeta: { display: "flex", gap: "12px", alignItems: "center" },
-  itemStatus: {
-    background: "#fef3c7",
-    padding: "4px 12px",
-    borderRadius: "20px",
-    color: "#d97706",
-    fontSize: "12px",
-    textTransform: "uppercase",
+
+  itemTitle: {
+    fontSize: "18px",
+    fontWeight: 700,
+    color: "#1e293b",
+    marginBottom: "6px",
   },
-  itemDate: { fontSize: "14px", color: "#94a3b8" },
 
-  /* CARD BODY */
-  cardBody: { padding: "24px" },
-
-  submitterInfo: {
+  itemMeta: {
     display: "flex",
     gap: "12px",
     alignItems: "center",
+  },
+
+  itemStatus: {
+    padding: "4px 12px",
+    borderRadius: "20px",
+    background: "#fef3c7",
+    color: "#d97706",
+    fontWeight: 600,
+    fontSize: "12px",
+    textTransform: "uppercase",
+  },
+
+  itemDate: {
+    fontSize: "14px",
+    color: "#94a3b8",
+  },
+
+  /* ================================
+     CARD BODY
+  ================================== */
+  cardBody: {
+    padding: "24px",
+    flex: 1,
+  },
+
+  /* SUBMITTER */
+  submitterInfo: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
     padding: "16px",
     background: "#f8fafc",
     borderRadius: "12px",
-    marginBottom: "20px",
   },
+
   submitterAvatar: {
     width: "40px",
     height: "40px",
     borderRadius: "50%",
     background: "#e0f2fe",
+    color: "#0369a1",
     display: "flex",
-    justifyContent: "center",
     alignItems: "center",
+    justifyContent: "center",
     fontSize: "16px",
-    fontWeight: "600",
+    fontWeight: 600,
   },
-  submitterName: { fontWeight: "600" },
-  submitterEmail: { fontSize: "13px", color: "#94a3b8" },
 
-  claimDetails: { display: "flex", flexDirection: "column", gap: "12px" },
-  detailRow: {
-    display: "flex",
-    justifyContent: "space-between",
-    borderBottom: "1px solid #f1f5f9",
-    paddingBottom: "8px",
+  submitterName: {
+    fontWeight: 600,
+    color: "#1e293b",
+    fontSize: "15px",
   },
-  detailLabel: { fontSize: "14px", color: "#64748b" },
-  detailValue: { fontSize: "14px", fontWeight: "600" },
 
-  /* FOOTER */
+  submitterEmail: {
+    fontSize: "13px",
+    color: "#94a3b8",
+  },
+
+  /* ================================
+     CARD FOOTER
+  ================================== */
   cardFooter: {
     padding: "20px 24px",
     borderTop: "1px solid #f1f5f9",
-  },
-  viewDetailsBtn: {
-    width: "100%",
-    padding: "12px",
-    background: "#1A1851",
-    color: "#fff",
-    borderRadius: "10px",
     display: "flex",
-    gap: "10px",
-    justifyContent: "center",
+    justifyContent: "space-between",
     alignItems: "center",
-    cursor: "pointer",
-    border: "none",
+    gap: "16px",
   },
 
-  /* EMPTY STATE */
+  viewDetailsBtn: {
+    padding: "10px 20px",
+    borderRadius: "10px",
+    border: "2px solid #1A1851",
+    background: "transparent",
+    color: "#1A1851",
+    fontSize: "14px",
+    fontWeight: 600,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    transition: "0.25s ease",
+  },
+
+  /* ================================
+     LOADING / EMPTY
+  ================================== */
+  loadingDots: {
+    width: "20px",
+    height: "20px",
+    backgroundColor: "currentColor",
+    borderRadius: "50%",
+    animation: "pulse 1.5s ease-in-out infinite",
+  },
+
   emptyState: {
     padding: "80px 20px",
     textAlign: "center",
     color: "#94a3b8",
-    background: "#fff",
+    background: "#ffffff",
     borderRadius: "20px",
     boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
   },
 
-  loadingContainer: { padding: "80px 20px", textAlign: "center" },
+  loadingContainer: {
+    padding: "80px 20px",
+    textAlign: "center",
+    color: "#64748b",
+  },
+
   loadingSpinner: {
     width: "50px",
     height: "50px",
@@ -417,5 +460,15 @@ const styles = {
     animation: "spin 1s linear infinite",
   },
 };
+
+
+// CSS Animation Injection
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  @keyframes slideInCard { to { opacity: 1; transform: translateY(0); } }
+  .view-details-btn:hover { background-color: #1A1851 !important; color: #fff !important; }
+`;
+document.head.appendChild(style);
 
 export default StaffPendingClaim;
