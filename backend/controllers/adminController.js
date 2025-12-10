@@ -2,6 +2,8 @@ const User = require("../models/User");
 const LostItem = require("../models/LostItem");
 const FoundItem = require("../models/FoundItem");
 const ClaimItem = require("../models/ClaimItem");
+const ActivityLog = require("../models/ActivityLog");
+const logActivity = require("../utils/activityLogger");
 
 // =========================================
 // GET ALL USERS (ADMIN ONLY)
@@ -63,69 +65,98 @@ exports.getDashboardStats = async (req, res) => {
 };
 
 // =========================================
+// UPDATE USER ROLE (MOVED FROM ROUTES)
+// =========================================
+exports.updateUserRole = async (req, res) => {
+  try {
+    const { role } = req.body;
+    const userId = req.params.id;
+
+    // 1. Prevent changing Main Admin
+    const MAIN_ADMIN_ID = "64f5e9b8c1234567890abcd"; 
+    if (userId === MAIN_ADMIN_ID) {
+      return res.status(403).json({ message: "Cannot change main admin role" });
+    }
+
+    // 2. Validate Role
+    if (!["user", "staff", "admin"].includes(role.toLowerCase())) {
+      return res.status(400).json({ message: "Invalid role" });
+    }
+
+    // 3. Find User (Need name for logging)
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const previousRole = user.role; // Capture old role for details
+
+    // 4. Update Role
+    user.role = role.toLowerCase();
+    await user.save();
+
+    // 5. LOG ACTIVITY
+    await logActivity(
+      user.name,                        // Name: The User being changed (e.g., "Ggll")
+      "Role Change",                    // Activity
+      `Changed from ${previousRole} to ${role}`, // Details
+      req.user.name,                    // Verifier: The Admin doing the change
+      "Changed"                         // Result
+    );
+
+    res.json({ success: true, message: "Role updated" });
+  } catch (err) {
+    console.error("ROLE UPDATE ERROR:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+// =========================================
+// DELETE USER (MOVED FROM ROUTES)
+// =========================================
+exports.deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    // 1. Prevent deleting Main Admin
+    const MAIN_ADMIN_ID = "64f5e9b8c1234567890abcd";
+    if (userId === MAIN_ADMIN_ID) {
+      return res.status(403).json({ message: "Cannot delete main admin" });
+    }
+
+    // 2. Find User (Need name for logging)
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // 3. Delete User
+    await User.findByIdAndDelete(userId);
+
+    // 4. LOG ACTIVITY
+    await logActivity(
+      user.name,                        // Name: The User who was deleted
+      "User Deletion",                  // Activity
+      "Account deleted by Admin",       // Details
+      req.user.name,                    // Verifier: The Admin
+      "Deleted"                         // Result
+    );
+
+    res.json({ success: true, message: "User deleted successfully" });
+  } catch (err) {
+    console.error("DELETE USER ERROR:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+// =========================================
 // ADMIN ACTIVITY LOGS
 // =========================================
 exports.getActivityLogs = async (req, res) => {
   try {
-    const lost = await LostItem.find()
-      .populate("reported_by")
-      .populate("reviewed_by");
-
-    const found = await FoundItem.find()
-      .populate("posted_by")
-      .populate("reviewed_by")
-      .populate("verified_by");
-
-    const claims = await ClaimItem.find()
-      .populate("claimant")
-      .populate("reviewed_by");
-
-    const logs = [];
-
-    // LOST
-    lost.forEach((item) =>
-      logs.push({
-        type: "lost",
-        timestamp: item.createdAt,
-        name: item.name,
-        activity: "Lost",
-        verifier: item.reviewed_by ? item.reviewed_by.name : "None",
-        result: item.approval_status,
-        action: "Posted",
-      })
-    );
-
-    // FOUND
-    found.forEach((item) =>
-      logs.push({
-        type: "found",
-        timestamp: item.createdAt,
-        name: item.name,
-        activity: "Found",
-        verifier: item.reviewed_by ? item.reviewed_by.name : "None",
-        result: item.approval_status,
-        action: "Posted",
-      })
-    );
-
-    // CLAIMS
-    claims.forEach((item) =>
-      logs.push({
-        type: "claim",
-        timestamp: item.date_claimed,
-        name: item.claimant?.name,
-        activity: "Claimed",
-        verifier: item.reviewed_by ? item.reviewed_by.name : "None",
-        result: item.claim_status,
-        action: "Claimed",
-      })
-    );
-
-    logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
+    // Simply fetch the logs. MongoDB handles the 15-min deletion automatically.
+    const logs = await ActivityLog.find().sort({ timestamp: -1 });
     res.json({ logs });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.status(500).json({ message: "Error loading logs" });
   }
 };

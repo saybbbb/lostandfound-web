@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const sendEmail = require("../utils/sendEmail");
+const logActivity = require("../utils/activityLogger");
 
 /* ======================================================
    REGISTER (User starts as UNVERIFIED)
@@ -214,6 +215,15 @@ exports.verifyUser = async (req, res) => {
     // Update verification status
     user.verified = true;
     await user.save();
+
+    // LOGGING
+    await logActivity(
+      user.name,           // Name (The User being verified)
+      "Account Approval",     // Activity
+      user.email,          // Details (User Email)
+      "Admin",             // Verifier
+      "Verified"           // Result
+    );
 
     // Create system notification for user
     await Notification.create({

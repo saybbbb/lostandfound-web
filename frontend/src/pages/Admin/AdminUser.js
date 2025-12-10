@@ -108,7 +108,9 @@ function AdminUser() {
       setSelectedUser(null);
       fetchUsers();
     } catch (err) {
-      alert("Failed to update role.");
+      // Backend now returns specific errors (e.g. "Cannot change main admin role")
+      const errMsg = err.response?.data?.message || "Failed to update role.";
+      alert(errMsg);
       console.error(err);
     }
   };
@@ -129,7 +131,8 @@ function AdminUser() {
       setDeleteUser(null);
       fetchUsers();
     } catch (err) {
-      alert("Delete failed.");
+      const errMsg = err.response?.data?.message || "Delete failed.";
+      alert(errMsg);
     }
   };
 
@@ -138,14 +141,23 @@ function AdminUser() {
   // ============================
   const filteredUsers = users
     .filter((u) => {
+      // Logic: 
+      // 1. "unverified" tab shows ONLY users with verified: false
+      // 2. "all" tab shows ONLY users with verified: true (Active Users)
+      // 3. "user"/"staff"/"admin" tabs show verified users of that role
+      
       if (filterRole === "unverified") return u.verified === false;
 
-      if (filterRole === "all") return u.verified === true;
+      // For all other tabs, we only show VERIFIED users
+      if (u.verified === false) return false;
 
-      return u.role?.toLowerCase() === filterRole && u.verified === true;
+      if (filterRole === "all") return true;
+
+      return u.role?.toLowerCase() === filterRole;
     })
     .filter((u) =>
-      u.name.toLowerCase().includes(search.toLowerCase())
+      u.name.toLowerCase().includes(search.toLowerCase()) ||
+      u.email.toLowerCase().includes(search.toLowerCase())
     );
 
   return (
@@ -180,7 +192,7 @@ function AdminUser() {
           <div style={styles.searchbar}>
             <input
               type="text"
-              placeholder="Search User Here..."
+              placeholder="Search User by Name or Email..."
               style={styles.searchinput}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -226,7 +238,7 @@ function AdminUser() {
                       {/* ACTION BUTTONS */}
                       <td style={{ ...styles.td, display: "flex", gap: 10 }}>
                         {/* SHOW ONLY WHEN UNVERIFIED */}
-                        {filterRole === "unverified" && (
+                        {u.verified === false ? (
                           <>
                             <button
                               style={styles.verifyActionBtn}
@@ -242,10 +254,8 @@ function AdminUser() {
                               REJECT
                             </button>
                           </>
-                        )}
-
-                        {/* SHOW ONLY WHEN VERIFIED */}
-                        {filterRole !== "unverified" && (
+                        ) : (
+                          /* SHOW ONLY WHEN VERIFIED */
                           <>
                             <button
                               style={styles.editActionBtn}
@@ -355,7 +365,7 @@ const styles = {
 
   mainContent: {
     flexGrow: 1,
-    paddingLeft: "230px",
+    paddingLeft: "230px", // match your AdminNavBar width
     display: "flex",
     flexDirection: "column",
     minHeight: "100vh",

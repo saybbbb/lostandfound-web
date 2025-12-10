@@ -113,58 +113,15 @@ router.put(
   "/admin/set-role/:id",
   authMiddleware,
   authorizeRole("admin"),
-  async (req, res) => {
-    try {
-      const { role } = req.body;
-
-      const MAIN_ADMIN_ID = "64f5e9b8c1234567890abcd";
-
-      if (req.params.id === MAIN_ADMIN_ID) {
-        return res
-          .status(403)
-          .json({ message: "Cannot change main admin role" });
-      }
-
-      if (!["user", "staff", "admin"].includes(role.toLowerCase())) {
-        return res.status(400).json({ message: "Invalid role" });
-      }
-
-      await User.findByIdAndUpdate(req.params.id, { role: role.toLowerCase() });
-      res.json({ success: true, message: "Role updated" });
-    } catch (err) {
-      res.status(500).json({ message: "Server error", error: err.message });
-    }
-  }
+  adminController.updateUserRole
 );
 
-// ======================================================
-// DELETE USER (ADMIN ONLY)
-// ======================================================
+// DELETE USER (Updated to use Controller)
 router.delete(
   "/admin/delete/:id",
   authMiddleware,
   authorizeRole("admin"),
-  async (req, res) => {
-    try {
-      const userId = req.params.id;
-
-      const MAIN_ADMIN_ID = "64f5e9b8c1234567890abcd";
-      if (userId === MAIN_ADMIN_ID) {
-        return res.status(403).json({ message: "Cannot delete main admin" });
-      }
-
-      const user = await User.findById(userId);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-
-      await User.findByIdAndDelete(userId);
-
-      res.json({ success: true, message: "User deleted successfully" });
-    } catch (err) {
-      res.status(500).json({ success: false, message: err.message });
-    }
-  }
+  adminController.deleteUser 
 );
 
 /* ======================================================

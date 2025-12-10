@@ -2,18 +2,18 @@ const LostItem = require("../models/LostItem");
 const FoundItem = require("../models/FoundItem");
 const ClaimItem = require("../models/ClaimItem");
 const Notification = require("../models/Notification");
-
+const logActivity = require("../utils/activityLogger"); // <--- Import Logger
 
 // GET all pending posts (lost & found)
 exports.getPendingPosts = async (req, res) => {
   try {
     const lost = await LostItem.find({ approval_status: "pending" })
       .populate("reported_by", "name email")
-      .populate("category", "name"); // <--- ADDED THIS
+      .populate("category", "name");
 
     const found = await FoundItem.find({ approval_status: "pending" })
       .populate("posted_by", "name email")
-      .populate("category", "name"); // <--- ADDED THIS 
+      .populate("category", "name");
 
     res.json({ success: true, lost, found });
   } catch (err) {
@@ -21,12 +21,13 @@ exports.getPendingPosts = async (req, res) => {
   }
 };
 
-
+// APPROVE ITEM
 exports.approveItem = async (req, res) => {
   try {
     const { itemId, type } = req.body;
 
     const Model = type === "lost" ? LostItem : FoundItem;
+    // Populate owner so we can log their name
     const item = await Model.findById(itemId).populate(type === "lost" ? "reported_by" : "posted_by");
 
     if (!item) return res.status(404).json({ success: false, message: "Item not found" });
@@ -39,6 +40,18 @@ exports.approveItem = async (req, res) => {
 
     await item.save({ validateBeforeSave: false }); 
 
+    // --- ACTIVITY LOGGING ---
+    const ownerName = type === "lost" ? item.reported_by?.name : item.posted_by?.name;
+    
+    await logActivity(
+      ownerName || "Unknown User", // Name (The User)
+      "Verification",              // Activity
+      item.name,                   // Details (Item Name)
+      req.user.name,               // Verifier (The Staff)
+      "Verified"                   // Result
+    );
+    // ------------------------
+
     // 🔔 1. NOTIFICATION: Report Verified
     const ownerId = type === "lost" ? item.reported_by._id : item.posted_by._id;
     await Notification.create({
@@ -48,7 +61,6 @@ exports.approveItem = async (req, res) => {
     });
 
     // 🔔 2. AUTOMATIC MATCHING LOGIC
-    // If a LOST item is approved -> Search FOUND items for a match
     if (type === "lost") {
         const potentialMatches = await FoundItem.find({
             category: item.category, // Same category
@@ -65,7 +77,6 @@ exports.approveItem = async (req, res) => {
         }
     }
 
-    // If a FOUND item is approved -> Search LOST items to notify owners
     if (type === "found") {
         const matchingLostItems = await LostItem.find({
             category: item.category,
@@ -73,7 +84,6 @@ exports.approveItem = async (req, res) => {
             status: "open"
         });
 
-        // Notify all users who lost something similar
         for (const lostItem of matchingLostItems) {
             await Notification.create({
                 user_id: lostItem.reported_by,
@@ -90,13 +100,14 @@ exports.approveItem = async (req, res) => {
   }
 };
 
-
+// REJECT ITEM
 exports.rejectItem = async (req, res) => {
   try {
     const { itemId, type, reason } = req.body;
 
     const Model = type === "lost" ? LostItem : FoundItem;
-    const item = await Model.findById(itemId);
+    // Populate owner
+    const item = await Model.findById(itemId).populate(type === "lost" ? "reported_by" : "posted_by");
 
     if (!item) return res.status(404).json({ message: "Item not found" });
 
@@ -107,13 +118,24 @@ exports.rejectItem = async (req, res) => {
 
     await item.save({ validateBeforeSave: false }); 
 
+    // --- ACTIVITY LOGGING ---
+    const ownerName = type === "lost" ? item.reported_by?.name : item.posted_by?.name;
+
+    await logActivity(
+      ownerName || "Unknown User",
+      "Verification",
+      item.name,
+      req.user.name, // Staff Verifier
+      "Rejected"
+    );
+    // ------------------------
+
     res.json({ success: true, message: "Item rejected" });
   } catch (err) {
     console.log("REJECTION ERROR:", err);
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
 
 // GET ALL PENDING CLAIMS
 exports.getPendingClaims = async (req, res) => {
@@ -138,7 +160,8 @@ exports.verifyClaim = async (req, res) => {
   try {
     const { itemId } = req.body;
 
-    const item = await FoundItem.findById(itemId);
+    // Populate claimed_by so we can log the name
+    const item = await FoundItem.findById(itemId).populate("claimed_by");
     if (!item) return res.status(404).json({ success: false, message: "Item not found" });
 
     // Must already be claimed
@@ -158,7 +181,7 @@ exports.verifyClaim = async (req, res) => {
     await ClaimItem.create({
       lost_item: item.lost_item_id,
       found_item: item._id,
-      claimant: item.claimed_by,
+      claimant: item.claimed_by._id, // Use ID for reference
       reviewed_by: req.user.id,
       proof_description: item.proof_description,
       claim_status: "approved",
@@ -173,10 +196,20 @@ exports.verifyClaim = async (req, res) => {
       await LostItem.findByIdAndDelete(item.lost_item_id);
     }
 
+    // --- ACTIVITY LOGGING ---
+    await logActivity(
+      item.claimed_by?.name || "Unknown Claimant", // Name
+      "Claim Verification",                        // Activity
+      item.name,                                   // Details
+      req.user.name,                               // Verifier (Staff)
+      "Verified"                                   // Result
+    );
+    // ------------------------
+
     // Send notification
     try {
       await Notification.create({
-        user_id: item.claimed_by,
+        user_id: item.claimed_by._id,
         message: `Your claim for "${item.name}" was approved.`,
         type: "claim_update",
       });
@@ -197,7 +230,8 @@ exports.rejectClaim = async (req, res) => {
   try {
     const { itemId, reason } = req.body;
 
-    const item = await FoundItem.findById(itemId);
+    // Populate claimed_by so we can log the name
+    const item = await FoundItem.findById(itemId).populate("claimed_by");
     if (!item) return res.status(404).json({ success: false, message: "Item not found" });
 
     // Must be an active claim
@@ -205,9 +239,11 @@ exports.rejectClaim = async (req, res) => {
       return res.status(400).json({ success: false, message: "No active claim to reject" });
     }
 
-    // Reset claim fields
-    const claimantId = item.claimed_by; 
+    // Save claimant details before resetting
+    const claimantId = item.claimed_by._id;
+    const claimantName = item.claimed_by?.name; 
 
+    // Reset claim fields
     item.claim_status = "none";
     item.claimed_by = null;
     item.claimed_at = null;
@@ -220,6 +256,16 @@ exports.rejectClaim = async (req, res) => {
     item.reviewed_at = new Date();
 
     await item.save({ validateBeforeSave: false });
+
+    // --- ACTIVITY LOGGING ---
+    await logActivity(
+      claimantName || "Unknown Claimant",
+      "Claim Verification",
+      item.name,
+      req.user.name, // Staff Verifier
+      "Rejected"
+    );
+    // ------------------------
 
     // Send notification
     try {
