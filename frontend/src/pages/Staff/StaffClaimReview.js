@@ -47,7 +47,6 @@ export default function StaffClaimReview() {
   const [claim, setClaim] = useState(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
-  const [proofImages, setProofImages] = useState([]);
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -62,11 +61,6 @@ export default function StaffClaimReview() {
         
         if (found) {
           setClaim(found);
-          // Extract images from proof description if present
-          if (found.proof_description) {
-            const images = extractImages(found.proof_description);
-            setProofImages(images);
-          }
         } else {
           setClaim(null);
         }
@@ -80,12 +74,6 @@ export default function StaffClaimReview() {
 
     fetchClaimDetails();
   }, [claimId, token]);
-
-  const extractImages = (text) => {
-    const regex = /(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/gi;
-    const matches = text.match(regex);
-    return matches ? matches.slice(0, 3) : [];
-  };
 
   const approve = async () => {
     if (processing) return;
@@ -215,7 +203,6 @@ export default function StaffClaimReview() {
                 </div>
                 <div style={styles.detailItem}>
                   <span style={styles.detailLabel}>Category</span>
-                  {/* 👇 FIXED: Handle both Object (populated) and String (unpopulated) */}
                   <span style={styles.detailValue}>
                     {claim.category?.name || claim.category || "General"}
                   </span>
@@ -223,10 +210,6 @@ export default function StaffClaimReview() {
                 <div style={styles.detailItem}>
                   <span style={styles.detailLabel}>Description</span>
                   <p style={styles.description}>{claim.description || "No description provided"}</p>
-                </div>
-                <div style={styles.detailItem}>
-                  <span style={styles.detailLabel}>Original Status</span>
-                  <span style={styles.detailValue}>{claim.status || "Unknown"}</span>
                 </div>
               </div>
             </div>
@@ -259,97 +242,69 @@ export default function StaffClaimReview() {
             </div>
           </div>
 
-          {/* RIGHT COLUMN - IMAGES, PROOF & ACTIONS */}
+          {/* RIGHT COLUMN - PROOF & ACTIONS */}
           <div style={styles.proofColumn}>
             
-            {/* NEW: ITEM IMAGE CARD */}
+            {/* 1. FINDER'S IMAGE */}
             <div style={styles.card}>
               <div style={styles.cardHeader}>
                 <IoImageOutline size={24} color="#1A1851" />
-                <h3 style={styles.cardTitle}>Item Image</h3>
+                <h3 style={styles.cardTitle}>Item Image (By Finder)</h3>
               </div>
               <div style={styles.cardBody}>
                 {claim.image_url ? (
                   <div style={styles.imageContainer}>
                     <img 
                       src={claim.image_url} 
-                      alt="Claimed Item" 
+                      alt="Found Item" 
                       style={styles.proofImage}
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.parentElement.innerHTML = '<div style="text-align:center; color:#999; padding: 20px;">Image failed to load</div>';
-                      }}
                     />
                   </div>
                 ) : (
-                  <div style={{padding: "30px", textAlign: "center", color: "#64748b", background: "#f8fafc", borderRadius: "10px"}}>
-                    <IoImageOutline size={40} style={{marginBottom: 10, opacity: 0.5}}/>
-                    <p>No image provided for this item</p>
-                  </div>
+                  <div style={{padding: "20px", textAlign: "center", color: "#999"}}>No image from finder</div>
                 )}
               </div>
             </div>
 
-            {/* TIMELINE CARD */}
-            <div style={styles.card}>
-              <div style={styles.cardHeader}>
-                <IoCalendarOutline size={24} color="#1A1851" />
-                <h3 style={styles.cardTitle}>Claim Timeline</h3>
-              </div>
-              <div style={styles.cardBody}>
-                <div style={styles.timeline}>
-                  <div style={styles.timelineItem}>
-                    <div style={styles.timelineDot}></div>
-                    <div style={styles.timelineContent}>
-                      <div style={styles.timelineTitle}>Claim Submitted</div>
-                      <div style={styles.timelineDate}>
-                        {formatDate(claim.claimed_at)}
-                      </div>
-                    </div>
-                  </div>
-                  <div style={styles.timelineItem}>
-                    <div style={styles.timelineDot}></div>
-                    <div style={styles.timelineContent}>
-                      <div style={styles.timelineTitle}>Under Review</div>
-                      <div style={styles.timelineDate}>
-                        Currently being reviewed by staff
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* PROOF CARD */}
+            {/* 2. CLAIMANT'S PROOF */}
             <div style={styles.card}>
               <div style={styles.cardHeader}>
                 <IoDocumentTextOutline size={24} color="#1A1851" />
-                <h3 style={styles.cardTitle}>Proof of Ownership</h3>
+                <h3 style={styles.cardTitle}>Claimant's Proof</h3>
               </div>
               <div style={styles.cardBody}>
-                {/* Proof Images from text URLs */}
-                {proofImages.length > 0 && (
-                  <div style={styles.proofImages}>
-                    {proofImages.map((img, index) => (
-                      <div key={index} style={styles.imageContainer}>
-                        <img 
-                          src={img} 
-                          alt={`Proof ${index + 1}`} 
-                          style={styles.proofImage}
-                        />
-                      </div>
-                    ))}
+                
+                {/* 👇 FIXED: Display Uploaded Proof Image 👇 */}
+                {claim.claim_proof_image ? (
+                  <div style={{marginBottom: 20}}>
+                    <p style={{fontSize: 14, fontWeight: 600, color: "#64748b", marginBottom: 8}}>Uploaded Proof Image:</p>
+                    <div style={styles.imageContainer}>
+                      <img 
+                        src={claim.claim_proof_image} 
+                        alt="Claim Proof" 
+                        style={styles.proofImage} 
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.parentElement.innerHTML = '<p style="color:red; text-align:center;">Failed to load proof image</p>';
+                        }}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{padding: 10, background: '#fff0f0', color: '#e11d48', borderRadius: 8, marginBottom: 15, fontSize: 13}}>
+                    No proof image was uploaded by the user.
                   </div>
                 )}
-                
+
+                {/* Text Proof */}
                 <div style={styles.proofText}>
                   <p><strong>Claimant's Statement:</strong></p>
-                  <p>{claim.proof_description || "No additional proof provided."}</p>
+                  <p>{claim.proof_description || "No description provided."}</p>
                 </div>
                 
                 <div style={styles.proofValidation}>
                   <IoShieldCheckmarkOutline size={20} color="#10B981" />
-                  <span>Verification recommended based on provided evidence</span>
+                  <span>Verify that proof matches item details</span>
                 </div>
               </div>
             </div>
@@ -406,424 +361,46 @@ export default function StaffClaimReview() {
 }
 
 const styles = {
-  /* ================================
-     LAYOUT
-  ================================== */
-  container: {
-    display: "flex",
-    minHeight: "100vh",
-    fontFamily: "'Inter', sans-serif",
-    background: "linear-gradient(135deg, #f6f8ff 0%, #f0f2ff 100%)",
-  },
-
-  mainContent: {
-    flex: 1,
-    padding: "30px 40px",
-    overflowY: "auto",
-  },
-
-  loadingContainer: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "calc(100vh - 60px)",
-    color: "#64748b",
-  },
-
-  loadingSpinner: {
-    width: "60px",
-    height: "60px",
-    border: "4px solid #e2e8f0",
-    borderTop: "4px solid #1A1851",
-    borderRadius: "50%",
-    marginBottom: "20px",
-    animation: "spin 1s linear infinite",
-  },
-
-  errorContainer: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "calc(100vh - 60px)",
-    textAlign: "center",
-    padding: "40px",
-  },
-
-  /* ================================
-     HEADER
-  ================================== */
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: "30px",
-    flexWrap: "wrap",
-    gap: "20px",
-  },
-
-  headerInfo: {
-    flex: 1,
-    minWidth: "300px",
-  },
-
-  title: {
-    fontSize: "32px",
-    fontWeight: "800",
-    color: "#1A1851",
-    margin: "0 0 8px 0",
-  },
-
-  subtitle: {
-    fontSize: "16px",
-    color: "#64748b",
-    margin: 0,
-  },
-
-  backNavButton: {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    padding: "12px 20px",
-    backgroundColor: "transparent",
-    color: "#64748b",
-    border: "2px solid #e2e8f0",
-    borderRadius: "10px",
-    fontSize: "15px",
-    fontWeight: "600",
-    cursor: "pointer",
-    transition: "all 0.3s ease",
-  },
-
-  claimStatus: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-end",
-    gap: "8px",
-  },
-
-  statusBadge: {
-    padding: "8px 16px",
-    backgroundColor: "#fef3c7",
-    color: "#d97706",
-    borderRadius: "20px",
-    fontSize: "14px",
-    fontWeight: "600",
-    textTransform: "uppercase",
-  },
-
-  claimId: {
-    fontSize: "13px",
-    color: "#94a3b8",
-    fontFamily: "monospace",
-  },
-
-  backButton: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    padding: "14px 28px",
-    backgroundColor: "#1A1851",
-    color: "#ffffff",
-    border: "none",
-    borderRadius: "10px",
-    fontSize: "15px",
-    fontWeight: "600",
-    cursor: "pointer",
-    marginTop: "20px",
-  },
-
-  /* ================================
-     GRID CONTENT
-  ================================== */
-  contentGrid: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "30px",
-    marginBottom: "40px",
-  },
-
-  detailsColumn: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "24px",
-  },
-
-  proofColumn: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "24px",
-  },
-
-  /* ================================
-     CARD
-  ================================== */
-  card: {
-    backgroundColor: "#ffffff",
-    borderRadius: "18px",
-    overflow: "hidden",
-    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.06)",
-  },
-
-  cardHeader: {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    padding: "24px",
-    backgroundColor: "#f8fafc",
-    borderBottom: "1px solid #e2e8f0",
-  },
-
-  cardTitle: {
-    fontSize: "18px",
-    fontWeight: "700",
-    color: "#1e293b",
-    margin: 0,
-  },
-
-  cardBody: {
-    padding: "24px",
-  },
-
-  /* ================================
-     DETAILS
-  ================================== */
-  detailItem: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "8px",
-    marginBottom: "20px",
-  },
-
-  detailLabel: {
-    fontSize: "14px",
-    color: "#64748b",
-    fontWeight: "500",
-    textTransform: "uppercase",
-  },
-
-  detailValue: {
-    fontSize: "16px",
-    fontWeight: "600",
-    color: "#1e293b",
-  },
-
-  description: {
-    fontSize: "15px",
-    color: "#475569",
-    lineHeight: "1.6",
-    margin: 0,
-    padding: "12px",
-    backgroundColor: "#f8fafc",
-    borderRadius: "8px",
-    border: "1px solid #e2e8f0",
-  },
-
-  /* ================================
-     CLAIMANT INFO
-  ================================== */
-  claimantInfo: {
-    display: "flex",
-    alignItems: "center",
-    gap: "16px",
-    padding: "16px",
-    backgroundColor: "#f8fafc",
-    borderRadius: "12px",
-    marginBottom: "20px",
-  },
-
-  avatar: {
-    width: "56px",
-    height: "56px",
-    borderRadius: "50%",
-    backgroundColor: "#e0f2fe",
-    color: "#0369a1",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "20px",
-    fontWeight: "700",
-    flexShrink: 0,
-  },
-
-  claimantName: {
-    fontSize: "18px",
-    fontWeight: "700",
-    color: "#1e293b",
-    marginBottom: "4px",
-  },
-
-  claimantEmail: {
-    fontSize: "14px",
-    color: "#64748b",
-  },
-
-  /* ================================
-     IMAGES
-  ================================== */
-  imageContainer: {
-    width: "100%",
-    borderRadius: "10px",
-    overflow: "hidden",
-    backgroundColor: "#f1f5f9",
-  },
-
-  proofImage: {
-    width: "100%",
-    height: "auto",
-    display: "block",
-  },
-
-  proofImages: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
-    gap: "12px",
-    marginBottom: "20px",
-  },
-
-  proofText: {
-    backgroundColor: "#f8fafc",
-    padding: "20px",
-    borderRadius: "12px",
-    marginBottom: "20px",
-    border: "1px solid #e2e8f0",
-  },
-
-  /* ================================
-     TIMELINE
-  ================================== */
-  timeline: {
-    position: "relative",
-    paddingLeft: "20px",
-  },
-
-  timelineItem: {
-    position: "relative",
-    marginBottom: "24px",
-    display: "flex",
-    alignItems: "flex-start",
-  },
-
-  timelineDot: {
-    position: "absolute",
-    left: "-28px",
-    top: "4px",
-    width: "12px",
-    height: "12px",
-    borderRadius: "50%",
-    backgroundColor: "#1A1851",
-    border: "3px solid #ffffff",
-    boxShadow: "0 0 0 3px rgba(26, 24, 81, 0.1)",
-  },
-
-  timelineContent: { flex: 1 },
-
-  timelineTitle: {
-    fontSize: "15px",
-    fontWeight: "600",
-    color: "#1e293b",
-    marginBottom: "4px",
-  },
-
-  timelineDate: {
-    fontSize: "14px",
-    color: "#64748b",
-  },
-
-  /* ================================
-     APPROVAL SECTION
-  ================================== */
-  proofValidation: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    padding: "16px",
-    backgroundColor: "#d1fae5",
-    color: "#065f46",
-    borderRadius: "10px",
-    fontSize: "14px",
-    fontWeight: "600",
-  },
-
-  verificationGuidelines: {
-    backgroundColor: "#f0f9ff",
-    padding: "20px",
-    borderRadius: "12px",
-    marginBottom: "24px",
-    border: "1px solid #e0f2fe",
-  },
-
-  guidelinesTitle: {
-    fontSize: "16px",
-    fontWeight: "700",
-    color: "#0369a1",
-    margin: "0 0 12px 0",
-  },
-
-  guidelinesList: {
-    margin: 0,
-    paddingLeft: "20px",
-    color: "#475569",
-    fontSize: "14px",
-    lineHeight: "1.6",
-  },
-
-  actionButtons: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "12px",
-  },
-
-  approveButton: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "10px",
-    padding: "18px",
-    backgroundColor: "#10B981",
-    color: "#ffffff",
-    border: "none",
-    borderRadius: "12px",
-    fontSize: "16px",
-    fontWeight: "700",
-    cursor: "pointer",
-    width: "100%",
-  },
-
-  rejectButton: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "10px",
-    padding: "18px",
-    backgroundColor: "#EF4444",
-    color: "#ffffff",
-    border: "none",
-    borderRadius: "12px",
-    fontSize: "16px",
-    fontWeight: "700",
-    cursor: "pointer",
-    width: "100%",
-  },
-
-  loadingDots: {
-    width: "24px",
-    height: "24px",
-    borderRadius: "50%",
-    backgroundColor: "currentColor",
-    animation: "pulse 1.5s ease-in-out infinite",
-  },
-
-  actionNotes: {
-    padding: "16px",
-    backgroundColor: "#fef3c7",
-    color: "#92400e",
-    borderRadius: "10px",
-    fontSize: "14px",
-    textAlign: "center",
-    border: "1px solid #fbbf24",
-  },
+  container: { display: "flex", minHeight: "100vh", fontFamily: "'Inter', sans-serif", background: "linear-gradient(135deg, #f6f8ff 0%, #f0f2ff 100%)" },
+  mainContent: { flex: 1, padding: "30px 40px", overflowY: "auto" },
+  loadingContainer: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "calc(100vh - 60px)", color: "#64748b" },
+  loadingSpinner: { width: "60px", height: "60px", border: "4px solid #e2e8f0", borderTop: "4px solid #1A1851", borderRadius: "50%", marginBottom: "20px", animation: "spin 1s linear infinite" },
+  errorContainer: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "calc(100vh - 60px)", textAlign: "center", padding: "40px" },
+  header: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "30px", flexWrap: "wrap", gap: "20px" },
+  backNavButton: { display: "flex", alignItems: "center", gap: "8px", padding: "12px 20px", backgroundColor: "transparent", color: "#64748b", border: "2px solid #e2e8f0", borderRadius: "10px", fontSize: "15px", fontWeight: "600", cursor: "pointer", transition: "all 0.3s ease" },
+  headerInfo: { flex: 1, minWidth: "300px" },
+  title: { fontSize: "32px", fontWeight: "800", color: "#1A1851", margin: "0 0 8px 0" },
+  subtitle: { fontSize: "16px", color: "#64748b", margin: 0 },
+  claimStatus: { display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px" },
+  statusBadge: { padding: "8px 16px", backgroundColor: "#fef3c7", color: "#d97706", borderRadius: "20px", fontSize: "14px", fontWeight: "600", textTransform: "uppercase" },
+  claimId: { fontSize: "13px", color: "#94a3b8", fontFamily: "monospace" },
+  backButton: { display: "flex", alignItems: "center", gap: "10px", padding: "14px 28px", backgroundColor: "#1A1851", color: "#ffffff", border: "none", borderRadius: "10px", fontSize: "15px", fontWeight: "600", cursor: "pointer", marginTop: "20px" },
+  contentGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "30px", marginBottom: "40px" },
+  detailsColumn: { display: "flex", flexDirection: "column", gap: "24px" },
+  proofColumn: { display: "flex", flexDirection: "column", gap: "24px" },
+  card: { backgroundColor: "#ffffff", borderRadius: "18px", overflow: "hidden", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.06)" },
+  cardHeader: { display: "flex", alignItems: "center", gap: "12px", padding: "24px", backgroundColor: "#f8fafc", borderBottom: "1px solid #e2e8f0" },
+  cardTitle: { fontSize: "18px", fontWeight: "700", color: "#1e293b", margin: 0 },
+  cardBody: { padding: "24px" },
+  detailItem: { display: "flex", flexDirection: "column", gap: "8px", marginBottom: "20px" },
+  detailLabel: { fontSize: "14px", color: "#64748b", fontWeight: "500", textTransform: "uppercase" },
+  detailValue: { fontSize: "16px", fontWeight: "600", color: "#1e293b" },
+  description: { fontSize: "15px", color: "#475569", lineHeight: "1.6", margin: 0, padding: "12px", backgroundColor: "#f8fafc", borderRadius: "8px", border: "1px solid #e2e8f0" },
+  claimantInfo: { display: "flex", alignItems: "center", gap: "16px", padding: "16px", backgroundColor: "#f8fafc", borderRadius: "12px", marginBottom: "20px" },
+  avatar: { width: "56px", height: "56px", borderRadius: "50%", backgroundColor: "#e0f2fe", color: "#0369a1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", fontWeight: "700", flexShrink: 0 },
+  claimantName: { fontSize: "18px", fontWeight: "700", color: "#1e293b", marginBottom: "4px" },
+  claimantEmail: { fontSize: "14px", color: "#64748b" },
+  imageContainer: { width: "100%", borderRadius: "10px", overflow: "hidden", backgroundColor: "#f1f5f9" },
+  proofImage: { width: "100%", height: "auto", display: "block" },
+  proofText: { backgroundColor: "#f8fafc", padding: "20px", borderRadius: "12px", marginBottom: "20px", border: "1px solid #e2e8f0" },
+  proofValidation: { display: "flex", alignItems: "center", gap: "10px", padding: "16px", backgroundColor: "#d1fae5", color: "#065f46", borderRadius: "10px", fontSize: "14px", fontWeight: "600", marginTop: 20 },
+  verificationGuidelines: { backgroundColor: "#f0f9ff", padding: "20px", borderRadius: "12px", marginBottom: "24px", border: "1px solid #e0f2fe" },
+  guidelinesTitle: { fontSize: "16px", fontWeight: "700", color: "#0369a1", margin: "0 0 12px 0" },
+  guidelinesList: { margin: 0, paddingLeft: "20px", color: "#475569", fontSize: "14px", lineHeight: "1.6" },
+  actionButtons: { display: "flex", flexDirection: "column", gap: "12px" },
+  approveButton: { display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", padding: "18px", backgroundColor: "#10B981", color: "#ffffff", border: "none", borderRadius: "12px", fontSize: "16px", fontWeight: "700", cursor: "pointer", width: "100%" },
+  rejectButton: { display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", padding: "18px", backgroundColor: "#EF4444", color: "#ffffff", border: "none", borderRadius: "12px", fontSize: "16px", fontWeight: "700", cursor: "pointer", width: "100%" },
+  loadingDots: { width: "24px", height: "24px", borderRadius: "50%", backgroundColor: "currentColor", animation: "pulse 1.5s ease-in-out infinite" },
 };
 
 // Add CSS animations
@@ -841,6 +418,5 @@ style.textContent = `
   .approve-button:disabled, .reject-button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
   .back-button:hover { background-color: #0F0E3E; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(26, 24, 81, 0.3); }
   @media (max-width: 1200px) { .content-grid { grid-template-columns: 1fr; } }
-  @media (max-width: 768px) { .header { flex-direction: column; align-items: stretch; } .claim-status { align-items: flex-start; } .card-header { flex-direction: column; align-items: flex-start; gap: 12px; } }
 `;
 document.head.appendChild(style);

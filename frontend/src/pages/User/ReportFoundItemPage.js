@@ -20,6 +20,7 @@ function ReportFoundItemPage() {
   });
 
   const [isUploading, setIsUploading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // <--- NEW STATE
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
@@ -38,6 +39,9 @@ function ReportFoundItemPage() {
 
   const submitFoundItem = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return; // Prevent double submission
+
+    setIsSubmitting(true); // Disable button
 
     try {
       const res = await axios.post(
@@ -59,6 +63,7 @@ function ReportFoundItemPage() {
         err.response?.data || err.message
       );
       alert("Error submitting found item");
+      setIsSubmitting(false); // Re-enable if error
     }
   };
 
@@ -190,10 +195,14 @@ function ReportFoundItemPage() {
 
             <button
               type="submit"
-              style={isUploading ? { ...styles.submitBtn, backgroundColor: "#ccc" } : styles.submitBtn}
-              disabled={isUploading}
+              style={
+                isUploading || isSubmitting
+                  ? { ...styles.submitBtn, backgroundColor: "#ccc", cursor: "not-allowed" }
+                  : styles.submitBtn
+              }
+              disabled={isUploading || isSubmitting}
             >
-              {isUploading ? "Uploading..." : "Submit Report"}
+              {isUploading ? "Uploading..." : isSubmitting ? "Submitting..." : "Submit Report"}
             </button>
           </div>
         </form>
