@@ -10,6 +10,13 @@ const {
   getUserNotifications,
   markAllAsRead,
 } = require("../controllers/authController");
+
+// ADD THESE FOR VERIFICATION SYSTEM
+const {
+  verifyUser,
+  rejectUser,
+} = require("../controllers/authController");
+
 const adminController = require("../controllers/adminController");
 const staffController = require("../controllers/staffController");
 
@@ -69,9 +76,7 @@ router.put("/profile/update", authMiddleware, async (req, res) => {
 
 /* ======================================================
    FORGOT PASSWORD ROUTES
-   FORGOT PASSWORD ROUTES
 ======================================================*/
-
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
 
@@ -95,7 +100,7 @@ router.get(
   adminController.getDashboardStats
 );
 
-// ADMIN ACTIVITY LOGS (FIXED)
+// ADMIN ACTIVITY LOGS
 router.get(
   "/admin/activity-logs",
   authMiddleware,
@@ -119,15 +124,7 @@ router.put(
           .status(403)
           .json({ message: "Cannot change main admin role" });
       }
-      if (req.params.id === MAIN_ADMIN_ID) {
-        return res
-          .status(403)
-          .json({ message: "Cannot change main admin role" });
-      }
 
-      if (!["user", "staff", "admin"].includes(role.toLowerCase())) {
-        return res.status(400).json({ message: "Invalid role" });
-      }
       if (!["user", "staff", "admin"].includes(role.toLowerCase())) {
         return res.status(400).json({ message: "Invalid role" });
       }
@@ -151,7 +148,6 @@ router.delete(
     try {
       const userId = req.params.id;
 
-      // Prevent deletion of main admin account
       const MAIN_ADMIN_ID = "64f5e9b8c1234567890abcd";
       if (userId === MAIN_ADMIN_ID) {
         return res.status(403).json({ message: "Cannot delete main admin" });
@@ -166,9 +162,29 @@ router.delete(
 
       res.json({ success: true, message: "User deleted successfully" });
     } catch (err) {
-      res.status(500).json({ message: "Server error", error: err.message });
+      res.status(500).json({ success: false, message: err.message });
     }
   }
+);
+
+/* ======================================================
+   ADMIN — USER VERIFICATION ROUTES (ADDED)
+======================================================*/
+
+// APPROVE user
+router.patch(
+  "/admin/verify/:id",
+  authMiddleware,
+  authorizeRole("admin"),
+  verifyUser
+);
+
+// REJECT user
+router.delete(
+  "/admin/reject/:id",
+  authMiddleware,
+  authorizeRole("admin"),
+  rejectUser
 );
 
 /* ======================================================
@@ -240,7 +256,6 @@ router.get("/categories", async (req, res) => {
    LOST ITEMS ROUTES
 ======================================================*/
 
-// USER CREATES LOST ITEM
 router.post("/lost-items", authMiddleware, async (req, res) => {
   try {
     const {
@@ -324,7 +339,6 @@ router.get("/lost-items-with-status", async (req, res) => {
   }
 });
 
-//  FIXED: GET SINGLE LOST ITEM — correct placement
 router.get("/lost-items/:id", authMiddleware, async (req, res) => {
   try {
     const item = await LostItem.findById(req.params.id)
@@ -337,7 +351,6 @@ router.get("/lost-items/:id", authMiddleware, async (req, res) => {
         .json({ success: false, message: "Item not found" });
     }
 
-    // Allow access only if approved, or if the user is the owner or staff/admin
     const isOwner = item.reported_by._id.toString() === req.user.id;
     const isStaffOrAdmin =
       req.user.role === "staff" || req.user.role === "admin";
@@ -352,7 +365,6 @@ router.get("/lost-items/:id", authMiddleware, async (req, res) => {
   }
 });
 
-// DELETE a user's own lost item
 router.delete("/lost-items/:id", authMiddleware, async (req, res) => {
   try {
     const item = await LostItem.findById(req.params.id);
@@ -364,12 +376,10 @@ router.delete("/lost-items/:id", authMiddleware, async (req, res) => {
     }
 
     if (item.reported_by.toString() !== req.user.id) {
-      return res
-        .status(403)
-        .json({
-          success: false,
-          message: "Access denied: You are not the owner of this item.",
-        });
+      return res.status(403).json({
+        success: false,
+        message: "Access denied: You are not the owner of this item.",
+      });
     }
 
     await LostItem.findByIdAndDelete(req.params.id);
@@ -384,10 +394,9 @@ router.delete("/lost-items/:id", authMiddleware, async (req, res) => {
 });
 
 /* ======================================================
-   FOUND ITEM ROUTES
+   FOUND ITEMS ROUTES
 ======================================================*/
 
-// GET ALL APPROVED & UNCLAIMED FOUND ITEMS
 router.get("/found-items", async (req, res) => {
   try {
     const items = await FoundItem.find({
@@ -422,8 +431,9 @@ router.get("/found-items/:id", async (req, res) => {
 
 router.get("/found-reports/all", async (req, res) => {
   try {
-    const reports = await FoundItem.find() // <-- return ALL found reports (approved + pending)
-      .select("lost_item_id approval_status");
+    const reports = await FoundItem.find().select(
+      "lost_item_id approval_status"
+    );
 
     res.json({ success: true, reports });
   } catch (err) {
@@ -451,8 +461,6 @@ router.post("/found-items", authMiddleware, async (req, res) => {
       description,
       date_found,
       image_url,
-      posted_by,
-      approval_status: "pending",
       posted_by: req.user.id,
       contact_info,
       approval_status: "pending",
@@ -483,7 +491,6 @@ router.post("/lost-items/report-found", authMiddleware, async (req, res) => {
         .status(404)
         .json({ success: false, message: "Lost item not found" });
 
-    // Prevent user from reporting their own lost item as found
     if (lostItem.reported_by.toString() === req.user.id) {
       return res
         .status(403)
@@ -514,7 +521,7 @@ router.post("/lost-items/report-found", authMiddleware, async (req, res) => {
 });
 
 /* ======================================================
-   USER CLAIM FOUND ITEM
+   CLAIM ITEM ROUTES
 ======================================================*/
 
 router.post("/claims", authMiddleware, async (req, res) => {
@@ -527,7 +534,6 @@ router.post("/claims", authMiddleware, async (req, res) => {
         .status(404)
         .json({ success: false, message: "Item not found" });
 
-    // Prevent user from claiming their own found item
     if (item.posted_by.toString() === req.user.id) {
       return res
         .status(403)
@@ -537,20 +543,10 @@ router.post("/claims", authMiddleware, async (req, res) => {
         });
     }
 
-    // Prevent double claiming
     if (item.claim_status === "claimed") {
       return res.json({ success: false, message: "Item already claimed" });
     }
 
-    // Create the claim
-    item.claim_status = "claimed";
-    item.claimed_by = req.user.id;
-    item.claimed_at = new Date();
-    item.proof_description = proof_description;
-    item.verified_claim = false; // pending staff decision
-
-    await item.save({ validateBeforeSave: false });
-    // Save claim data
     item.claim_status = "claimed";
     item.claimed_by = req.user.id;
     item.claimed_at = new Date();
@@ -558,102 +554,6 @@ router.post("/claims", authMiddleware, async (req, res) => {
     item.verified_claim = false;
 
     await item.save();
-
-    res.json({ success: true, message: "Item successfully claimed" });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
-
-/* ======================================================
-   LOST ITEM ROUTES (Updated with Notification)
-======================================================*/
-router.post("/lost-items", authMiddleware, async (req, res) => {
-  try {
-    const { name, category, lost_location, description, date_lost, image_url, contact_info } = req.body;
-
-    const newItem = await LostItem.create({
-      name, category, lost_location, description, date_lost, image_url, contact_info,
-      reported_by: req.user.id,
-      approval_status: "pending"
-    });
-
-    // 🔔 NOTIFICATION: Report Submitted
-    await Notification.create({
-        user_id: req.user.id,
-        message: `You reported a lost "${name}". It is currently pending approval.`,
-        type: "report_submitted"
-    });
-
-    res.json({ success: true, item: newItem });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
-
-/* ======================================================
-   FOUND ITEM ROUTES (Updated with Notification)
-======================================================*/
-router.post("/found-items", authMiddleware, async (req, res) => {
-  try {
-    const { name, category, found_location, description, date_found, image_url, contact_info } = req.body;
-
-    const newItem = await FoundItem.create({
-      name, category, found_location, description, date_found, image_url, contact_info,
-      posted_by: req.user.id,
-      approval_status: "pending"
-    });
-
-    // 🔔 NOTIFICATION: Report Submitted
-    await Notification.create({
-        user_id: req.user.id,
-        message: `You reported a found "${name}". It is currently pending approval.`,
-        type: "report_submitted"
-    });
-
-    res.json({ success: true, item: newItem });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
-
-/* ======================================================
-   CLAIM ROUTES (Updated with "Claim Request" Notification)
-======================================================*/
-router.post("/claims", authMiddleware, async (req, res) => {
-  try {
-    const { found_item, proof_description } = req.body;
-
-    const item = await FoundItem.findById(found_item).populate("posted_by"); // Populate to get finder's ID
-    if (!item) return res.status(404).json({ success: false, message: "Item not found" });
-
-    if (item.claim_status === "claimed") {
-      return res.json({ success: false, message: "Item already claimed" });
-    }
-
-    item.claim_status = "claimed";
-    item.claimed_by = req.user.id;
-    item.claimed_at = new Date();
-    item.proof_description = proof_description;
-    item.verified_claim = false;
-
-    await item.save({ validateBeforeSave: false });
-
-    // 🔔 1. NOTIFY THE CLAIMER (User who clicked claim)
-    await Notification.create({
-        user_id: req.user.id,
-        message: `You submitted a claim for "${item.name}". Awaiting staff review.`,
-        type: "status_update"
-    });
-
-    // 🔔 2. NOTIFY THE FINDER (User who posted the item) - "Item Claim Request"
-    if (item.posted_by) {
-        await Notification.create({
-            user_id: item.posted_by._id, 
-            message: `${req.user.name || "Someone"} wants to claim the "${item.name}" you found.`,
-            type: "claim_request"
-        });
-    }
 
     res.json({ success: true, message: "Item successfully claimed" });
   } catch (err) {

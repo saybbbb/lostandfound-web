@@ -161,7 +161,6 @@ function App() {
           <AdminActivityLogs />
           </AdminProtectedRoute>}/>
 
-
         <Route
           path="/StaffClaimReview/:claimId"
           element={

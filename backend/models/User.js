@@ -6,17 +6,25 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   birthday: { type: Date, required: true },
+
   role: {
     type: String,
     enum: ["user", "staff", "admin"],
     default: "user"
   },
+
   profile_photo: {
     type: String,
     default: null
   },
 
-  // Fields required for "Forgot Password"
+  // ⬇⬇ ADD THIS FIELD for Admin Approval System
+  verified: {
+    type: Boolean,
+    default: false   // NEW USERS ARE UNVERIFIED
+  },
+
+  // Forgot Password fields
   resetPasswordToken: String,
   resetPasswordExpire: Date,
 });

@@ -5,7 +5,9 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const sendEmail = require("../utils/sendEmail");
 
-// Register
+/* ======================================================
+   REGISTER (User starts as UNVERIFIED)
+======================================================*/
 exports.register = async (req, res) => {
   try {
     const { name, email, password, birthday } = req.body;
@@ -16,22 +18,35 @@ exports.register = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // AUTO-VERIFY ADMIN ACCOUNT
+    const isAdminEmail = email === process.env.MAIN_ADMIN_EMAIL;
+
     const user = await User.create({
       name,
       email,
       password: hashedPassword,
       birthday,
-      role: "user"
+      role: isAdminEmail ? "admin" : "user",
+      verified: isAdminEmail ? true : false   // 👈 AUTO-VERIFY ADMIN
     });
 
-    res.json({ success: true, message: "User registered successfully", user });
+    res.json({
+      success: true,
+      message: isAdminEmail
+        ? "Admin account created and auto-verified."
+        : "Registration successful. Awaiting admin approval.",
+      user
+    });
   } catch (err) {
-      console.error("REGISTER ERROR:", err);
-      res.status(500).json({ message: "Server error", error: err.message });
+    console.error("REGISTER ERROR:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
-// Login
+
+/* ======================================================
+   LOGIN (Blocked if NOT verified)
+======================================================*/
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -44,13 +59,19 @@ exports.login = async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ message: "Invalid password" });
 
+    // BLOCK UNVERIFIED ACCOUNTS
+    if (!user.verified) {
+      return res.status(403).json({
+        message: "Your account has not been verified by an admin."
+      });
+    }
+
     const token = jwt.sign(
       { id: user._id, name: user.name, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
 
-    // Return token and user info
     res.json({
       token,
       user: {
@@ -65,7 +86,9 @@ exports.login = async (req, res) => {
   }
 };
 
-// Forgot Password
+/* ======================================================
+   FORGOT PASSWORD
+======================================================*/
 exports.forgotPassword = async (req, res) => {
   const user = await User.findOne({ email: req.body.email });
 
@@ -73,7 +96,6 @@ exports.forgotPassword = async (req, res) => {
     return res.status(404).json({ message: "Email not found" });
   }
 
-  // Create reset token
   const resetToken = user.getResetPasswordToken();
   await user.save({ validateBeforeSave: false });
 
@@ -91,7 +113,6 @@ exports.forgotPassword = async (req, res) => {
     res.json({ message: "Reset link sent to email." });
 
   } catch (error) {
-    // 👇👇 THIS IS THE CORRECT PLACE 👇👇
     console.log("EMAIL ERROR:", error);
 
     user.resetPasswordToken = undefined;
@@ -102,7 +123,9 @@ exports.forgotPassword = async (req, res) => {
   }
 };
 
-// Reset Password
+/* ======================================================
+   RESET PASSWORD
+======================================================*/
 exports.resetPassword = async (req, res) => {
   const resetPasswordToken = crypto
     .createHash("sha256")
@@ -118,7 +141,6 @@ exports.resetPassword = async (req, res) => {
     return res.status(400).json({ message: "Invalid or expired token" });
   }
 
-  // HASH THE NEW PASSWORD BEFORE SAVING
   const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
   user.password = hashedPassword;
@@ -131,15 +153,13 @@ exports.resetPassword = async (req, res) => {
 };
 
 /* ======================================================
-   NOTIFICATION LOGIC (Added from Step 2)
+   NOTIFICATIONS
 ======================================================*/
-
-// GET: Fetch notifications for the currently logged-in user
 exports.getUserNotifications = async (req, res) => {
   try {
     const notifications = await Notification.find({ user_id: req.user.id })
-      .sort({ createdAt: -1 }) // Newest first
-      .limit(10); // Limit to 10 items
+      .sort({ createdAt: -1 })
+      .limit(10);
 
     res.json({ success: true, notifications });
   } catch (err) {
@@ -148,7 +168,6 @@ exports.getUserNotifications = async (req, res) => {
   }
 };
 
-// PUT: Mark all notifications as read
 exports.markAllAsRead = async (req, res) => {
   try {
     await Notification.updateMany(
@@ -161,10 +180,12 @@ exports.markAllAsRead = async (req, res) => {
   }
 };
 
-// Protected route example
+/* ======================================================
+   PROTECTED USER INFO
+======================================================*/
 exports.protected = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-password"); // Exclude password
+    const user = await User.findById(req.user.id).select("-password");
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
@@ -174,5 +195,69 @@ exports.protected = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+/* ======================================================
+   ADMIN VERIFICATION SYSTEM
+======================================================*/
+
+// PATCH — approve a user and send email
+exports.verifyUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update verification status
+    user.verified = true;
+    await user.save();
+
+    // Create system notification for user
+    await Notification.create({
+      user_id: user._id,
+      message: "Your account has been approved by an administrator.",
+      type: "account_verified"
+    });
+
+    // Prepare email message
+    const message = `
+      Hello ${user.name},
+
+      Good news! Your Lost & Found account has been APPROVED by an administrator.
+
+      You may now log in using your registered email:
+      ${user.email}
+
+      Thank you for using the Lost & Found System.
+    `;
+
+    // Send the email
+    await sendEmail({
+      email: user.email,
+      subject: "Your Account Has Been Approved",
+      message,
+    });
+
+    res.json({
+      success: true,
+      message: "User verified successfully, email notification sent."
+    });
+
+  } catch (err) {
+    console.error("VERIFY USER ERROR:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+// DELETE — reject & remove a user
+exports.rejectUser = async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: "User rejected and deleted" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 };

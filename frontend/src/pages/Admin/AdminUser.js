@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Footer from "../../components/NavigationBars/Footer";
 import AdminNavBar from "../../components/NavigationBars/AdminNavBar";
-
 import { IoSearchOutline } from "react-icons/io5";
 
 function AdminUser() {
@@ -19,6 +18,9 @@ function AdminUser() {
   // Delete Modal
   const [deleteUser, setDeleteUser] = useState(null);
 
+  // ============================
+  // FETCH USERS
+  // ============================
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -48,7 +50,50 @@ function AdminUser() {
     validate();
   }, [navigate]);
 
-  // Update role API
+  // ============================
+  // VERIFY USER
+  // ============================
+  const verifyUserById = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      await axios.patch(
+        `http://localhost:5000/api/auth/admin/verify/${id}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      alert("User verified successfully.");
+      fetchUsers();
+    } catch (err) {
+      alert("Failed to verify user.");
+      console.error(err);
+    }
+  };
+
+  // ============================
+  // REJECT USER
+  // ============================
+  const rejectUserById = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      await axios.delete(
+        `http://localhost:5000/api/auth/admin/reject/${id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      alert("User rejected and deleted.");
+      fetchUsers();
+    } catch (err) {
+      alert("Failed to reject user.");
+      console.error(err);
+    }
+  };
+
+  // ============================
+  // UPDATE ROLE
+  // ============================
   const saveRoleUpdate = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -68,7 +113,9 @@ function AdminUser() {
     }
   };
 
-  // Delete API
+  // ============================
+  // DELETE USER
+  // ============================
   const confirmDelete = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -86,12 +133,20 @@ function AdminUser() {
     }
   };
 
-  // Filter + Search
+  // ============================
+  // FILTER USERS
+  // ============================
   const filteredUsers = users
+    .filter((u) => {
+      if (filterRole === "unverified") return u.verified === false;
+
+      if (filterRole === "all") return u.verified === true;
+
+      return u.role?.toLowerCase() === filterRole && u.verified === true;
+    })
     .filter((u) =>
-      filterRole === "all" ? true : u.role?.toLowerCase() === filterRole
-    )
-    .filter((u) => u.name.toLowerCase().includes(search.toLowerCase()));
+      u.name.toLowerCase().includes(search.toLowerCase())
+    );
 
   return (
     <div style={styles.container}>
@@ -103,10 +158,14 @@ function AdminUser() {
           <h1>MANAGE USER ACCOUNTS</h1>
 
           <div style={styles.buttonContainer}>
-            {["all", "user", "admin", "staff"].map((role) => (
+            {["all", "user", "admin", "staff", "unverified"].map((role) => (
               <button
                 key={role}
-                style={styles.button}
+                style={{
+                  ...styles.button,
+                  backgroundColor:
+                    filterRole === role ? "#0F0E3E" : "#1A1851",
+                }}
                 onClick={() => setFilterRole(role)}
               >
                 {role.toUpperCase()}
@@ -155,26 +214,57 @@ function AdminUser() {
                           ? new Date(u.birthday).toISOString().split("T")[0]
                           : "—"}
                       </td>
-                      <td style={styles.td}>{u.role}</td>
+
+                      {/* ROLE + UNVERIFIED BADGE */}
+                      <td style={styles.td}>
+                        {u.role}
+                        {u.verified === false && (
+                          <span style={styles.unverifiedTag}>UNVERIFIED</span>
+                        )}
+                      </td>
 
                       {/* ACTION BUTTONS */}
                       <td style={{ ...styles.td, display: "flex", gap: 10 }}>
-                        <button
-                          style={styles.editActionBtn}
-                          onClick={() => {
-                            setSelectedUser(u);
-                            setNewRole(u.role);
-                          }}
-                        >
-                          EDIT
-                        </button>
+                        {/* SHOW ONLY WHEN UNVERIFIED */}
+                        {filterRole === "unverified" && (
+                          <>
+                            <button
+                              style={styles.verifyActionBtn}
+                              onClick={() => verifyUserById(u._id)}
+                            >
+                              VERIFY
+                            </button>
 
-                        <button
-                          style={styles.deleteActionBtn}
-                          onClick={() => setDeleteUser(u)}
-                        >
-                          DELETE
-                        </button>
+                            <button
+                              style={styles.rejectActionBtn}
+                              onClick={() => rejectUserById(u._id)}
+                            >
+                              REJECT
+                            </button>
+                          </>
+                        )}
+
+                        {/* SHOW ONLY WHEN VERIFIED */}
+                        {filterRole !== "unverified" && (
+                          <>
+                            <button
+                              style={styles.editActionBtn}
+                              onClick={() => {
+                                setSelectedUser(u);
+                                setNewRole(u.role);
+                              }}
+                            >
+                              EDIT
+                            </button>
+
+                            <button
+                              style={styles.deleteActionBtn}
+                              onClick={() => setDeleteUser(u)}
+                            >
+                              DELETE
+                            </button>
+                          </>
+                        )}
                       </td>
                     </tr>
                   ))
@@ -260,13 +350,12 @@ const styles = {
     display: "flex",
     minHeight: "100vh",
     backgroundColor: "#F5F5F5",
-    overflow: "hidden"
+    overflow: "hidden",
   },
 
-  // FIXED: ensure main content starts AFTER the sidebar
   mainContent: {
     flexGrow: 1,
-    paddingLeft: "230px",    // match your AdminNavBar width
+    paddingLeft: "230px",
     display: "flex",
     flexDirection: "column",
     minHeight: "100vh",
@@ -289,7 +378,7 @@ const styles = {
   buttonContainer: {
     display: "flex",
     gap: 10,
-    marginTop: 10
+    marginTop: 10,
   },
 
   button: {
@@ -299,21 +388,22 @@ const styles = {
     borderRadius: 6,
     cursor: "pointer",
     fontWeight: "bold",
-    border: "none"
+    border: "none",
   },
 
-  /* SEARCH BAR */
   searchbar: {
     display: "flex",
     alignItems: "center",
-    marginBottom: 15
+    marginBottom: 15,
   },
+
   searchinput: {
     flex: 1,
     padding: 10,
     borderRadius: "6px 0 0 6px",
     border: "1px solid #ccc",
   },
+
   searchicon: {
     background: "#1A1851",
     padding: 10,
@@ -321,7 +411,6 @@ const styles = {
     cursor: "pointer",
   },
 
-  /* TABLE */
   tableWrapper: {
     maxHeight: "500px",
     overflowY: "auto",
@@ -345,7 +434,7 @@ const styles = {
     padding: 12,
     borderBottom: "2px solid #ccc",
     fontWeight: "bold",
-    background: "#f4f4f4"
+    background: "#f4f4f4",
   },
 
   td: {
@@ -357,6 +446,36 @@ const styles = {
     padding: 20,
     textAlign: "center",
     color: "#777",
+  },
+
+  unverifiedTag: {
+    background: "#FF4D4D",
+    color: "white",
+    padding: "3px 7px",
+    marginLeft: 8,
+    borderRadius: 4,
+    fontSize: 11,
+    fontWeight: "bold",
+  },
+
+  verifyActionBtn: {
+    padding: "8px 16px",
+    background: "#007bff",
+    color: "#fff",
+    borderRadius: 6,
+    cursor: "pointer",
+    fontWeight: "bold",
+    border: "none",
+  },
+
+  rejectActionBtn: {
+    padding: "8px 16px",
+    background: "#dc3545",
+    color: "#fff",
+    borderRadius: 6,
+    cursor: "pointer",
+    fontWeight: "bold",
+    border: "none",
   },
 
   editActionBtn: {
@@ -379,7 +498,6 @@ const styles = {
     border: "none",
   },
 
-  /* MODALS */
   modalOverlay: {
     position: "fixed",
     top: 0,
@@ -437,6 +555,5 @@ const styles = {
     cursor: "pointer",
   },
 };
-
 
 export default AdminUser;
