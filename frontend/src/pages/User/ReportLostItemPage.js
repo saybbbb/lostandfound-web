@@ -20,6 +20,7 @@ function ReportLostItemPage() {
   });
 
   const [isUploading, setIsUploading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // <--- NEW STATE
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
@@ -38,6 +39,10 @@ function ReportLostItemPage() {
 
   const submitLostItem = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+
     try {
       const res = await axios.post(
         "http://localhost:5000/api/auth/lost-items",
@@ -49,22 +54,13 @@ function ReportLostItemPage() {
         }
       );
 
-      setForm({
-        name: "",
-        category: "",
-        lost_location: "",
-        description: "",
-        date_lost: "",
-        image_url: "",
-        contact_info: "",
-      });
-
       if (res.data.success) {
         navigate("/ReportSuccessPage?type=lost");
       }
     } catch (err) {
       console.log(err);
       alert("Error submitting lost item");
+      setIsSubmitting(false); // Re-enable if error
     }
   };
 
@@ -200,10 +196,14 @@ function ReportLostItemPage() {
 
             <button
               type="submit"
-              style={isUploading ? { ...styles.submitBtn, backgroundColor: "#ccc" } : styles.submitBtn}
-              disabled={isUploading}
+              style={
+                isUploading || isSubmitting
+                  ? { ...styles.submitBtn, backgroundColor: "#ccc", cursor: "not-allowed" }
+                  : styles.submitBtn
+              }
+              disabled={isUploading || isSubmitting}
             >
-              {isUploading ? "Uploading..." : "Submit Report"}
+              {isUploading ? "Uploading..." : isSubmitting ? "Submitting..." : "Submit Report"}
             </button>
           </div>
         </form>
@@ -294,6 +294,7 @@ const styles = {
     display: "flex",
     gap: "20px",
   },
+
   col: {
     flex: 1,
     display: "flex",

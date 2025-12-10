@@ -39,13 +39,22 @@ exports.approveItem = async (req, res) => {
 
     await item.save({ validateBeforeSave: false }); 
 
-    // 🔔 1. NOTIFICATION: Report Verified
-    const ownerId = type === "lost" ? item.reported_by._id : item.posted_by._id;
-    await Notification.create({
-        user_id: ownerId,
-        message: `Your ${type} item report for "${item.name}" has been verified and published.`,
-        type: "report_verified"
-    });
+    // 🔔 1. NOTIFICATION LOGIC
+    if (type === "found") {
+        // Specific message for Finder of a Found Item (Office Workflow)
+        await Notification.create({
+            user_id: item.posted_by._id, 
+            message: `Thank you for reporting the found item, rest assure we will give it to the owner.`,
+            type: "status_update"
+        });
+    } else {
+        // Standard message for Lost Item report approval
+        await Notification.create({
+            user_id: item.reported_by._id,
+            message: `Your lost item report for "${item.name}" has been verified and published.`,
+            type: "status_update"
+        });
+    }
 
     // 🔔 2. AUTOMATIC MATCHING LOGIC
     // If a LOST item is approved -> Search FOUND items for a match
@@ -58,7 +67,7 @@ exports.approveItem = async (req, res) => {
 
         if (potentialMatches.length > 0) {
             await Notification.create({
-                user_id: ownerId,
+                user_id: item.reported_by._id,
                 message: `Potential Match Found: Someone found an item matching your lost "${item.name}".`,
                 type: "match"
             });
@@ -107,6 +116,14 @@ exports.rejectItem = async (req, res) => {
 
     await item.save({ validateBeforeSave: false }); 
 
+    // Notify user of rejection
+    const userId = type === "lost" ? item.reported_by : item.posted_by;
+    await Notification.create({
+      user_id: userId,
+      message: `Your report for "${item.name}" was rejected. Reason: ${reason}`,
+      type: "status_update"
+    });
+
     res.json({ success: true, message: "Item rejected" });
   } catch (err) {
     console.log("REJECTION ERROR:", err);
@@ -124,7 +141,7 @@ exports.getPendingClaims = async (req, res) => {
     })
     .populate("claimed_by", "name email")
     .populate("posted_by", "name email")
-    .populate("category", "name");
+    .populate("category", "name"); // <--- ADDED THIS
 
     res.json({ success: true, claims });
   } catch (err) {
@@ -161,6 +178,7 @@ exports.verifyClaim = async (req, res) => {
       claimant: item.claimed_by,
       reviewed_by: req.user.id,
       proof_description: item.proof_description,
+      claim_proof_image: item.claim_proof_image,
       claim_status: "approved",
       date_reviewed: new Date(),
     });
@@ -177,7 +195,7 @@ exports.verifyClaim = async (req, res) => {
     try {
       await Notification.create({
         user_id: item.claimed_by,
-        message: `Your claim for "${item.name}" was approved.`,
+        message: `Your claim for "${item.name}" was approved and verified. The item has been returned.`,
         type: "claim_update",
       });
     } catch (notifyErr) {
