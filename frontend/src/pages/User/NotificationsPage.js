@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import Header from "../../components/NavigationBars/Header";
 import Footer from "../../components/NavigationBars/Footer";
 import {IoNotificationsOutline,IoSearchOutline,IoRefreshOutline,IoCheckmarkCircleOutline,IoAlertCircleOutline,IoDocumentTextOutline,IoInformationCircleOutline,IoShieldCheckmarkOutline
 } from "react-icons/io5";
+import api from "../../services/api";
 
 function NotificationsPage() {
   const [notifications, setNotifications] = useState([]);
@@ -15,7 +15,7 @@ function NotificationsPage() {
     setLoading(true);
     const token = localStorage.getItem("token");
     try {
-      const res = await axios.get("http://localhost:5000/api/auth/notifications", {
+      const res = await api.get("/api/auth/notifications", {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.data.success) {
@@ -36,7 +36,7 @@ function NotificationsPage() {
   const markAllAsRead = async () => {
     const token = localStorage.getItem("token");
     try {
-      await axios.put("http://localhost:5000/api/auth/notifications/read-all", {}, {
+      await api.put("/api/auth/notifications/read-all", {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));

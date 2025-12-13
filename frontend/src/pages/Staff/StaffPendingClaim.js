@@ -8,7 +8,7 @@ import {
   IoEyeOutline 
 } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../services/api";
 
 function StaffPendingClaim() {
   const navigate = useNavigate();
@@ -20,7 +20,7 @@ function StaffPendingClaim() {
   const fetchClaims = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:5000/api/auth/staff/claims/pending", {
+      const res = await api.get("/api/auth/staff/claims/pending", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setClaims(res.data.claims || []);

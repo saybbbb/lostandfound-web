@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import Header from "../../components/NavigationBars/Header";
 import Footer from "../../components/NavigationBars/Footer";
 import { useNavigate } from "react-router-dom";
+import api from "../../services/api";
 
 function FoundItemPage() {
   const [foundItems, setFoundItems] = useState([]);
@@ -20,7 +20,7 @@ function FoundItemPage() {
 const [myLostItems, setMyLostItems] = useState([]);
 
 useEffect(() => {
-  axios.get("http://localhost:5000/api/auth/lost-items/my", {
+  api.get("/api/auth/lost-items/my", {
     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
   })
   .then(res => setMyLostItems(res.data.items || []))
@@ -30,7 +30,7 @@ useEffect(() => {
   // Load found items
   const fetchFoundItems = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/auth/found-items");
+      const res = await api.get("/api/auth/found-items");
       setFoundItems(res.data.items || []);
     } catch (err) {
       console.log("Error fetching found items:", err);
@@ -40,7 +40,7 @@ useEffect(() => {
   // Load categories
   const fetchCategories = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/auth/categories");
+      const res = await api.get("/api/auth/categories");
       setCategories(res.data.categories || []);
     } catch (err) {
       console.log("Error loading categories:", err);

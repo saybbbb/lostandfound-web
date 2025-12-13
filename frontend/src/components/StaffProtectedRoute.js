@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import api from "../services/api";
 
 function StaffProtectedRoute({ children }) {
   const navigate = useNavigate();
@@ -20,8 +20,8 @@ function StaffProtectedRoute({ children }) {
           return;
         }
 
-        const res = await axios.get(
-          "http://localhost:5000/api/auth/protected",
+        const res = await api.get(
+          "/api/auth/protected",
           { headers: { Authorization: `Bearer ${token}` } }
         );
 

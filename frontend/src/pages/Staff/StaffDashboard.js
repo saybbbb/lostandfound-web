@@ -8,7 +8,7 @@ import {
   IoAddCircleOutline, 
   IoEyeOutline,
 } from "react-icons/io5";
-import axios from "axios";
+import api from "../../services/api";
 
 function StaffDashboard() {
   usePageMetadata("Staff Dashboard", "/images/LAFLogo.png");
@@ -38,10 +38,10 @@ function StaffDashboard() {
     setLoading(true);
     try {
       const [postsRes, claimsRes] = await Promise.all([
-        axios.get("http://localhost:5000/api/auth/staff/pending", {
+        api.get("/api/auth/staff/pending", {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        axios.get("http://localhost:5000/api/auth/staff/claims/pending", {
+        api.get("/api/auth/staff/claims/pending", {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);

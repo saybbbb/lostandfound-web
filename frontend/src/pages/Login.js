@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { IoMailOutline } from "react-icons/io5";
 import { IoLockClosedOutline } from "react-icons/io5";
 import usePageMetadata from "../hooks/usePageMetadata";
+import api from "../services/api";
 
 function Login() {
   usePageMetadata("Login", "/images/LAFLogo.png");
@@ -179,8 +179,8 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/auth/login",
+      const res = await api.post(
+        "/api/auth/login",
         formData
       );
 

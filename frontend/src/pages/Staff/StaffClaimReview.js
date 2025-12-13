@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import StaffNavBar from "../../components/NavigationBars/StaffNavBar";
 import Footer from "../../components/NavigationBars/Footer";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../services/api";
 import {
   IoCheckmarkCircleOutline,
   IoCloseCircleOutline,
@@ -53,8 +53,8 @@ export default function StaffClaimReview() {
     const fetchClaimDetails = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(
-          "http://localhost:5000/api/auth/staff/claims/pending",
+        const res = await api.get(
+          "/api/auth/staff/claims/pending",
           { headers: { Authorization: `Bearer ${token}` } }
         );
         const found = res.data.claims.find((c) => c._id === claimId);
@@ -79,8 +79,8 @@ export default function StaffClaimReview() {
     if (processing) return;
     setProcessing(true);
     try {
-      await axios.post(
-        "http://localhost:5000/api/auth/staff/claims/verify",
+      await api.post(
+        "/api/auth/staff/claims/verify",
         { itemId: claimId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -102,8 +102,8 @@ export default function StaffClaimReview() {
 
     setProcessing(true);
     try {
-      await axios.post(
-        "http://localhost:5000/api/auth/staff/claims/reject",
+      await api.post(
+        "/api/auth/staff/claims/reject",
         { itemId: claimId, reason },
         { headers: { Authorization: `Bearer ${token}` } }
       );

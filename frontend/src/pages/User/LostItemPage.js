@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import Header from "../../components/NavigationBars/Header";
 import Footer from "../../components/NavigationBars/Footer";
 import { useNavigate } from "react-router-dom";
+import api from "../../services/api";
 
 function LostItemPage() {
   const [myLostItems, setMyLostItems] = useState([]);
@@ -17,8 +17,8 @@ function LostItemPage() {
        LOAD USER'S OWN LOST ITEMS (for pending approval)
   ======================================================= */
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/auth/lost-items/my", {
+    api
+      .get("/api/auth/lost-items/my", {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then((res) => setMyLostItems(res.data.items || []))
@@ -35,8 +35,8 @@ function LostItemPage() {
 
   const fetchLostItemsWithStatus = async () => {
     try {
-      const res = await axios.get(
-        "http://localhost:5000/api/auth/lost-items-with-status"
+      const res = await api.get(
+        "/api/auth/lost-items-with-status"
       );
 
       setLostItems(res.data.lost || []);
@@ -48,7 +48,7 @@ function LostItemPage() {
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/auth/categories");
+      const res = await api.get("/api/auth/categories");
       setCategories(res.data.categories || []);
     } catch (err) {
       console.log("Error fetching categories:", err);
@@ -58,7 +58,7 @@ function LostItemPage() {
   const handleCancel = async (itemId) => {
     if (window.confirm("Are you sure you want to cancel this report?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/auth/lost-items/${itemId}`, {
+        await api.delete(`/api/auth/lost-items/${itemId}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
 

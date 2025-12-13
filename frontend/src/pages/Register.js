@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import usePageMetadata from "../hooks/usePageMetadata";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import {
   IoCalendarOutline,
@@ -8,6 +7,7 @@ import {
   IoMailOutline,
   IoPersonOutline,
 } from "react-icons/io5";
+import api from "../services/api";
 
 function Register() {
   usePageMetadata("Register", "/images/LAFLogo.png");
@@ -129,8 +129,8 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/auth/register",
+      const res = await api.post(
+        "/api/auth/register",
         formData
       );
       if (res.data.success) {

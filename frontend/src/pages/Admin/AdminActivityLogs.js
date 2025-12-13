@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import AdminNavBar from "../../components/NavigationBars/AdminNavBar";
 import Footer from "../../components/NavigationBars/Footer";
 import { IoSearchOutline, IoRefreshOutline } from "react-icons/io5";
+import api from "../../services/api";
 
 function AdminActivityLogs() {
   const [logs, setLogs] = useState([]);
@@ -15,8 +15,8 @@ function AdminActivityLogs() {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get(
-        "http://localhost:5000/api/auth/admin/activity-logs",
+      const res = await api.get(
+        "/api/auth/admin/activity-logs",
         { headers: { Authorization: `Bearer ${token}` } }
       );
       // Ensure logs is an array

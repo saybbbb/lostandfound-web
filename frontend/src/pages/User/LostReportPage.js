@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../components/NavigationBars/Header";
 import Footer from "../../components/NavigationBars/Footer";
 import { uploadToCloudinary } from "../../utils/uploadImage";
+import api from "../../services/api";
 
 function LostReportPage() {
   const navigate = useNavigate();
@@ -22,8 +22,8 @@ function LostReportPage() {
   useEffect(() => {
     const loadItem = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:5000/api/auth/lost-items/${id}`,
+        const res = await api.get(
+          `/api/auth/lost-items/${id}`,
           {
             headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
           }
@@ -55,8 +55,8 @@ function LostReportPage() {
     e.preventDefault();
 
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/auth/lost-items/report-found",
+      const res = await api.post(
+        "/api/auth/lost-items/report-found",
         {
           ...form,
           lost_item_id: id,

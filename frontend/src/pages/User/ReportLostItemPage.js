@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import Header from "../../components/NavigationBars/Header";
 import Footer from "../../components/NavigationBars/Footer";
 import { useNavigate } from "react-router-dom";
 import { uploadToCloudinary } from "../../utils/uploadImage";
+import api from "../../services/api";
 
 function ReportLostItemPage() {
   const navigate = useNavigate();
@@ -24,8 +24,8 @@ function ReportLostItemPage() {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/auth/categories")
+    api
+      .get("/api/auth/categories")
       .then((res) => setCategories(res.data.categories || []))
       .catch((err) => console.log("Error loading categories:", err));
   }, []);
@@ -44,8 +44,8 @@ function ReportLostItemPage() {
     setIsSubmitting(true);
 
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/auth/lost-items",
+      const res = await api.post(
+        "/api/auth/lost-items",
         form,
         {
           headers: {

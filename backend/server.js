@@ -5,24 +5,75 @@ const connectDB = require("./config/db");
 
 const app = express();
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+/* ======================================================
+   TRUST PROXY (REQUIRED FOR RENDER)
+====================================================== */
+app.set("trust proxy", 1);
 
-// Connect DB
+/* ======================================================
+   CORS CONFIGURATION
+====================================================== */
+const allowedOrigins = [
+  "http://localhost:3000",
+  process.env.FRONTEND_URL, // Vercel URL
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow REST tools like Postman or server-to-server calls
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS not allowed"));
+      }
+    },
+    credentials: true,
+  })
+);
+
+/* ======================================================
+   MIDDLEWARE
+====================================================== */
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true }));
+
+/* ======================================================
+   DATABASE
+====================================================== */
 connectDB();
 
-// Routes Automatic Import
+/* ======================================================
+   ROUTES
+====================================================== */
 app.use("/api/auth", require("./routes/authRoutes"));
 
-// Simple ping route for diagnostics
-app.get('/api/ping', (req, res) => {
-	res.json({ success: true, msg: 'pong' });
+/* ======================================================
+   HEALTH CHECK (IMPORTANT FOR RENDER)
+====================================================== */
+app.get("/api/ping", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "pong",
+    uptime: process.uptime(),
+  });
 });
 
-// Start server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+/* ======================================================
+   ERROR HANDLER (PRODUCTION SAFE)
+====================================================== */
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    success: false,
+    message: "Internal Server Error",
+  });
+});
 
-// Cloudinary Upload
-app.use("/api/upload", require("./routes/upload"));
+/* ======================================================
+   START SERVER
+====================================================== */
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

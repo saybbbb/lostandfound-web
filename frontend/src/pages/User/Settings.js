@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/NavigationBars/Header";
 import Footer from "../../components/NavigationBars/Footer";
 import { uploadToCloudinary } from "../../utils/uploadImage";
+import api from "../../services/api";
 
 function Settings() {
   const navigate = useNavigate();
@@ -24,8 +24,8 @@ function Settings() {
     const fetchUserData = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get(
-          "http://localhost:5000/api/auth/protected",
+        const res = await api.get(
+          "/api/auth/protected",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -70,8 +70,8 @@ function Settings() {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      await axios.put(
-        "http://localhost:5000/api/auth/profile/update",
+      await api.put(
+        "/api/auth/profile/update",
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );

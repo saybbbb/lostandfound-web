@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import Footer from "../../components/NavigationBars/Footer";
 import AdminNavBar from "../../components/NavigationBars/AdminNavBar";
 import { IoSearchOutline } from "react-icons/io5";
+import api from "../../services/api";
 
 function AdminUser() {
   const navigate = useNavigate();
@@ -24,8 +24,8 @@ function AdminUser() {
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem("token");
-      const usersRes = await axios.get(
-        "http://localhost:5000/api/auth/admin/users",
+      const usersRes = await api.get(
+        "/api/auth/admin/users",
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setUsers(usersRes.data.users || []);
@@ -38,7 +38,7 @@ function AdminUser() {
     const validate = async () => {
       try {
         const token = localStorage.getItem("token");
-        await axios.get("http://localhost:5000/api/auth/protected", {
+        await api.get("/api/auth/protected", {
           headers: { Authorization: `Bearer ${token}` },
         });
         fetchUsers();
@@ -57,8 +57,8 @@ function AdminUser() {
     try {
       const token = localStorage.getItem("token");
 
-      await axios.patch(
-        `http://localhost:5000/api/auth/admin/verify/${id}`,
+      await api.patch(
+        `/api/auth/admin/verify/${id}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -78,8 +78,8 @@ function AdminUser() {
     try {
       const token = localStorage.getItem("token");
 
-      await axios.delete(
-        `http://localhost:5000/api/auth/admin/reject/${id}`,
+      await api.delete(
+        `/api/auth/admin/reject/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -98,8 +98,8 @@ function AdminUser() {
     try {
       const token = localStorage.getItem("token");
 
-      await axios.put(
-        `http://localhost:5000/api/auth/admin/set-role/${selectedUser._id}`,
+      await api.put(
+        `/api/auth/admin/set-role/${selectedUser._id}`,
         { role: newRole },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -122,8 +122,8 @@ function AdminUser() {
     try {
       const token = localStorage.getItem("token");
 
-      await axios.delete(
-        `http://localhost:5000/api/auth/admin/delete/${deleteUser._id}`,
+      await api.delete(
+        `/api/auth/admin/delete/${deleteUser._id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 

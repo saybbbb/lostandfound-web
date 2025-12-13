@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import Header from "../../components/NavigationBars/Header";
 import Footer from "../../components/NavigationBars/Footer";
 import { useParams, useNavigate } from "react-router-dom";
 import { uploadToCloudinary } from "../../utils/uploadImage";
+import api from "../../services/api";
 
 function ClaimFoundItemPage() {
   const { foundId } = useParams();
@@ -15,8 +15,8 @@ function ClaimFoundItemPage() {
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
-    axios
-      .get(`http://localhost:5000/api/auth/found-items/${foundId}`)
+    api
+      .get(`/api/auth/found-items/${foundId}`)
       .then((res) => setFoundItem(res.data.item))
       .catch((err) => console.log(err));
   }, [foundId]);
@@ -48,8 +48,8 @@ function ClaimFoundItemPage() {
     }
 
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/auth/claims",
+      const res = await api.post(
+        "/api/auth/claims",
         {
           found_item: foundId,
           proof_description: proof,

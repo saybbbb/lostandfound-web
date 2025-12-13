@@ -11,7 +11,7 @@ import {
   IoEyeOutline 
 } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../services/api";
 
 function StaffFoundApproval() {
   const navigate = useNavigate();
@@ -27,7 +27,7 @@ function StaffFoundApproval() {
   const fetchFoundItems = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:5000/api/auth/staff/pending", {
+      const res = await api.get("/api/auth/staff/pending", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setFoundItems(res.data.found || []);
@@ -46,8 +46,8 @@ function StaffFoundApproval() {
   const approveItem = async (itemId) => {
     setApprovingId(itemId);
     try {
-      await axios.post(
-        "http://localhost:5000/api/auth/staff/approve",
+      await api.post(
+        "/api/auth/staff/approve",
         { itemId, type: "found" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -72,8 +72,8 @@ function StaffFoundApproval() {
     }
 
     try {
-      await axios.post(
-        "http://localhost:5000/api/auth/staff/reject",
+      await api.post(
+        "/api/auth/staff/reject",
         { itemId, type: "found", reason },
         { headers: { Authorization: `Bearer ${token}` } }
       );

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { IoNotificationsOutline, IoPersonCircleOutline } from "react-icons/io5";
-import axios from "axios";
+import api from "../../services/api";
 
 function Header() {
   const navigate = useNavigate();
@@ -18,8 +18,8 @@ function Header() {
     const fetchUserData = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get(
-          "http://localhost:5000/api/auth/protected",
+        const res = await api.get(
+          "/api/auth/protected",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -38,8 +38,8 @@ function Header() {
     if (!token) return;
 
     try {
-      const res = await axios.get(
-        "http://localhost:5000/api/auth/notifications",
+      const res = await api.get(
+        "/api/auth/notifications",
         {
           headers: { Authorization: `Bearer ${token}` },
         }

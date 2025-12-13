@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import StaffNavBar from "../../components/NavigationBars/StaffNavBar";
 import Footer from "../../components/NavigationBars/Footer";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../services/api";
 import {
   IoCheckmarkCircleOutline,
   IoCloseCircleOutline,
@@ -27,8 +27,8 @@ export default function StaffFoundReview() {
     const fetchItemDetails = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(
-          "http://localhost:5000/api/auth/staff/pending",
+        const res = await api.get(
+          "/api/auth/staff/pending",
           { headers: { Authorization: `Bearer ${token}` } }
         );
         // Find the specific item from the list of pending items
@@ -53,8 +53,8 @@ export default function StaffFoundReview() {
     if (processing) return;
     setProcessing(true);
     try {
-      await axios.post(
-        "http://localhost:5000/api/auth/staff/approve",
+      await api.post(
+        "/api/auth/staff/approve",
         { itemId: id, type: "found" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -75,8 +75,8 @@ export default function StaffFoundReview() {
 
     setProcessing(true);
     try {
-      await axios.post(
-        "http://localhost:5000/api/auth/staff/reject",
+      await api.post(
+        "/api/auth/staff/reject",
         { itemId: id, type: "found", reason },
         { headers: { Authorization: `Bearer ${token}` } }
       );

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import usePageMetadata from "../hooks/usePageMetadata";
-import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { IoLockClosedOutline } from "react-icons/io5";
+import api from "../services/api";
 
 function ResetPassword() {
   usePageMetadata("Reset Password", "/images/LAFLogo.png");
@@ -113,8 +113,8 @@ function ResetPassword() {
     }
 
     try {
-      const res = await axios.post(
-        `http://localhost:5000/api/auth/reset-password/${token}`,
+      const res = await api.post(
+        `/api/auth/reset-password/${token}`,
         { password }
       );
 

@@ -10,7 +10,7 @@ import {
   IoEyeOutline,
   IoLocationOutline
 } from "react-icons/io5";
-import axios from "axios";
+import api from "../../services/api";
 import { useNavigate } from "react-router-dom";
 
 function StaffLostApproval() {
@@ -25,7 +25,7 @@ function StaffLostApproval() {
   const fetchLostItems = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:5000/api/auth/staff/pending", {
+      const res = await api.get("/api/auth/staff/pending", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setLostItems(res.data.lost || []);
@@ -43,8 +43,8 @@ function StaffLostApproval() {
   const approveItem = async (itemId) => {
     setApprovingId(itemId);
     try {
-      await axios.post(
-        "http://localhost:5000/api/auth/staff/approve",
+      await api.post(
+        "/api/auth/staff/approve",
         { itemId, type: "lost" },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -65,8 +65,8 @@ function StaffLostApproval() {
       return;
     }
     try {
-      await axios.post(
-        "http://localhost:5000/api/auth/staff/reject",
+      await api.post(
+        "/api/auth/staff/reject",
         { itemId, type: "lost", reason },
         { headers: { Authorization: `Bearer ${token}` } }
       );

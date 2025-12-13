@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import usePageMetadata from "../hooks/usePageMetadata";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { IoMailOutline } from "react-icons/io5";
+import api from "../services/api";
 
 function Recovery() {
   usePageMetadata("Account Recovery", "/images/LAFLogo.png");
@@ -123,8 +123,8 @@ function Recovery() {
     e.preventDefault();
 
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/auth/forgot-password",
+      const res = await api.post(
+        "/api/auth/forgot-password",
         { email: formData.email }
       );
 
