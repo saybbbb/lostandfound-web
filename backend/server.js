@@ -13,22 +13,19 @@ app.set("trust proxy", 1);
 /* ======================================================
    CORS CONFIGURATION
 ====================================================== */
-const allowedOrigins = [
-  "http://localhost:3000",
-  process.env.FRONTEND_URL, // Vercel URL
-];
+const allowedOrigins = ["http://localhost:3000", process.env.FRONTEND_URL];
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // allow REST tools like Postman or server-to-server calls
+    origin: (origin, callback) => {
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("CORS not allowed"));
+        return callback(null, true);
       }
+
+      console.error("Blocked by CORS:", origin);
+      return callback(null, false); // ❗ DO NOT throw Error
     },
     credentials: true,
   })
