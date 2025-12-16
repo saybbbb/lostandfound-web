@@ -166,8 +166,8 @@ export default function StaffClaimReview() {
   return (
     <div style={styles.container}>
       <StaffNavBar />
-
-      <div style={styles.mainContent}>
+      <div style={styles.main}>
+        <div style={styles.mainContent}>
         {/* HEADER */}
         <div style={styles.header}>
           <button 
@@ -353,6 +353,8 @@ export default function StaffClaimReview() {
             </div>
           </div>
         </div>
+      </div>
+      
 
         <Footer />
       </div>
@@ -361,8 +363,25 @@ export default function StaffClaimReview() {
 }
 
 const styles = {
-  container: { display: "flex", minHeight: "100vh", fontFamily: "'Inter', sans-serif", background: "linear-gradient(135deg, #f6f8ff 0%, #f0f2ff 100%)" },
-  mainContent: { flex: 1, padding: "30px 40px", overflowY: "auto" },
+  container: { 
+    display: "flex", 
+    minHeight: "100vh", 
+    fontFamily: "'Inter', sans-serif", 
+    background: "linear-gradient(135deg, #f6f8ff 0%, #f0f2ff 100%)"
+  },
+  main:{
+    display: "flex",
+    flexDirection: "column",
+    flexGrow: 1,
+    minHeight: "100vh",
+    overflow: "auto",
+    paddingLeft: "220px", // Match StaffNavBar width
+  },
+  mainContent: { 
+    flex: 1, 
+    padding: "30px 40px", 
+    overflowY: "auto" 
+  },
   loadingContainer: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "calc(100vh - 60px)", color: "#64748b" },
   loadingSpinner: { width: "60px", height: "60px", border: "4px solid #e2e8f0", borderTop: "4px solid #1A1851", borderRadius: "50%", marginBottom: "20px", animation: "spin 1s linear infinite" },
   errorContainer: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "calc(100vh - 60px)", textAlign: "center", padding: "40px" },

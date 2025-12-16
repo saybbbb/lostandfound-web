@@ -19,7 +19,17 @@ function Dashboard() {
   const navigate = useNavigate();
 
   const styles = {
-    dashboardcontainer: {
+    container: {
+      display: "flex",
+      flexDirection: "column",
+      minHeight: "100vh",
+      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+      background: "linear-gradient(135deg, #f6f8ff 0%, #f0f2ff 100%)",
+    },
+    dashboardContainer: {
+      display: "flex",
+      flexGrow: 1,
+      flexDirection: "column",
       alignItems: "center",
       padding: "20px 40px",
       margin: "0px 20px",
@@ -98,63 +108,61 @@ function Dashboard() {
   };
 
   return (
-    <div>
+    <div style={styles.container}>
       <Header />
 
-      <div style={styles.dashboardcontainer}>
-        <div style={{ flex: 5 }}>
-          <div style={styles.text}>
-            <p style={styles.systemName}>USTP LOST AND FOUND</p>
-            <p>The community platform that connects people who lost</p>
-            <p>with those who have found them</p>
+      <div style={styles.dashboardContainer}>
+        <div style={styles.text}>
+          <p style={styles.systemName}>USTP LOST AND FOUND</p>
+          <p>The community platform that connects people who lost</p>
+          <p>with those who have found them</p>
+        </div>
+
+        <div style={styles.buttonContainer}>
+          <button
+            style={styles.buttonBlue}
+            onClick={() => navigate("/ReportLostItemPage")}
+          >
+            <IoAlertCircle size={40} color="#EF4444" />
+            Report an Item
+          </button>
+
+          <button
+            style={styles.button}
+            onClick={() => navigate("/FoundItemPage")}
+          >
+            <IoFileTrayFullOutline size={40} color="#64748B" />
+            Search Found Items
+          </button>
+        </div>
+
+        <div style={styles.cardContainer}>
+          <div
+            style={styles.card}
+            onClick={() => navigate("/ReportLostItemPage")}
+          >
+            <IoAlertCircle size={50} color="#EF4444" />
+            <h5 style={styles.cardTitle}>Report Lost Items</h5>
+            <p style={styles.cardText}>Report your lost item here.</p>
           </div>
 
-          <div style={styles.buttonContainer}>
-            <button
-              style={styles.buttonBlue}
-              onClick={() => navigate("/ReportLostItemPage")}
-            >
-              <IoAlertCircle size={40} color="#EF4444" />
-              Report an Item
-            </button>
-
-            <button
-              style={styles.button}
-              onClick={() => navigate("/FoundItemPage")}
-            >
-              <IoFileTrayFullOutline size={40} color="#64748B" />
-              Search Found Items
-            </button>
+          <div style={styles.card} onClick={() => navigate("/FoundItemPage")}>
+            <IoSearchOutline size={50} color="black" />
+            <h5 style={styles.cardTitle}>Found Item</h5>
+            <p style={styles.cardText}>Find found items here.</p>
           </div>
 
-          <div style={styles.cardContainer}>
-            <div
-              style={styles.card}
-              onClick={() => navigate("/ReportLostItemPage")}
-            >
-              <IoAlertCircle size={50} color="#EF4444" />
-              <h5 style={styles.cardTitle}>Report Lost Items</h5>
-              <p style={styles.cardText}>Report your lost item here.</p>
-            </div>
-
-            <div style={styles.card} onClick={() => navigate("/FoundItemPage")}>
-              <IoSearchOutline size={50} color="black" />
-              <h5 style={styles.cardTitle}>Found Item</h5>
-              <p style={styles.cardText}>Find found items here.</p>
-            </div>
-
-            {/* FIXED CLICKABLE CARD */}
-            <div style={styles.card} onClick={() => navigate("/LostItemPage")}>
-              <IoAlbumsOutline size={50} color="black" />
-              <h5 style={styles.cardTitle}>Lost Item</h5>
-              <p style={styles.cardText}>Find your lost items here.</p>
-            </div>
+          {/* FIXED CLICKABLE CARD */}
+          <div style={styles.card} onClick={() => navigate("/LostItemPage")}>
+            <IoAlbumsOutline size={50} color="black" />
+            <h5 style={styles.cardTitle}>Lost Item</h5>
+            <p style={styles.cardText}>Find your lost items here.</p>
           </div>
         </div>
       </div>
 
       <Footer />
-    </div>
+    </div>  
   );
 }
 

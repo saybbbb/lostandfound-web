@@ -113,7 +113,8 @@ function StaffLostApproval() {
   return (
     <div style={styles.container}>
       <StaffNavBar />
-      <div style={styles.mainContent}>
+      <div style={styles.main}>
+        <div style={styles.mainContent}>
         
         {/* HEADER */}
         <div style={styles.header}>
@@ -237,6 +238,10 @@ function StaffLostApproval() {
             </div>
           )}
         </div>
+
+      </div>
+        
+
         <Footer />
       </div>
     </div>
@@ -253,8 +258,22 @@ const styles = {
     fontFamily: "'Inter', sans-serif",
     background: "linear-gradient(135deg, #f6f8ff 0%, #f0f2ff 100%)",
   },
-
+  main: {
+    display: "flex",
+    flexDirection: "column",
+    flexGrow: 1,
+    minHeight: "100vh",
+    overflowY: "auto",
+    paddingLeft: "220px", // Match StaffNavBar width
+  },
   mainContent: {
+    display: "flex",
+    flexDirection: "column",
+    flexGrow: 1,
+    padding: "30px 40px",
+    overflowY: "auto",
+  },
+  content: {
     flex: 1,
     padding: "30px 40px",
     overflowY: "auto",
@@ -304,6 +323,7 @@ const styles = {
   ================================== */
   controls: {
     display: "flex",
+    flexWrap: "wrap",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: "30px",
@@ -313,7 +333,7 @@ const styles = {
   searchContainer: {
     flex: 1,
     position: "relative",
-    maxWidth: "600px",
+    maxWidth: "66%",
   },
 
   searchInput: {
@@ -337,7 +357,7 @@ const styles = {
 
   controlGroup: {
     display: "flex",
-    gap: "12px",
+    maxWidth: "34%",
   },
 
   refreshButton: {

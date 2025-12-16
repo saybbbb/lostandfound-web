@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import usePageMetadata from "../../hooks/usePageMetadata";
 import api from "../../services/api";
@@ -6,7 +7,6 @@ import AdminNavBar from "../../components/NavigationBars/AdminNavBar";
 import Footer from "../../components/NavigationBars/Footer";
 
 function AdminDashboard() {
-  usePageMetadata("Admin Dashboard", "/images/LAFLogo.png");
   const [adminName, setAdminName] = useState("");
   const [counts, setCounts] = useState({
     lost: 0,
@@ -17,10 +17,11 @@ function AdminDashboard() {
     totalUsers: 0,
     totalStaff: 0,
     totalAdmin: 0,
+    totalUnverified: 0,
   });
 
-  const [time, setTime] = useState("");
-  const [date, setDate] = useState("");
+  const [time, setTime] = useState(new Date());
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const admin = JSON.parse(localStorage.getItem("admin"));
@@ -28,39 +29,22 @@ function AdminDashboard() {
 
     // If a token exists, set it as the default Authorization header for api
     const token = localStorage.getItem("token");
-    if (token) {
-      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    }
+    if (token) axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-    updateTime();
     fetchDashboardData();
+
+    // live clock
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
   }, []);
-
-  const updateTime = () => {
-    const now = new Date();
-
-    setTime(now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
-
-    setDate(
-      now.toLocaleDateString("en-US", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      })
-    );
-  };
 
   const fetchDashboardData = async () => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await api.get(
-        "/api/auth/admin/dashboard",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const res = await axios.get(
+        "http://localhost:5000/api/auth/admin/dashboard",
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       const data = res.data;
@@ -74,46 +58,51 @@ function AdminDashboard() {
         totalUsers: data.totalStudents,
         totalStaff: data.totalStaff,
         totalAdmin: data.totalAdmin,
+        totalUnverified: data.totalUnverified,
       });
 
       setError(null);
     } catch (err) {
-      console.error("ADMIN DASHBOARD ERROR:", err?.response?.data || err);
-      setError(
-        err?.response?.data?.message ||
-          err?.response?.data ||
-          err.message ||
-          "Admin dashboard failed."
-      );
+      setError("Failed to load dashboard.");
     }
   };
 
-  const [error, setError] = useState(null);
+  // formatted date
+  const formattedDate = time.toLocaleDateString("en-US", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  const formattedTime = time.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
   return (
     <div style={styles.container}>
       <AdminNavBar />
 
       <div style={styles.main}>
-        {/* HEADER */}
-        <div style={styles.header}>
-          <div>
-            <h1 style={styles.greeting}>Good day, {adminName || "Admin"}!</h1>
-            <p style={styles.subtext}>System Overview & Analytics</p>
-          </div>
+        <div style={styles.mainContent}>
+          {/* HEADER */}
+          <div style={styles.header}>
+            <div>
+              <h1 style={styles.greeting}>Good day, {adminName || "Admin"}!</h1>
+              <p style={styles.subtext}>System Overview & Analytics</p>
+            </div>
 
-          <div style={styles.timeBox}>
-            <div style={styles.timeIcon}>☀️</div>
-            <div style={styles.timeText}>
-              <strong>{time}</strong>
-              <br />
-              <span style={{ fontSize: 13 }}>TODAY:</span>
-              <br />
-              <strong>{date.toUpperCase()}</strong>
+            <div style={styles.timeBox}>
+              <div style={styles.timeIcon}>☀️</div>
+              <div style={styles.timeText}>
+                <strong>{formattedTime}</strong>
+                <br />
+                <span style={{ fontSize: 13 }}>TODAY:</span> <br />
+                <strong>{formattedDate.toUpperCase()}</strong>
+              </div>
             </div>
           </div>
-        </div>
-        <div style={styles.maincontent}>
+
           {error && (
             <div style={styles.errorBox}>{error}</div>
           )}
@@ -131,41 +120,17 @@ function AdminDashboard() {
             <div style={styles.bigCard}>TOTAL STUDENTS<br /><span style={styles.bigNum}>{counts.totalUsers}</span></div>
             <div style={styles.bigCard}>TOTAL STAFF<br /><span style={styles.bigNum}>{counts.totalStaff}</span></div>
             <div style={styles.bigCard}>TOTAL ADMIN<br /><span style={styles.bigNum}>{counts.totalAdmin}</span></div>
+            <div style={styles.bigCard}>TOTAL UNVERIFIED<br /><span style={styles.bigNum}>{counts.totalUnverified}</span></div>
+          </div>
+
+          {/* CIRCLES SECTION */}
+          <div style={styles.circleSection}>
+            {circle("Lost Item", counts.lost, "#F65164")}
+            {circle("Found Item", counts.found, "#F8C22E")}
+            {circle("Claimed Item", counts.claimed, "#6A5ACD")}
           </div>
         </div>
-
-        {/* POST ACTIVITY */}
-        <div style={styles.section}>
-          <h3 style={styles.sectionTitle}>Post Statistics Overview</h3>
-
-          <div style={styles.cardGrid}>
-            <div style={styles.chartCard}>
-              Lost
-              <br />
-              <b>{counts.lost}</b>
-            </div>
-            <div style={styles.chartCard}>
-              Found
-              <br />
-              <b>{counts.found}</b>
-            </div>
-            <div style={styles.chartCard}>
-              Claimed
-              <br />
-              <b>{counts.claimed}</b>
-            </div>
-            <div style={styles.chartCard}>
-              Pending Today
-              <br />
-              <b>{counts.pendingToday}</b>
-            </div>
-            <div style={styles.chartCard}>
-              Verified Today
-              <br />
-              <b>{counts.verifiedToday}</b>
-            </div>
-          </div>
-        </div>
+        
 
         <Footer />
       </div>
@@ -173,114 +138,144 @@ function AdminDashboard() {
   );
 }
 
-/* ===========================================
-   💄 RESPONSIVE, NON-COMPRESSING, CLEAN STYLES
-=========================================== */
+/* CIRCLE COMPONENT */
+const circle = (label, value, color) => (
+  <div style={styles.circleBox}>
+    <div style={{ ...styles.circle, borderColor: color }}>
+      <span style={styles.circleNum}>{value}</span>
+    </div>
+    <p style={styles.circleLabel}>{label}</p>
+  </div>
+);
 
+/* ========== STYLES ========== */
 const styles = {
   container: {
     display: "flex",
     backgroundColor: "#F5F5F5",
     minHeight: "100vh",
-    fontFamily: "Arial",
+    fontFamily: "Arial, sans-serif",
   },
 
   main: {
-    flexGrow: 1,
-    paddingLeft: "230px", // match your AdminNavBar width
     display: "flex",
     flexDirection: "column",
+    flexGrow: 1,
     minHeight: "100vh",
+    overflowY: "auto",
+    paddingLeft: "230px", // Match StaffNavBar width
+  },
+  mainContent: {
+    display: "flex",
+    flexGrow: 1,
+    flexDirection: "column",
+    padding: "30px 40px",
   },
 
   header: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    flexWrap: "wrap",
-    gap: 20,
     marginBottom: 25,
   },
 
-  maincontent: {
-    
-  },
   greeting: {
+    fontSize: 32,
+    fontWeight: 800,
     margin: 0,
-    fontSize: 30,
-    fontWeight: "bold",
-    color: "#1B1B3A",
+    color: "#1A1851",
   },
 
-  subtext: {
-    marginTop: -5,
-    color: "#6A6A6A",
-  },
+  subtext: { marginTop: -5, color: "#555" },
 
   timeBox: {
+    background: "white",
+    padding: "15px 20px",
+    borderRadius: 12,
     display: "flex",
     gap: 10,
-    padding: "15px 20px",
-    backgroundColor: "white",
-    borderRadius: 8,
-    boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
-    minWidth: 160,
-    justifyContent: "center",
+    alignItems: "center",
+    boxShadow: "0 3px 10px rgba(0,0,0,0.1)",
   },
 
   timeIcon: { fontSize: 32 },
-  timeText: { fontSize: 16, lineHeight: "20px" },
+  timeText: { fontSize: 15 },
 
-  /** RESPONSIVE CARD GRID */
-  cardGrid: {
+  errorBox: {
+    background: "#ffe5e5",
+    padding: 10,
+    borderRadius: 6,
+    color: "#900",
+    marginBottom: 10,
+  },
+
+  cardRow: {
     display: "flex",
     flexWrap: "wrap",
     gap: 15,
-    marginBottom: 20,
+    marginBottom: 25,
   },
 
   card: {
     flex: "1 1 200px",
-    backgroundColor: "white",
-    padding: 15,
-    borderRadius: 8,
+    background: "white",
+    padding: 20,
     textAlign: "center",
-    boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
+    borderRadius: 10,
+    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+    fontSize: 15,
   },
 
   bigCard: {
     flex: "1 1 250px",
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 8,
+    background: "#fff",
+    padding: 25,
+    borderRadius: 10,
     textAlign: "center",
-    boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
+    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+    fontSize: 17,
   },
 
-  bigNumber: {
-    fontSize: 40,
-    fontWeight: "bold",
+  bigNum: {
+    fontSize: 42,
+    fontWeight: 900,
+    display: "block",
+    marginTop: 10,
   },
 
-  section: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 8,
-    boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
+  circleSection: {
+    background: "#efefef",
+    padding: 25,
+    borderRadius: 12,
+    display: "flex",
+    justifyContent: "space-around",
+    marginBottom: 30,
   },
 
-  sectionTitle: {
-    marginBottom: 12,
-    fontWeight: "bold",
-    fontSize: 18,
+  circleBox: { textAlign: "center" },
+
+  circle: {
+    width: 120,
+    height: 120,
+    borderRadius: "50%",
+    border: "10px solid",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    background: "#fff",
+    margin: "0 auto",
   },
 
-  chartCard: {
-    flex: "1 1 180px",
-    padding: 15,
-    backgroundColor: "#EFEFEF",
-    borderRadius: 8,
-    textAlign: "center",
+  circleNum: {
+    fontSize: 32,
+    fontWeight: 700,
+    color: "#333",
+  },
+
+  circleLabel: {
+    marginTop: 8,
+    fontWeight: 600,
+    color: "#444",
   },
 };
 

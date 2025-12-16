@@ -247,7 +247,7 @@ function LostItemPage() {
               }}
             >
               All Items
-            </button>
+            </button>a
 
             {categories.map((cat) => (
               <button

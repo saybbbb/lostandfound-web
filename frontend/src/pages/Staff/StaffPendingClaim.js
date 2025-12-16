@@ -52,117 +52,120 @@ function StaffPendingClaim() {
   return (
     <div style={styles.container}>
       <StaffNavBar />
-      <div style={styles.mainContent}>
+      <div style={styles.main}>
+        <div style={styles.mainContent}>
         
-        {/* HEADER */}
-        <div style={styles.header}>
-          <div>
-            <h1 style={styles.title}>Pending Claims</h1>
-            <p style={styles.subtitle}>Review claim submissions from students</p>
-          </div>
-          <div style={styles.headerActions}>
-            <div style={styles.statsBadge}>
-              <IoTimeOutline size={18} />
-              <span>{claims.length} Pending</span>
+          {/* HEADER */}
+          <div style={styles.header}>
+            <div>
+              <h1 style={styles.title}>Pending Claims</h1>
+              <p style={styles.subtitle}>Review claim submissions from students</p>
+            </div>
+            <div style={styles.headerActions}>
+              <div style={styles.statsBadge}>
+                <IoTimeOutline size={18} />
+                <span>{claims.length} Pending</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* CONTROLS */}
-        <div style={styles.controls}>
-          <div style={styles.searchContainer}>
-            <IoSearchOutline size={20} color="#94a3b8" style={styles.searchIcon} />
-            <input
-              type="text"
-              placeholder="Search claims..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={styles.searchInput}
-            />
+          {/* CONTROLS */}
+          <div style={styles.controls}>
+            <div style={styles.searchContainer}>
+              <IoSearchOutline size={20} color="#94a3b8" style={styles.searchIcon} />
+              <input
+                type="text"
+                placeholder="Search claims..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={styles.searchInput}
+              />
+            </div>
+            <div style={styles.controlGroup}>
+              <button style={styles.refreshButton} onClick={fetchClaims} disabled={loading}>
+                {loading ? 'Refreshing...' : 'Refresh'}
+              </button>
+            </div>
           </div>
-          <div style={styles.controlGroup}>
-            <button style={styles.refreshButton} onClick={fetchClaims} disabled={loading}>
-              {loading ? 'Refreshing...' : 'Refresh'}
-            </button>
-          </div>
-        </div>
 
-        {/* CONTENT */}
-        <div style={styles.content}>
-          {loading ? (
-            <div style={styles.loadingContainer}>
-              <div style={styles.loadingSpinner}></div>
-              <p>Loading pending claims...</p>
-            </div>
-          ) : filtered.length === 0 ? (
-            <div style={styles.emptyState}>
-              <IoInformationCircleOutline size={64} color="#cbd5e1" />
-              <h3>No pending claims</h3>
-              <p>All claims have been reviewed</p>
-            </div>
-          ) : (
-            <div style={styles.itemsGrid}>
-              {filtered.map((claim, index) => (
-                <div key={claim._id} style={{ ...styles.itemCard, animationDelay: `${index * 0.05}s` }}>
-                  
-                  {/* CARD HEADER */}
-                  <div style={styles.cardHeader}>
-                    <div style={styles.itemAvatar}>
-                      {claim.name?.charAt(0).toUpperCase() || "C"}
+          {/* CONTENT */}
+          <div style={styles.content}>
+            {loading ? (
+              <div style={styles.loadingContainer}>
+                <div style={styles.loadingSpinner}></div>
+                <p>Loading pending claims...</p>
+              </div>
+            ) : filtered.length === 0 ? (
+              <div style={styles.emptyState}>
+                <IoInformationCircleOutline size={64} color="#cbd5e1" />
+                <h3>No pending claims</h3>
+                <p>All claims have been reviewed</p>
+              </div>
+            ) : (
+              <div style={styles.itemsGrid}>
+                {filtered.map((claim, index) => (
+                  <div key={claim._id} style={{ ...styles.itemCard, animationDelay: `${index * 0.05}s` }}>
+                    
+                    {/* CARD HEADER */}
+                    <div style={styles.cardHeader}>
+                      <div style={styles.itemAvatar}>
+                        {claim.name?.charAt(0).toUpperCase() || "C"}
+                      </div>
+                      <div style={styles.itemInfo}>
+                        <h3 style={styles.itemTitle}>{claim.name}</h3>
+                        <div style={styles.itemMeta}>
+                          <span style={styles.itemStatus}>Pending</span>
+                          <span style={styles.itemDate}>
+                            {formatRelativeTime(claim.claimed_at)}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div style={styles.itemInfo}>
-                      <h3 style={styles.itemTitle}>{claim.name}</h3>
-                      <div style={styles.itemMeta}>
-                        <span style={styles.itemStatus}>Pending</span>
-                        <span style={styles.itemDate}>
-                          {formatRelativeTime(claim.claimed_at)}
+
+                    {/* CARD BODY */}
+                    <div style={styles.cardBody}>
+                      <div style={styles.submitterInfo}>
+                        <div style={styles.submitterAvatar}>
+                          {claim.claimed_by?.name?.charAt(0) || "U"}
+                        </div>
+                        <div>
+                          <div style={styles.submitterName}>
+                            {claim.claimed_by?.name}
+                          </div>
+                          <div style={styles.submitterEmail}>
+                            {claim.claimed_by?.email}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style={{ marginTop: 15, display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: 8 }}>
+                        <span style={{fontSize: 14, color: '#64748b'}}>Claim Type:</span>
+                        <span style={{fontSize: 14, fontWeight: 600, color: '#1A1851'}}>Item Recovery</span>
+                      </div>
+                      <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: 8 }}>
+                        <span style={{fontSize: 14, color: '#64748b'}}>Submitted:</span>
+                        <span style={{fontSize: 14, fontWeight: 600, color: '#1A1851'}}>
+                          {new Date(claim.claimed_at).toLocaleDateString()}
                         </span>
                       </div>
                     </div>
-                  </div>
 
-                  {/* CARD BODY */}
-                  <div style={styles.cardBody}>
-                    <div style={styles.submitterInfo}>
-                      <div style={styles.submitterAvatar}>
-                        {claim.claimed_by?.name?.charAt(0) || "U"}
-                      </div>
-                      <div>
-                        <div style={styles.submitterName}>
-                          {claim.claimed_by?.name}
-                        </div>
-                        <div style={styles.submitterEmail}>
-                          {claim.claimed_by?.email}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div style={{ marginTop: 15, display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: 8 }}>
-                      <span style={{fontSize: 14, color: '#64748b'}}>Claim Type:</span>
-                      <span style={{fontSize: 14, fontWeight: 600, color: '#1A1851'}}>Item Recovery</span>
-                    </div>
-                    <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: 8 }}>
-                      <span style={{fontSize: 14, color: '#64748b'}}>Submitted:</span>
-                      <span style={{fontSize: 14, fontWeight: 600, color: '#1A1851'}}>
-                        {new Date(claim.claimed_at).toLocaleDateString()}
-                      </span>
+                    {/* CARD FOOTER */}
+                    <div style={styles.cardFooter}>
+                      <button
+                        style={{...styles.viewDetailsBtn, width: '100%', justifyContent: 'center'}}
+                        onClick={() => navigate(`/StaffClaimReview/${claim._id}`)}
+                      >
+                        <IoEyeOutline size={18} /> Review Claim
+                      </button>
                     </div>
                   </div>
-
-                  {/* CARD FOOTER */}
-                  <div style={styles.cardFooter}>
-                    <button
-                      style={{...styles.viewDetailsBtn, width: '100%', justifyContent: 'center'}}
-                      onClick={() => navigate(`/StaffClaimReview/${claim._id}`)}
-                    >
-                      <IoEyeOutline size={18} /> Review Claim
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+                ))}
+              </div>
+            )}
+          </div>  
+       </div>
+      
         <Footer />
       </div>
     </div>
@@ -181,10 +184,20 @@ const styles = {
     background: "linear-gradient(135deg, #f6f8ff 0%, #f0f2ff 100%)",
   },
 
+  main: {
+    display: "flex",
+    flexDirection: "column",
+    flexGrow: 1,
+    minHeight: "100vh",
+    overflow: "auto",
+    paddingLeft: "220px", // Match StaffNavBar width
+  },
+
   mainContent: {
-    flex: 1,
+    display: "flex",
+    flexGrow: 1,
+    flexDirection: "column",
     padding: "30px 40px",
-    overflowY: "auto",
   },
 
   /* ================================

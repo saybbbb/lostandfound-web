@@ -7,7 +7,7 @@ function Footer() {
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-      minHeight: "10vh",
+      minHeight: "5vh",
       padding: "0px 20px",
       color: "#1d1f22",
       borderTop: "1px solid #E5E7EB",

@@ -66,7 +66,8 @@ function StaffNavBar() {
   return (
     <div style={styles.sidebar}>
       <div style={styles.sidebarContent}>
-        {/* LOGO */}
+        <div style={styles.topCluster}>
+          {/* LOGO */}
         <div style={styles.logoContainer}>
           <img
             src="/images/LAFLogo.png"
@@ -101,6 +102,8 @@ function StaffNavBar() {
           ))}
         </div>
 
+        </div>
+        
         {/* ACCOUNT SECTION */}
         <div style={styles.accountSection}>
           <div style={styles.accountInfo}>
@@ -136,7 +139,7 @@ const styles = {
     minHeight: "100vh",
     color: "#FFFFFF",
     flexShrink: 0,
-    position: "relative",
+    position: "fixed",
     overflow: "hidden",
     boxShadow: "4px 0 20px rgba(0, 0, 0, 0.15)",
   },
@@ -145,6 +148,12 @@ const styles = {
     flexDirection: "column",
     height: "100vh",
     padding: "30px 0",
+    justifyContent: "space-between",
+  },
+  topCluster: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "25px",
   },
   logoContainer: {
     position: "relative",
@@ -231,8 +240,12 @@ const styles = {
     transition: "left 0.6s ease",
   },
   accountSection: {
-    padding: "20px 15px 0",
+    padding: "10px 20px",
     borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+    display: "flex",
+    flexDirection: "column",
+    gap: "5px",
+    marginBottom: "25px",
   },
   accountInfo: {
     display: "flex",
