@@ -1,132 +1,92 @@
-import React, { useState, useEffect } from "react";
+/* =========================
+   IMPORTS
+========================= */
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { IoNotificationsOutline, IoPersonCircleOutline } from "react-icons/io5";
+import {
+  IoNotificationsOutline,
+  IoPersonCircleOutline,
+} from "react-icons/io5";
 import api from "../../services/api";
 
+/* =========================
+   COMPONENT
+========================= */
 function Header() {
   const navigate = useNavigate();
 
-  // KEEPING YOUR EXISTING PROFILE LOGIC
   const [profilePhoto, setProfilePhoto] = useState(null);
-  const [openProfile, setOpenProfile] = useState(false);
-
-  // CHANGED: Replaced 'openNotif' with 'unreadCount' for the badge
+  const [openProfile, setOpenProfile] = useState(false); // kept as-is
   const [unreadCount, setUnreadCount] = useState(0);
 
-  // KEEPING YOUR EXISTING USER FETCH LOGIC
+  /* =========================
+     EFFECTS
+  ========================= */
+
+  // Load user profile
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await api.get(
-          "/api/auth/protected",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const res = await api.get("/api/auth/protected", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
         setProfilePhoto(res.data.user.profile_photo);
       } catch (err) {
         console.log("Error loading user data for header", err);
       }
     };
+
     fetchUserData();
   }, []);
 
-  // ADDED: Fetch Unread Notification Count
+  // Fetch unread notification count
   const fetchUnreadCount = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
 
     try {
-      const res = await api.get(
-        "/api/auth/notifications",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const res = await api.get("/api/auth/notifications", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
       if (res.data.success) {
-        // Count only unread items
-        setUnreadCount(res.data.notifications.filter((n) => !n.is_read).length);
+        setUnreadCount(
+          res.data.notifications.filter((n) => !n.is_read).length
+        );
       }
     } catch (err) {
       console.log("Error fetching notifications");
     }
   };
 
-  // ADDED: Poll for notifications every 15 seconds
+  // Poll every 15 seconds
   useEffect(() => {
     fetchUnreadCount();
     const interval = setInterval(fetchUnreadCount, 15000);
     return () => clearInterval(interval);
   }, []);
 
-  // CHANGED: Navigate to page instead of toggling popup
+  /* =========================
+     HANDLERS
+  ========================= */
   const handleNotificationClick = () => {
-    setOpenProfile(false); // Close profile if open
+    setOpenProfile(false);
     navigate("/Notifications");
   };
 
-  const styles = {
-    header: {
-      display: "flex",
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      padding: "10px 24px",
-      backgroundColor: "#1a1851",
-      position: "relative",
-      zIndex: 100,
-    },
-    logo: {
-      fontWeight: "bold",
-      fontSize: 20,
-      display: "flex",
-      flexDirection: "row",
-      alignItems: "center",
-      color: "white",
-    },
-    headerLogo: {
-      height: 52,
-      width: 52,
-      marginRight: 12,
-    },
-    links: {
-      display: "flex",
-      gap: 20,
-      fontWeight: "600",
-      fontSize: 18,
-      color: "white",
-      alignItems: "center",
-    },
-    linkItem: { cursor: "pointer" },
-    iconBtn: {
-      cursor: "pointer",
-      display: "flex",
-      alignItems: "center",
-      position: "relative", 
-    },
-    // ADDED: Badge style
-    badge: {
-      position: "absolute",
-      top: -5,
-      right: -5,
-      backgroundColor: "#EF4444",
-      color: "white",
-      fontSize: "11px",
-      borderRadius: "50%",
-      width: "18px",
-      height: "18px",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      border: "1px solid #1a1851",
-    },
-  };
-
+  /* =========================
+     RENDER
+  ========================= */
   return (
     <header style={styles.header}>
       <div style={styles.logo}>
-        <img src="/images/LAFLogo.png" alt="Logo" style={styles.headerLogo} />
+        <img
+          src="/images/LAFLogo.png"
+          alt="Logo"
+          style={styles.headerLogo}
+        />
         <div>USTP LOST AND FOUND</div>
       </div>
 
@@ -147,17 +107,19 @@ function Header() {
           Report Item
         </div>
 
-        {/* UPDATED: Notification Bell */}
+        {/* Notifications */}
         <div
           aria-label="Notifications"
-          onClick={handleNotificationClick} // Updated handler
+          onClick={handleNotificationClick}
           style={styles.iconBtn}
         >
           <IoNotificationsOutline size={26} color="white" />
-          {/* ADDED: Badge */}
-          {unreadCount > 0 && <div style={styles.badge}>{unreadCount}</div>}
+          {unreadCount > 0 && (
+            <div style={styles.badge}>{unreadCount}</div>
+          )}
         </div>
 
+        {/* Profile */}
         <div
           aria-label="Profile"
           onClick={() => navigate("/settings")}
@@ -167,22 +129,87 @@ function Header() {
             <img
               src={profilePhoto}
               alt="Profile"
-              style={{
-                width: 28,
-                height: 28,
-                borderRadius: "50%",
-                objectFit: "cover",
-              }}
+              style={styles.profileImage}
             />
           ) : (
             <IoPersonCircleOutline size={28} color="white" />
           )}
         </div>
       </div>
-
-      {/* REMOVED: <NotificationBar /> panel */}
     </header>
   );
 }
+
+/* =========================
+   STYLES
+========================= */
+const styles = {
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "10px 24px",
+    backgroundColor: "#1a1851",
+    position: "relative",
+    zIndex: 100,
+  },
+
+  logo: {
+    display: "flex",
+    alignItems: "center",
+    fontWeight: "bold",
+    fontSize: 20,
+    color: "white",
+  },
+
+  headerLogo: {
+    height: 52,
+    width: 52,
+    marginRight: 12,
+  },
+
+  links: {
+    display: "flex",
+    gap: 20,
+    fontWeight: 600,
+    fontSize: 18,
+    color: "white",
+    alignItems: "center",
+  },
+
+  linkItem: {
+    cursor: "pointer",
+  },
+
+  iconBtn: {
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    position: "relative",
+  },
+
+  badge: {
+    position: "absolute",
+    top: -5,
+    right: -5,
+    backgroundColor: "#EF4444",
+    color: "white",
+    fontSize: "11px",
+    borderRadius: "50%",
+    width: "18px",
+    height: "18px",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    border: "1px solid #1a1851",
+  },
+
+  profileImage: {
+    width: 28,
+    height: 28,
+    borderRadius: "50%",
+    objectFit: "cover",
+  },
+};
 
 export default Header;

@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import usePageMetadata from "../../hooks/usePageMetadata";
-import api from "../../services/api";
 import AdminNavBar from "../../components/NavigationBars/AdminNavBar";
 import Footer from "../../components/NavigationBars/Footer";
 

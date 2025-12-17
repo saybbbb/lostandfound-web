@@ -3,11 +3,6 @@ import { useNavigate } from "react-router-dom";
 import usePageMetadata from "../../hooks/usePageMetadata";
 import StaffNavBar from "../../components/NavigationBars/StaffNavBar";
 import Footer from "../../components/NavigationBars/Footer";
-import {
-  IoNotificationsOutline,
-  IoAddCircleOutline, 
-  IoEyeOutline,
-} from "react-icons/io5";
 import api from "../../services/api";
 
 function StaffDashboard() {
