@@ -4,7 +4,7 @@ import Footer from "../../components/NavigationBars/Footer";
 import { useNavigate } from "react-router-dom";
 import { uploadToCloudinary } from "../../utils/uploadImage";
 import api from "../../services/api";
-import { IoCloudUploadOutline } from "react-icons/io5"; 
+import { IoCloudUploadOutline } from "react-icons/io5";
 
 // Letters only (including ñ / Ñ), spaces allowed
 const lettersOnlyRegex = /^[A-Za-zñÑ\s]+$/;
@@ -17,9 +17,12 @@ function ReportFoundItemPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState([]);
-  const [preview, setPreview] = useState(null); 
+  const [preview, setPreview] = useState(null);
   const [errors, setErrors] = useState({});
   const [descCount, setDescCount] = useState(0);
+
+  // 🔴 NEW: image validation error
+  const [imageError, setImageError] = useState("");
 
   const [form, setForm] = useState({
     name: "",
@@ -32,7 +35,6 @@ function ReportFoundItemPage() {
     posted_by: localStorage.getItem("userId"),
   });
 
-
   useEffect(() => {
     api
       .get("/api/auth/categories")
@@ -40,7 +42,7 @@ function ReportFoundItemPage() {
       .catch((err) => console.log("Error loading categories:", err));
   }, []);
 
-   // ============================= HANDLE CHANGE WITH VALIDATION =============================
+  // ============================= HANDLE CHANGE WITH VALIDATION =============================
   const handleChange = (e) => {
     const { name, value } = e.target;
     let error = "";
@@ -78,28 +80,34 @@ function ReportFoundItemPage() {
   // ============================= SUBMIT FOUND ITEM =============================
   const submitFoundItem = async (e) => {
     e.preventDefault();
-    if (isSubmitting) return; 
+    if (isSubmitting) return;
 
-    setIsSubmitting(true); 
+    // 🔴 BLOCK SUBMIT IF IMAGE NOT ATTACHED
+    if (!form.image_url) {
+      setImageError("Please upload an image before submitting.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setImageError("");
 
     try {
-      const res = await api.post(
-        "/api/auth/found-items",
-        form,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      const res = await api.post("/api/auth/found-items", form, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
       if (res.data.success) {
         navigate("/ReportSuccessPage?type=found");
       }
     } catch (err) {
-      console.log("Submit Found Item ERROR:", err.response?.data || err.message);
+      console.log(
+        "Submit Found Item ERROR:",
+        err.response?.data || err.message
+      );
       alert("Error submitting found item");
-      setIsSubmitting(false); 
+      setIsSubmitting(false);
     }
   };
 
@@ -109,10 +117,11 @@ function ReportFoundItemPage() {
 
       <div style={styles.page}>
         <div style={styles.headerBlock}>
-            <h1 style={styles.title}>Found an Item</h1>
-            <p style={styles.subtitle}>
-            Please provide as much detail as possible to help with identification.
-            </p>
+          <h1 style={styles.title}>Found an Item</h1>
+          <p style={styles.subtitle}>
+            Please provide as much detail as possible to help with
+            identification.
+          </p>
         </div>
 
         {/* Toggle */}
@@ -129,7 +138,6 @@ function ReportFoundItemPage() {
 
         {/* FORM - SPLIT LAYOUT */}
         <form onSubmit={submitFoundItem} style={styles.splitLayout}>
-          
           {/* LEFT COLUMN: TEXT INPUTS */}
           <div style={styles.leftColumn}>
             <label style={styles.label}>Item Name*</label>
@@ -139,7 +147,7 @@ function ReportFoundItemPage() {
               onChange={handleChange}
               maxLength={50}
               style={styles.input}
-              placeholder= "e.g., Black Wallet"
+              placeholder="e.g., Black Wallet"
               required
             />
             {errors.name && <span style={styles.errorText}>{errors.name}</span>}
@@ -169,7 +177,7 @@ function ReportFoundItemPage() {
                   onChange={handleChange}
                   maxLength={50}
                   style={styles.input}
-                  placeholder= "e.g., Main Library"
+                  placeholder="e.g., Main Library"
                   required
                 />
                 {errors.found_location && (
@@ -218,50 +226,62 @@ function ReportFoundItemPage() {
 
           {/* RIGHT COLUMN: IMAGE UPLOAD & BUTTONS */}
           <div style={styles.rightColumn}>
-            
             {/* BIG STATIC UPLOAD BOX */}
             <div style={styles.uploadContainer}>
-                <input
-                    type="file"
-                    accept="image/*"
-                    id="file-upload"
-                    style={{ display: "none" }} 
-                    onChange={async (e) => {
-                    const file = e.target.files[0];
-                    if (!file) return;
+              <input
+                type="file"
+                accept="image/*"
+                id="file-upload"
+                style={{ display: "none" }}
+                onChange={async (e) => {
+                  const file = e.target.files[0];
+                  if (!file) return;
 
-                    setPreview(URL.createObjectURL(file));
-                    setIsUploading(true);
-                    try {
-                        const url = await uploadToCloudinary(file);
-                        if (url) {
-                        setForm({ ...form, image_url: url });
-                        }
-                    } catch (error) {
-                        console.error("Upload failed:", error);
-                        alert("Image upload failed. Please try again.");
-                    } finally {
-                        setIsUploading(false);
+                  setPreview(URL.createObjectURL(file));
+                  setIsUploading(true);
+
+                  try {
+                    const url = await uploadToCloudinary(file);
+                    if (url) {
+                      setForm((prev) => ({ ...prev, image_url: url }));
+                      setImageError(""); // ✅ clear error on success
                     }
-                    }}
-                />
-                
-                <label htmlFor="file-upload" style={styles.uploadLabel}>
-                    {preview ? (
-                        <img src={preview} alt="Preview" style={styles.imagePreview} />
-                    ) : (
-                        <div style={styles.uploadPlaceholder}>
-                            <IoCloudUploadOutline size={48} color="#1A1851" style={{ marginBottom: 10 }} />
-                            <span style={{color: "#555"}}>Click to Upload Image</span>
-                        </div>
-                    )}
-                    {isUploading && (
-                        <div style={styles.uploadingOverlay}>
-                            <span>Uploading...</span>
-                        </div>
-                    )}
-                </label>
+                  } catch (error) {
+                    console.error("Upload failed:", error);
+                    alert("Image upload failed. Please try again.");
+                  } finally {
+                    setIsUploading(false);
+                  }
+                }}
+              />
+
+              <label htmlFor="file-upload" style={styles.uploadLabel}>
+                {preview ? (
+                  <img
+                    src={preview}
+                    alt="Preview"
+                    style={styles.imagePreview}
+                  />
+                ) : (
+                  <div style={styles.uploadPlaceholder}>
+                    <IoCloudUploadOutline
+                      size={48}
+                      color="#1A1851"
+                      style={{ marginBottom: 10 }}
+                    />
+                    <span style={{ color: "#555" }}>Click to Upload Image</span>
+                  </div>
+                )}
+                {isUploading && (
+                  <div style={styles.uploadingOverlay}>
+                    <span>Uploading...</span>
+                  </div>
+                )}
+              </label>
             </div>
+
+            {/* 🔴 IMAGE REQUIRED ERROR */}
+            {imageError && <span style={styles.errorText}>{imageError}</span>}
 
             <div style={styles.buttonRow}>
               <button
@@ -276,16 +296,23 @@ function ReportFoundItemPage() {
                 type="submit"
                 style={
                   isUploading || isSubmitting
-                    ? { ...styles.submitBtn, backgroundColor: "#ccc", cursor: "not-allowed" }
+                    ? {
+                        ...styles.submitBtn,
+                        backgroundColor: "#ccc",
+                        cursor: "not-allowed",
+                      }
                     : styles.submitBtn
                 }
                 disabled={isUploading || isSubmitting}
               >
-                {isUploading ? "Uploading..." : isSubmitting ? "Submitting..." : "Submit Report"}
+                {isUploading
+                  ? "Uploading..."
+                  : isSubmitting
+                  ? "Submitting..."
+                  : "Submit Report"}
               </button>
             </div>
           </div>
-
         </form>
       </div>
 
@@ -303,7 +330,7 @@ const styles = {
     margin: "0 auto",
   },
   headerBlock: {
-      marginBottom: "20px",
+    marginBottom: "20px",
   },
   title: {
     fontSize: 32,
@@ -320,7 +347,7 @@ const styles = {
   // Toggle Buttons
   toggleContainer: {
     display: "flex",
-    gap: "0", 
+    gap: "0",
     marginBottom: "40px",
   },
   activeToggle: {
@@ -350,7 +377,7 @@ const styles = {
   // LAYOUT STYLES
   splitLayout: {
     display: "flex",
-    gap: "50px", 
+    gap: "50px",
     alignItems: "flex-start", // Changed to flex-start so Text doesn't stretch to match image height
   },
   leftColumn: {
@@ -375,7 +402,7 @@ const styles = {
     marginTop: 4,
   },
   label: {
-    marginTop: "15px", 
+    marginTop: "15px",
     fontWeight: "600",
     fontSize: 16,
     color: "#333",
@@ -388,7 +415,7 @@ const styles = {
     borderRadius: "6px",
     border: "1px solid #ccc",
     backgroundColor: "#f8f8f8",
-    width: "100%", 
+    width: "100%",
     boxSizing: "border-box",
   },
 
@@ -417,37 +444,40 @@ const styles = {
 
   // STATIC UPLOAD BOX STYLES
   uploadContainer: {
-      width: "100%", 
-      height: "500px", // FIXED STATIC HEIGHT
-      border: "2px dashed #ccc",
-      borderRadius: "10px",
-      backgroundColor: "#f8f8f8",
-      display: "flex",
-      position: "relative",
-      overflow: "hidden",
+    width: "100%",
+    height: "500px", // FIXED STATIC HEIGHT
+    border: "2px dashed #ccc",
+    borderRadius: "10px",
+    backgroundColor: "#f8f8f8",
+    display: "flex",
+    position: "relative",
+    overflow: "hidden",
   },
   uploadLabel: {
-      width: "100%",
-      height: "100%",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      cursor: "pointer",
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
   },
   uploadPlaceholder: {
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
   },
   imagePreview: {
-      width: "100%",
-      height: "100%",
-      objectFit: "contain", // AUTO ADJUST: Fits whole image inside the static box
-      backgroundColor: "#e5e7eb", // Light background to show padding if aspect ratio differs
+    width: "100%",
+    height: "100%",
+    objectFit: "contain", // AUTO ADJUST: Fits whole image inside the static box
+    backgroundColor: "#e5e7eb", // Light background to show padding if aspect ratio differs
   },
   uploadingOverlay: {
     position: "absolute",
-    top: 0, left: 0, right: 0, bottom: 0,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: "rgba(255,255,255,0.7)",
     display: "flex",
     alignItems: "center",
@@ -460,7 +490,7 @@ const styles = {
     display: "flex",
     justifyContent: "flex-end",
     gap: "15px",
-    marginTop: "auto", 
+    marginTop: "auto",
   },
   cancelBtn: {
     padding: "12px 22px",

@@ -21,6 +21,9 @@ function ReportLostItemPage() {
   const [errors, setErrors] = useState({});
   const [descCount, setDescCount] = useState(0);
 
+  // 🔴 NEW: image validation error
+  const [imageError, setImageError] = useState("");
+
   const [form, setForm] = useState({
     name: "",
     category: "",
@@ -78,7 +81,14 @@ function ReportLostItemPage() {
     e.preventDefault();
     if (isSubmitting) return;
 
+    // 🔴 BLOCK SUBMIT IF IMAGE NOT ATTACHED
+    if (!form.image_url) {
+      setImageError("Please upload an image before submitting.");
+      return;
+    }
+
     setIsSubmitting(true);
+    setImageError("");
 
     try {
       const res = await api.post("/api/auth/lost-items", form, {
@@ -166,8 +176,8 @@ function ReportLostItemPage() {
                   placeholder="e.g., Main Library"
                   required
                 />
-                {errors.found_location && (
-                  <span style={styles.errorText}>{errors.found_location}</span>
+                {errors.lost_location && (
+                  <span style={styles.errorText}>{errors.lost_location}</span>
                 )}
               </div>
 
@@ -225,10 +235,12 @@ function ReportLostItemPage() {
 
                   setPreview(URL.createObjectURL(file));
                   setIsUploading(true);
+
                   try {
                     const url = await uploadToCloudinary(file);
                     if (url) {
-                      setForm({ ...form, image_url: url });
+                      setForm((prev) => ({ ...prev, image_url: url }));
+                      setImageError(""); // ✅ clear error on success
                     }
                   } catch (error) {
                     console.error("Upload failed:", error);
@@ -248,11 +260,7 @@ function ReportLostItemPage() {
                   />
                 ) : (
                   <div style={styles.uploadPlaceholder}>
-                    <IoCloudUploadOutline
-                      size={48}
-                      color="#1A1851"
-                      style={{ marginBottom: 10 }}
-                    />
+                    <IoCloudUploadOutline size={48} color="#1A1851" />
                     <span style={{ color: "#555" }}>Click to Upload Image</span>
                   </div>
                 )}
@@ -263,6 +271,9 @@ function ReportLostItemPage() {
                 )}
               </label>
             </div>
+
+            {/* 🔴 IMAGE REQUIRED ERROR */}
+            {imageError && <span style={styles.errorText}>{imageError}</span>}
 
             <div style={styles.buttonRow}>
               <button
