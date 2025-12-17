@@ -38,7 +38,7 @@ exports.getDashboardStats = async (req, res) => {
           verified_claim: true,
           verified_at: { $gte: todayStart },
         }),
-        User.find({}, "role"),
+        User.find({}, "role verified"),
       ]);
 
     const roles = users.map((u) => (u.role || "").toLowerCase());
@@ -46,6 +46,7 @@ exports.getDashboardStats = async (req, res) => {
     const totalStudents = roles.filter((r) => r === "user").length;
     const totalStaff = roles.filter((r) => r === "staff").length;
     const totalAdmin = roles.filter((r) => r === "admin").length;
+    const totalUnverified = users.filter((u) => u.verified === false).length;
 
     res.json({
       success: true,
@@ -57,6 +58,7 @@ exports.getDashboardStats = async (req, res) => {
       totalStudents,
       totalStaff,
       totalAdmin,
+      totalUnverified,
     });
   } catch (err) {
     console.error("Dashboard error:", err);

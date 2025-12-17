@@ -22,6 +22,7 @@ function StaffFoundApproval() {
   const [rejectingId, setRejectingId] = useState(null);
   const [filter, setFilter] = useState("all"); 
   const token = localStorage.getItem("token");
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   // FIX: Wrapped in useCallback to make it a stable dependency for useEffect
   const fetchFoundItems = useCallback(async () => {
@@ -158,195 +159,218 @@ function StaffFoundApproval() {
       return 0;
     });
 
+    // FIX: Added responsive handling for search container
+
+    useEffect(() => {
+      const handleResize = () => {
+        setIsMobile(window.innerWidth <= 768);
+      };
+
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }, []);
+
+
+    const getSearchContainerStyle = () => ({
+      flexGrow: 1,
+      flexBasis: isMobile ? "100%" : "60%",
+      minWidth: isMobile ? "90%" : "420px",
+      position: "relative",
+      marginRight: isMobile ? "0px" : "70px",
+    });
+
+
   return (
     <div style={styles.container}>
       <StaffNavBar />
 
-      <div style={styles.mainContent}>
-        {/* HEADER */}
-        <div style={styles.header}>
-          <div>
-            <h1 style={styles.title}>Found Item Approval</h1>
-            <p style={styles.subtitle}>Review found item submissions from users</p>
-          </div>
-          <div style={styles.headerActions}>
-            <div style={styles.statsBadge}>
-              <IoTimeOutline size={18} />
-              <span>{foundItems.length} Pending Items</span>
+      <div style={styles.main}>
+        <div style={styles.mainContent}>
+            {/* HEADER */}
+          <div style={styles.header}>
+            <div>
+              <h1 style={styles.title}>Found Item Approval</h1>
+              <p style={styles.subtitle}>Review found item submissions from users</p>
+            </div>
+            <div style={styles.headerActions}>
+              <div style={styles.statsBadge}>
+                <IoTimeOutline size={18} />
+                <span>{foundItems.length} Pending Items</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* CONTROLS */}
-        <div style={styles.controls}>
-          <div style={styles.searchContainer}>
-            <IoSearchOutline size={20} color="#94a3b8" style={styles.searchIcon} />
-            <input
-              type="text"
-              placeholder="Search by item name, description, or submitter..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={styles.searchInput}
-            />
-          </div>
-          
-          <div style={styles.controlGroup}>
-            <select 
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              style={styles.filterSelect}
-            >
-              <option value="all">All Items</option>
-              <option value="recent">Most Recent</option>
-              <option value="oldest">Oldest First</option>
-            </select>
+          {/* CONTROLS */}
+          <div style={styles.controls}>
+            <div style={getSearchContainerStyle()}>
+              <IoSearchOutline size={20} color="#94a3b8" style={styles.searchIcon} />
+              <input
+                type="text"
+                placeholder="Search by item name, description, or submitter..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={styles.searchInput}
+              />
+            </div>
             
-            <button 
-              style={styles.refreshButton}
-              onClick={fetchFoundItems}
-              disabled={loading}
-            >
-              {loading ? 'Refreshing...' : 'Refresh'}
-            </button>
+            <div style={styles.controlGroup}>
+              <select 
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                style={styles.filterSelect}
+              >
+                <option value="all">All Items</option>
+                <option value="recent">Most Recent</option>
+                <option value="oldest">Oldest First</option>
+              </select>
+              
+              <button 
+                style={styles.refreshButton}
+                onClick={fetchFoundItems}
+                disabled={loading}
+              >
+                {loading ? 'Refreshing...' : 'Refresh'}
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* CONTENT */}
-        <div style={styles.content}>
-          {loading ? (
-            <div style={styles.loadingContainer}>
-              <div style={styles.loadingSpinner}></div>
-              <p>Loading found items...</p>
-            </div>
-          ) : filteredItems.length === 0 ? (
-            <div style={styles.emptyState}>
-              <IoInformationCircleOutline size={64} color="#cbd5e1" />
-              <h3>No pending found items</h3>
-              <p>All found items have been reviewed and processed</p>
-            </div>
-          ) : (
-            <div style={styles.itemsGrid}>
-              {filteredItems.map((item, index) => (
-                <div 
-                  key={item._id}
-                  id={`found-item-${item._id}`}
-                  style={{
-                    ...styles.itemCard,
-                    animationDelay: `${index * 0.05}s`
-                  }}
-                >
-                  <div style={styles.cardHeader}>
-                    <div style={styles.itemAvatar}>
-                      {item.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div style={styles.itemInfo}>
-                      <h3 style={styles.itemTitle}>{item.name}</h3>
-                      <div style={styles.itemMeta}>
-                        <span style={styles.itemStatus}>
-                          {item.approval_status || 'pending'}
-                        </span>
-                        <span style={styles.itemDate}>
-                          {formatDate(item.date_found || item.createdAt)}
-                        </span>
+          {/* CONTENT */}
+          <div style={styles.content}>
+            {loading ? (
+              <div style={styles.loadingContainer}>
+                <div style={styles.loadingSpinner}></div>
+                <p>Loading found items...</p>
+              </div>
+            ) : filteredItems.length === 0 ? (
+              <div style={styles.emptyState}>
+                <IoInformationCircleOutline size={64} color="#cbd5e1" />
+                <h3>No pending found items</h3>
+                <p>All found items have been reviewed and processed</p>
+              </div>
+            ) : (
+              <div style={styles.itemsGrid}>
+                {filteredItems.map((item, index) => (
+                  <div 
+                    key={item._id}
+                    id={`found-item-${item._id}`}
+                    style={{
+                      ...styles.itemCard,
+                      animationDelay: `${index * 0.05}s`
+                    }}
+                  >
+                    <div style={styles.cardHeader}>
+                      <div style={styles.itemAvatar}>
+                        {item.name.charAt(0).toUpperCase()}
                       </div>
-                    </div>
-                  </div>
-
-                  <div style={styles.cardBody}>
-                    <p style={styles.itemDescription}>
-                      {item.description || "No description provided"}
-                    </p>
-                    
-                    {item.location && (
-                      <div style={styles.location}>
-                        <IoLocationOutline size={16} />
-                        <span>{item.location}</span>
-                      </div>
-                    )}
-
-                    <div style={styles.submitterInfo}>
-                      <div style={styles.submitterAvatar}>
-                        {item.posted_by?.name?.charAt(0) || "U"}
-                      </div>
-                      <div>
-                        <div style={styles.submitterName}>
-                          {item.posted_by?.name || "Unknown User"}
-                        </div>
-                        <div style={styles.submitterEmail}>
-                          {item.posted_by?.email || "No email provided"}
+                      <div style={styles.itemInfo}>
+                        <h3 style={styles.itemTitle}>{item.name}</h3>
+                        <div style={styles.itemMeta}>
+                          <span style={styles.itemStatus}>
+                            {item.approval_status || 'pending'}
+                          </span>
+                          <span style={styles.itemDate}>
+                            {formatDate(item.date_found || item.createdAt)}
+                          </span>
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div style={styles.cardFooter}>
-                    <button
-                      style={styles.viewDetailsBtn}
-                      onClick={() => navigate(`/StaffFoundReview/${item._id}`)}
-                    >
-                      <IoEyeOutline size={18} />
-                      View Details
-                    </button>
-                    <div style={styles.actionButtons}>
+                    <div style={styles.cardBody}>
+                      <p style={styles.itemDescription}>
+                        {item.description || "No description provided"}
+                      </p>
+                      
+                      {item.location && (
+                        <div style={styles.location}>
+                          <IoLocationOutline size={16} />
+                          <span>{item.location}</span>
+                        </div>
+                      )}
+
+                      <div style={styles.submitterInfo}>
+                        <div style={styles.submitterAvatar}>
+                          {item.posted_by?.name?.charAt(0) || "U"}
+                        </div>
+                        <div>
+                          <div style={styles.submitterName}>
+                            {item.posted_by?.name || "Unknown User"}
+                          </div>
+                          <div style={styles.submitterEmail}>
+                            {item.posted_by?.email || "No email provided"}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={styles.cardFooter}>
                       <button
-                        style={styles.approveBtn}
-                        onClick={() => approveItem(item._id)}
-                        disabled={approvingId === item._id}
+                        style={styles.viewDetailsBtn}
+                        onClick={() => navigate(`/StaffFoundReview/${item._id}`)}
                       >
-                        {approvingId === item._id ? (
-                          <div style={styles.loadingDots}></div>
-                        ) : (
-                          <>
-                            <IoCheckmarkCircleOutline size={18} />
-                            Approve
-                          </>
-                        )}
+                        <IoEyeOutline size={18} />
+                        View Details
                       </button>
-                      <button
-                        style={styles.rejectBtn}
-                        onClick={() => rejectItem(item._id)}
-                        disabled={rejectingId === item._id}
-                      >
-                        {rejectingId === item._id ? (
-                          <div style={styles.loadingDots}></div>
-                        ) : (
-                          <>
-                            <IoCloseCircleOutline size={18} />
-                            Reject
-                          </>
-                        )}
-                      </button>
+                      <div style={styles.actionButtons}>
+                        <button
+                          style={styles.approveBtn}
+                          onClick={() => approveItem(item._id)}
+                          disabled={approvingId === item._id}
+                        >
+                          {approvingId === item._id ? (
+                            <div style={styles.loadingDots}></div>
+                          ) : (
+                            <>
+                              <IoCheckmarkCircleOutline size={18} />
+                              Approve
+                            </>
+                          )}
+                        </button>
+                        <button
+                          style={styles.rejectBtn}
+                          onClick={() => rejectItem(item._id)}
+                          disabled={rejectingId === item._id}
+                        >
+                          {rejectingId === item._id ? (
+                            <div style={styles.loadingDots}></div>
+                          ) : (
+                            <>
+                              <IoCloseCircleOutline size={18} />
+                              Reject
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* SUMMARY */}
+          <div style={styles.summary}>
+            <div style={styles.summaryCard}>
+              <h4 style={styles.summaryTitle}>Summary</h4>
+              <div style={styles.summaryStats}>
+                <div style={styles.summaryStat}>
+                  <span style={styles.statLabel}>Total Items</span>
+                  <span style={styles.statValue}>{foundItems.length}</span>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* SUMMARY */}
-        <div style={styles.summary}>
-          <div style={styles.summaryCard}>
-            <h4 style={styles.summaryTitle}>Summary</h4>
-            <div style={styles.summaryStats}>
-              <div style={styles.summaryStat}>
-                <span style={styles.statLabel}>Total Items</span>
-                <span style={styles.statValue}>{foundItems.length}</span>
-              </div>
-              <div style={styles.summaryStat}>
-                <span style={styles.statLabel}>Showing</span>
-                <span style={styles.statValue}>{filteredItems.length}</span>
-              </div>
-              <div style={styles.summaryStat}>
-                <span style={styles.statLabel}>Last Updated</span>
-                <span style={styles.statValue}>
-                  {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </span>
+                <div style={styles.summaryStat}>
+                  <span style={styles.statLabel}>Showing</span>
+                  <span style={styles.statValue}>{filteredItems.length}</span>
+                </div>
+                <div style={styles.summaryStat}>
+                  <span style={styles.statLabel}>Last Updated</span>
+                  <span style={styles.statValue}>
+                    {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
-
+  
         <Footer />
       </div>
     </div>
@@ -361,13 +385,24 @@ const styles = {
     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
     background: "linear-gradient(135deg, #f6f8ff 0%, #f0f2ff 100%)",
   },
-  mainContent: {
-    flex: 1,
-    padding: "30px 40px",
+  main:{
+    display: "flex",
+    flexDirection: "column",
+    flexGrow: 1,
+    minHeight: "100vh",
     overflowY: "auto",
+    paddingLeft: "220px", // Match StaffNavBar width
+  },
+
+  mainContent: {
+    display: "flex",
+    flexGrow: 1,
+    flexDirection: "column",
+    padding: "30px 40px",
   },
   header: {
     display: "flex",
+    flexWrap: "wrap",
     justifyContent: "space-between",
     alignItems: "flex-start",
     marginBottom: "30px",
@@ -404,7 +439,7 @@ const styles = {
   },
   controls: {
     display: "flex",
-    justifyContent: "space-between",
+    flexWrap: "wrap",
     alignItems: "center",
     marginBottom: "30px",
     gap: "20px",
@@ -412,7 +447,7 @@ const styles = {
   searchContainer: {
     flex: 1,
     position: "relative",
-    maxWidth: "600px",
+    maxWidth: "50%",
   },
   searchIcon: {
     position: "absolute",
@@ -434,6 +469,7 @@ const styles = {
     display: "flex",
     gap: "12px",
     alignItems: "center",
+    flexShrink: 0,
   },
   filterSelect: {
     padding: "14px 20px",
@@ -444,7 +480,8 @@ const styles = {
     color: "#475569",
     cursor: "pointer",
     outline: "none",
-    minWidth: "160px",
+    minWidth: "130px",
+    maxWidth: "40%",
   },
   refreshButton: {
     padding: "14px 28px",
@@ -456,6 +493,7 @@ const styles = {
     fontWeight: "600",
     cursor: "pointer",
     transition: "all 0.3s ease",
+    maxWidth: "50%",
   },
   content: {
     marginBottom: "30px",
@@ -484,7 +522,7 @@ const styles = {
   },
   itemsGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(380px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fill, minmax(400px, 1fr))",
     gap: "24px",
   },
   itemCard: {
@@ -634,6 +672,7 @@ const styles = {
     fontWeight: "600",
     cursor: "pointer",
     transition: "all 0.3s ease",
+    maxWidth: "50%",
   },
   rejectBtn: {
     display: "flex",
@@ -648,6 +687,7 @@ const styles = {
     fontWeight: "600",
     cursor: "pointer",
     transition: "all 0.3s ease",
+    maxWidth: "50%",
   },
   loadingDots: {
     width: "20px",

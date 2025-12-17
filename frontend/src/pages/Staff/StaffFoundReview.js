@@ -134,7 +134,8 @@ export default function StaffFoundReview() {
   return (
     <div style={styles.container}>
       <StaffNavBar />
-      <div style={styles.mainContent}>
+      <div style={styles.main}>
+        <div style={styles.mainContent}>
         
         {/* HEADER */}
         <div style={styles.header}>
@@ -249,6 +250,8 @@ export default function StaffFoundReview() {
             </div>
           </div>
         </div>
+      </div>
+      
         <Footer />
       </div>
     </div>
@@ -257,9 +260,18 @@ export default function StaffFoundReview() {
 
 const styles = {
   container: { display: "flex", minHeight: "100vh", fontFamily: "'Inter', sans-serif", background: "linear-gradient(135deg, #f6f8ff 0%, #f0f2ff 100%)" },
-  mainContent: { flex: 1, padding: "30px 40px", overflowY: "auto" },
-  header: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "30px" },
-  backNavButton: { display: "flex", alignItems: "center", gap: "8px", padding: "12px 20px", backgroundColor: "transparent", color: "#64748b", border: "2px solid #e2e8f0", borderRadius: "10px", fontSize: "15px", fontWeight: "600", cursor: "pointer" },
+  main:{
+    display: "flex",
+    flexDirection: "column",
+    flexGrow: 1,
+    minHeight: "100vh",
+    overflowY: "auto",
+    paddingLeft: "230px", // Match StaffNavBar width
+  },
+  mainContent: { display: "flex", flexGrow:1, flexDirection: "column", padding: "30px 40px", overflowY: "auto" },
+  header: { display: "flex", 
+    flexDirection:"column", marginBottom: "30px" },
+  backNavButton: { display: "flex", alignItems: "center", gap: "8px", padding: "12px 20px", backgroundColor: "transparent", color: "#64748b", border: "2px solid #e2e8f0", borderRadius: "10px", fontSize: "15px", fontWeight: "600", cursor: "pointer", maxWidth: "200px" },
   headerInfo: { flex: 1, marginLeft: "20px" },
   title: { fontSize: "32px", fontWeight: "800", color: "#1A1851" },
   subtitle: { fontSize: "16px", color: "#64748b" },

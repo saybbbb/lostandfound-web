@@ -1,3 +1,4 @@
+// ============================= 1. IMPORTS =============================
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../components/NavigationBars/Header";
@@ -5,6 +6,7 @@ import Footer from "../../components/NavigationBars/Footer";
 import { uploadToCloudinary } from "../../utils/uploadImage";
 import api from "../../services/api";
 
+// ============================= 2. COMPONENT =============================
 function LostReportPage() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -80,27 +82,18 @@ function LostReportPage() {
 
   if (!lostItem) return null;
 
+  // ============================= 3. RENDER =============================
   return (
     <>
       <Header />
-      <div style={{ padding: "40px 120px" }}>
-        <h1 style={{ fontSize: 32, color: "#1A1851", fontWeight: "bold" }}>
-          Found Item Report
-        </h1>
+      <div style={styles.container}>
+        <h1 style={styles.title}>Found Item Report</h1>
 
         <p>
           You are reporting that you found: <strong>{lostItem.name}</strong>
         </p>
 
-        <form
-          onSubmit={submitFoundReport}
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "12px",
-            maxWidth: "700px",
-          }}
-        >
+        <form onSubmit={submitFoundReport} style={styles.form}>
           <label>Found Location*</label>
           <input name="found_location" required onChange={handleChange} />
 
@@ -138,17 +131,7 @@ function LostReportPage() {
             }}
           />
 
-          <button
-            type="submit"
-            style={{
-              marginTop: 15,
-              padding: "12px",
-              backgroundColor: "#1A1851",
-              color: "white",
-              fontWeight: "bold",
-              borderRadius: 6,
-            }}
-          >
+          <button type="submit" style={styles.submitBtn}>
             Submit Found Item Report
           </button>
         </form>
@@ -158,5 +141,33 @@ function LostReportPage() {
     </>
   );
 }
+
+// ============================= 4. STYLES =============================
+const styles = {
+  container: { 
+    padding: "40px 120px" 
+  },
+  title: { 
+    fontSize: 32, 
+    color: "#1A1851", 
+    fontWeight: "bold" 
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+    maxWidth: "700px",
+  },
+  submitBtn: {
+    marginTop: 15,
+    padding: "12px",
+    backgroundColor: "#1A1851",
+    color: "white",
+    fontWeight: "bold",
+    borderRadius: 6,
+    border: "none",
+    cursor: "pointer",
+  },
+};
 
 export default LostReportPage;

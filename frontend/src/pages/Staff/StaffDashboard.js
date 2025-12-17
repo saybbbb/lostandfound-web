@@ -3,11 +3,6 @@ import { useNavigate } from "react-router-dom";
 import usePageMetadata from "../../hooks/usePageMetadata";
 import StaffNavBar from "../../components/NavigationBars/StaffNavBar";
 import Footer from "../../components/NavigationBars/Footer";
-import {
-  IoNotificationsOutline,
-  IoAddCircleOutline, 
-  IoEyeOutline,
-} from "react-icons/io5";
 import api from "../../services/api";
 
 function StaffDashboard() {
@@ -126,16 +121,8 @@ function StaffDashboard() {
       <div style={styles.mainContent}>
         {/* HEADER */}
         <div style={styles.header}>
-          <div>
-            <h1 style={styles.greeting}>Good Day, Staff</h1>
-            <p style={styles.subGreeting}>Here's what needs your attention</p>
-          </div>
-          <div style={styles.topIcons}>
-            <div style={styles.notificationIcon}>
-              <IoNotificationsOutline size={24} color="#1A1851" />
-              <div style={styles.notificationBadge}>3</div>
-            </div>
-          </div>
+          <h1 style={styles.greeting}>Good Day, Staff</h1>
+          <p style={styles.subGreeting}>Here's what needs your attention</p>
         </div>
 
         {/* STATS CARDS */}
@@ -270,18 +257,6 @@ function StaffDashboard() {
           </div>
         </div>
 
-        {/* ACTION BUTTONS */}
-        <div style={styles.actionButtons}>
-          <button style={styles.btnPrimary}>
-            <IoAddCircleOutline size={20} />
-            Add Announcement
-          </button>
-          <button style={styles.btnSecondary}>
-            <IoEyeOutline size={20} />
-            View Pending Posts
-          </button>
-        </div>
-
         <Footer />
       </div>
     </div>
@@ -291,26 +266,31 @@ function StaffDashboard() {
 const styles = {
   container: {
     display: "flex",
-    minHeight: "100vh",
     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
     background: "linear-gradient(135deg, #f6f8ff 0%, #f0f2ff 100%)",
   },
   mainContent: {
-    flex: 1,
-    padding: "30px 40px",
+    flexGrow: 1,
+    padding: "30px 40px 30px 220px", //top, right, bottom, left
     overflowY: "auto",
+    display: "flex",
+    flexDirection: "column",
+    minHeight: "100vh",
   },
   header: {
     display: "flex",
+    flexDirection: "column",
     justifyContent: "space-between",
     alignItems: "flex-start",
     marginBottom: "30px",
+    flexWrap: "wrap",
+    gap: "20px",
   },
   greeting: {
     fontSize: "36px",
     fontWeight: "700",
     color: "#1A1851",
-    margin: "0 0 8px 0",
+    margin: "0 0 4px 0",
     background: "linear-gradient(135deg, #1A1851 0%, #0F0E3E 100%)",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
@@ -351,6 +331,8 @@ const styles = {
   },
   row: {
     display: "flex",
+    flexDirection: "row",
+    flexGrow: 1,
     gap: "30px",
     marginBottom: "30px",
   },
@@ -379,6 +361,7 @@ const styles = {
   },
   statsRow: {
     display: "flex",
+    flexWrap: "wrap",
     justifyContent: "space-around",
     alignItems: "center",
   },

@@ -167,22 +167,25 @@ export default function StaffLostReview() {
   return (
     <div style={styles.container}>
       <StaffNavBar />
+      <div style={styles.main}>
       <div style={styles.mainContent}>
         {/* Header */}
         <div style={styles.header}>
           <button style={styles.backNavButton} onClick={() => navigate("/StaffLostApproval")}>
             <IoArrowBackOutline size={20} /> Back to List
           </button>
+          <div style={styles.headerBracket}>
+            <div style={styles.headerInfo}>
+              <h1 style={styles.title}>Lost Item Review</h1>
+              <p style={styles.subtitle}>Review lost item report before publishing</p>
+            </div>
 
-          <div style={styles.headerInfo}>
-            <h1 style={styles.title}>Lost Item Review</h1>
-            <p style={styles.subtitle}>Review lost item report before publishing</p>
+            <div style={styles.claimStatus}>
+              <span style={styles.statusBadge}>Pending Approval</span>
+              <span style={styles.claimId}>ID: {String(item._id).substring(0, 8)}...</span>
+            </div>
           </div>
-
-          <div style={styles.claimStatus}>
-            <span style={styles.statusBadge}>Pending Approval</span>
-            <span style={styles.claimId}>ID: {String(item._id).substring(0, 8)}...</span>
-          </div>
+          
         </div>
 
         <div style={styles.contentGrid}>
@@ -348,6 +351,7 @@ export default function StaffLostReview() {
             </div>
           </div>
         </div>
+      </div>
 
         <Footer />
       </div>
@@ -368,9 +372,18 @@ const styles = {
     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
     background: "linear-gradient(135deg, #f6f8ff 0%, #f0f2ff 100%)",
   },
-
+  main:{
+    display: "flex",
+    flexDirection: "column",
+    flexGrow: 1,
+    minHeight: "100vh",
+    overflowY: "auto",
+    paddingLeft: "220px", // Match StaffNavBar width
+  },
   mainContent: {
-    flex: 1,
+    display: "flex",
+    flexGrow: 1,
+    flexDirection: "column",
     padding: "30px 40px",
     overflowY: "auto",
   },
@@ -406,15 +419,6 @@ const styles = {
   },
 
   /* ========= HEADER ========= */
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 30,
-    gap: 20,
-    flexWrap: "wrap",
-  },
-
   backNavButton: {
     display: "flex",
     alignItems: "center",
@@ -428,8 +432,26 @@ const styles = {
     fontWeight: 600,
     cursor: "pointer",
     transition: "all 0.3s ease",
+    maxWidth: "200px",
+  },
+  headerBracket: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    flexShrink:0,
+    gap: "60%",
+  },
+  header: {
+    display: "flex",
+    flexDirection: "column",
+    marginBottom: 30,
+    gap: 20,
+    flexWrap: "wrap",
   },
 
+ 
+
+  
   headerInfo: {
     flex: 1,
     minWidth: 300,
