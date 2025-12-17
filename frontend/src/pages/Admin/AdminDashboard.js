@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../services/api";
 import AdminNavBar from "../../components/NavigationBars/AdminNavBar";
 import Footer from "../../components/NavigationBars/Footer";
 import usePageMetadata from "../../hooks/usePageMetadata";
@@ -24,17 +24,13 @@ function AdminDashboard() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const admin = JSON.parse(localStorage.getItem("admin"));
-    if (admin?.name) setAdminName(admin.name);
-
-    // If a token exists, set it as the default Authorization header for api
-    const token = localStorage.getItem("token");
-    if (token)
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    const adminNameFromStorage = localStorage.getItem("adminName");
+    if (adminNameFromStorage) {
+      setAdminName(adminNameFromStorage);
+    }
 
     fetchDashboardData();
 
-    // live clock
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
@@ -42,11 +38,9 @@ function AdminDashboard() {
   const fetchDashboardData = async () => {
     try {
       const token = localStorage.getItem("token");
-
-      const res = await axios.get(
-        "http://localhost:5000/api/auth/admin/dashboard",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await api.get("/api/auth/admin/dashboard", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       const data = res.data;
 
