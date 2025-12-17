@@ -7,14 +7,13 @@ import api from "../../services/api";
 
 function StaffDashboard() {
   usePageMetadata("Staff Dashboard", "/images/LAFLogo.png");
+
   const [counts, setCounts] = useState({ lost: 0, found: 0, claims: 0 });
   const [recentItems, setRecentItems] = useState([]);
   const [time, setTime] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [statsAnimation, setStatsAnimation] = useState(false);
   const navigate = useNavigate();
-
-  
 
   // Update time every second
   useEffect(() => {
@@ -245,11 +244,12 @@ function StaffDashboard() {
                     </span>
                   </div>
                   <div style={styles.itemActions}>
-                    <button style={styles.viewButton}
-                    onClick={() => handleReviewClick(item)}
-                    >Review
+                    <button
+                      style={styles.viewButton}
+                      onClick={() => handleReviewClick(item)}
+                    >
+                      Review
                     </button>
-
                   </div>
                 </div>
               ))

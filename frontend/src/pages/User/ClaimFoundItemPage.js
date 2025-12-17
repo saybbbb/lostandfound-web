@@ -7,6 +7,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import Header from "../../components/NavigationBars/Header";
 import Footer from "../../components/NavigationBars/Footer";
 
+// Hooks
+import usePageMetadata from "../../hooks/usePageMetadata";
+
 // Utils
 import { uploadToCloudinary } from "../../utils/uploadImage";
 
@@ -15,6 +18,8 @@ import { IoCloudUploadOutline, IoImageOutline } from "react-icons/io5";
 
 // ============================= 2. COMPONENT =============================
 function ClaimFoundItemPage() {
+  usePageMetadata("Claim Found Item", "/images/LAFLogo.png");
+
   const { foundId } = useParams();
   const navigate = useNavigate();
 

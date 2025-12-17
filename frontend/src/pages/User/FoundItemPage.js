@@ -4,9 +4,12 @@ import Header from "../../components/NavigationBars/Header";
 import Footer from "../../components/NavigationBars/Footer";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
+import usePageMetadata from "../../hooks/usePageMetadata";
 
 // ============================= 2. COMPONENT =============================
 function FoundItemPage() {
+  usePageMetadata("Found Item", "/images/LAFLogo.png");
+
   const [foundItems, setFoundItems] = useState([]);
   const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState("");
@@ -50,7 +53,9 @@ function FoundItemPage() {
 
   // Filter Logic
   const filteredItems = foundItems.filter((item) => {
-    const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = item.name
+      .toLowerCase()
+      .includes(search.toLowerCase());
     const matchesCategory =
       filter === "All" ||
       item.category?.name?.toLowerCase() === filter.toLowerCase();
@@ -106,8 +111,7 @@ function FoundItemPage() {
                 onClick={() => setFilter(cat.name)}
                 style={{
                   ...styles.filterBtn,
-                  backgroundColor:
-                    filter === cat.name ? "#1A1851" : "#F5F6FA",
+                  backgroundColor: filter === cat.name ? "#1A1851" : "#F5F6FA",
                   color: filter === cat.name ? "#fff" : "#333",
                 }}
               >
@@ -142,7 +146,9 @@ function FoundItemPage() {
                   style={{
                     opacity: item.claim_status === "claimed" ? 0.5 : 1,
                     cursor:
-                      item.claim_status === "claimed" ? "not-allowed" : "pointer",
+                      item.claim_status === "claimed"
+                        ? "not-allowed"
+                        : "pointer",
                   }}
                 >
                   {item.claim_status === "claimed"

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { uploadToCloudinary } from "../../utils/uploadImage";
 import api from "../../services/api";
 import { IoCloudUploadOutline } from "react-icons/io5";
+import usePageMetadata from "../../hooks/usePageMetadata";
 
 // Letters only (including ñ / Ñ), spaces allowed
 const lettersOnlyRegex = /^[A-Za-zñÑ\s]+$/;
@@ -13,6 +14,8 @@ const lettersOnlyRegex = /^[A-Za-zñÑ\s]+$/;
 const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
 
 function ReportLostItemPage() {
+  usePageMetadata("Report Lost Item", "/images/LAFLogo.png");
+
   const navigate = useNavigate();
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);

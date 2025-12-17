@@ -1,19 +1,22 @@
 import React, { useState, useEffect, useCallback } from "react";
 import StaffNavBar from "../../components/NavigationBars/StaffNavBar";
 import Footer from "../../components/NavigationBars/Footer";
-import { 
-  IoSearchOutline, 
-  IoCheckmarkCircleOutline, 
+import {
+  IoSearchOutline,
+  IoCheckmarkCircleOutline,
   IoCloseCircleOutline,
   IoTimeOutline,
   IoInformationCircleOutline,
   IoEyeOutline,
-  IoLocationOutline
+  IoLocationOutline,
 } from "react-icons/io5";
 import api from "../../services/api";
 import { useNavigate } from "react-router-dom";
+import usePageMetadata from "../../hooks/usePageMetadata";
 
 function StaffLostApproval() {
+  usePageMetadata("Staff Lost Approval", "/images/LAFLogo.png");
+
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [lostItems, setLostItems] = useState([]);
@@ -80,14 +83,20 @@ function StaffLostApproval() {
   };
 
   const animateRemoval = (itemId) => {
-    setLostItems(prev => prev.filter(item => item._id !== itemId));
+    setLostItems((prev) => prev.filter((item) => item._id !== itemId));
   };
 
   const showNotification = (message, type) => {
-    const notification = document.createElement('div');
+    const notification = document.createElement("div");
     notification.style.cssText = `
       position: fixed; top: 20px; right: 20px; padding: 16px 24px;
-      background: ${type === 'success' ? '#10B981' : type === 'warning' ? '#F59E0B' : '#EF4444'};
+      background: ${
+        type === "success"
+          ? "#10B981"
+          : type === "warning"
+          ? "#F59E0B"
+          : "#EF4444"
+      };
       color: white; border-radius: 10px; font-weight: 600; z-index: 1000;
       box-shadow: 0 8px 20px rgba(0,0,0,0.15); animation: slideIn 0.3s ease-out;
     `;
@@ -101,13 +110,15 @@ function StaffLostApproval() {
     const date = new Date(dateString);
     const now = new Date();
     const diffHours = Math.floor((now - date) / (1000 * 60 * 60));
-    if (diffHours < 24) return `${diffHours} hr${diffHours !== 1 ? 's' : ''} ago`;
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    if (diffHours < 24)
+      return `${diffHours} hr${diffHours !== 1 ? "s" : ""} ago`;
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
-  const filtered = lostItems.filter((item) =>
-    item.name.toLowerCase().includes(search.toLowerCase()) ||
-    item.reported_by?.name?.toLowerCase().includes(search.toLowerCase())
+  const filtered = lostItems.filter(
+    (item) =>
+      item.name.toLowerCase().includes(search.toLowerCase()) ||
+      item.reported_by?.name?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -115,132 +126,154 @@ function StaffLostApproval() {
       <StaffNavBar />
       <div style={styles.main}>
         <div style={styles.mainContent}>
-        
-        {/* HEADER */}
-        <div style={styles.header}>
-          <div>
-            <h1 style={styles.title}>Lost Item Approval</h1>
-            <p style={styles.subtitle}>Review and manage lost item submissions</p>
-          </div>
-          <div style={styles.headerActions}>
-            <div style={styles.statsBadge}>
-              <IoTimeOutline size={18} />
-              <span>{lostItems.length} Pending</span>
+          {/* HEADER */}
+          <div style={styles.header}>
+            <div>
+              <h1 style={styles.title}>Lost Item Approval</h1>
+              <p style={styles.subtitle}>
+                Review and manage lost item submissions
+              </p>
+            </div>
+            <div style={styles.headerActions}>
+              <div style={styles.statsBadge}>
+                <IoTimeOutline size={18} />
+                <span>{lostItems.length} Pending</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* CONTROLS */}
-        <div style={styles.controls}>
-          <div style={styles.searchContainer}>
-            <IoSearchOutline size={20} color="#94a3b8" style={styles.searchIcon} />
-            <input
-              type="text"
-              placeholder="Search lost items..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={styles.searchInput}
-            />
+          {/* CONTROLS */}
+          <div style={styles.controls}>
+            <div style={styles.searchContainer}>
+              <IoSearchOutline
+                size={20}
+                color="#94a3b8"
+                style={styles.searchIcon}
+              />
+              <input
+                type="text"
+                placeholder="Search lost items..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={styles.searchInput}
+              />
+            </div>
+            <div style={styles.controlGroup}>
+              <button
+                style={styles.refreshButton}
+                onClick={fetchLostItems}
+                disabled={loading}
+              >
+                {loading ? "Refreshing..." : "Refresh"}
+              </button>
+            </div>
           </div>
-          <div style={styles.controlGroup}>
-            <button style={styles.refreshButton} onClick={fetchLostItems} disabled={loading}>
-              {loading ? 'Refreshing...' : 'Refresh'}
-            </button>
-          </div>
-        </div>
 
-        {/* CONTENT */}
-        <div style={styles.content}>
-          {loading ? (
-            <div style={styles.loadingContainer}>
-              <div style={styles.loadingSpinner}></div>
-              <p>Loading lost items...</p>
-            </div>
-          ) : filtered.length === 0 ? (
-            <div style={styles.emptyState}>
-              <IoInformationCircleOutline size={64} color="#cbd5e1" />
-              <h3>No pending lost items</h3>
-              <p>All lost item submissions have been reviewed</p>
-            </div>
-          ) : (
-            <div style={styles.itemsGrid}>
-              {filtered.map((item, index) => (
-                <div key={item._id} style={{ ...styles.itemCard, animationDelay: `${index * 0.05}s` }}>
-                  
-                  {/* CARD HEADER */}
-                  <div style={styles.cardHeader}>
-                    <div style={styles.itemAvatar}>
-                      {item.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div style={styles.itemInfo}>
-                      <h3 style={styles.itemTitle}>{item.name}</h3>
-                      <div style={styles.itemMeta}>
-                        <span style={styles.itemStatus}>Pending</span>
-                        <span style={styles.itemDate}>
-                          {formatRelativeTime(item.date_lost || item.createdAt)}
-                        </span>
+          {/* CONTENT */}
+          <div style={styles.content}>
+            {loading ? (
+              <div style={styles.loadingContainer}>
+                <div style={styles.loadingSpinner}></div>
+                <p>Loading lost items...</p>
+              </div>
+            ) : filtered.length === 0 ? (
+              <div style={styles.emptyState}>
+                <IoInformationCircleOutline size={64} color="#cbd5e1" />
+                <h3>No pending lost items</h3>
+                <p>All lost item submissions have been reviewed</p>
+              </div>
+            ) : (
+              <div style={styles.itemsGrid}>
+                {filtered.map((item, index) => (
+                  <div
+                    key={item._id}
+                    style={{
+                      ...styles.itemCard,
+                      animationDelay: `${index * 0.05}s`,
+                    }}
+                  >
+                    {/* CARD HEADER */}
+                    <div style={styles.cardHeader}>
+                      <div style={styles.itemAvatar}>
+                        {item.name.charAt(0).toUpperCase()}
                       </div>
-                    </div>
-                  </div>
-
-                  {/* CARD BODY */}
-                  <div style={styles.cardBody}>
-                    <p style={styles.itemDescription}>
-                      {item.description || "No description provided"}
-                    </p>
-                    <div style={styles.location}>
-                      <IoLocationOutline size={16} />
-                      <span>{item.lost_location}</span>
-                    </div>
-
-                    <div style={styles.submitterInfo}>
-                      <div style={styles.submitterAvatar}>
-                        {item.reported_by?.name?.charAt(0) || "U"}
-                      </div>
-                      <div>
-                        <div style={styles.submitterName}>
-                          {item.reported_by?.name || "Unknown"}
-                        </div>
-                        <div style={styles.submitterEmail}>
-                          {item.reported_by?.email || "No email"}
+                      <div style={styles.itemInfo}>
+                        <h3 style={styles.itemTitle}>{item.name}</h3>
+                        <div style={styles.itemMeta}>
+                          <span style={styles.itemStatus}>Pending</span>
+                          <span style={styles.itemDate}>
+                            {formatRelativeTime(
+                              item.date_lost || item.createdAt
+                            )}
+                          </span>
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* CARD FOOTER */}
-                  <div style={styles.cardFooter}>
-                    <button
-                      style={styles.viewDetailsBtn}
-                      onClick={() => navigate(`/StaffLostReview/${item._id}`)}
-                    >
-                      <IoEyeOutline size={18} /> Review
-                    </button>
-                    <div style={styles.actionButtons}>
+                    {/* CARD BODY */}
+                    <div style={styles.cardBody}>
+                      <p style={styles.itemDescription}>
+                        {item.description || "No description provided"}
+                      </p>
+                      <div style={styles.location}>
+                        <IoLocationOutline size={16} />
+                        <span>{item.lost_location}</span>
+                      </div>
+
+                      <div style={styles.submitterInfo}>
+                        <div style={styles.submitterAvatar}>
+                          {item.reported_by?.name?.charAt(0) || "U"}
+                        </div>
+                        <div>
+                          <div style={styles.submitterName}>
+                            {item.reported_by?.name || "Unknown"}
+                          </div>
+                          <div style={styles.submitterEmail}>
+                            {item.reported_by?.email || "No email"}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* CARD FOOTER */}
+                    <div style={styles.cardFooter}>
                       <button
-                        style={styles.approveBtn}
-                        onClick={() => approveItem(item._id)}
-                        disabled={approvingId === item._id}
+                        style={styles.viewDetailsBtn}
+                        onClick={() => navigate(`/StaffLostReview/${item._id}`)}
                       >
-                        {approvingId === item._id ? <div style={styles.loadingDots}/> : <IoCheckmarkCircleOutline size={18} />}
+                        <IoEyeOutline size={18} /> Review
                       </button>
-                      <button
-                        style={styles.rejectBtn}
-                        onClick={() => rejectItem(item._id)}
-                        disabled={rejectingId === item._id}
-                      >
-                        {rejectingId === item._id ? <div style={styles.loadingDots}/> : <IoCloseCircleOutline size={18} />}
-                      </button>
+                      <div style={styles.actionButtons}>
+                        <button
+                          style={styles.approveBtn}
+                          onClick={() => approveItem(item._id)}
+                          disabled={approvingId === item._id}
+                        >
+                          {approvingId === item._id ? (
+                            <div style={styles.loadingDots} />
+                          ) : (
+                            <IoCheckmarkCircleOutline size={18} />
+                          )}
+                        </button>
+                        <button
+                          style={styles.rejectBtn}
+                          onClick={() => rejectItem(item._id)}
+                          disabled={rejectingId === item._id}
+                        >
+                          {rejectingId === item._id ? (
+                            <div style={styles.loadingDots} />
+                          ) : (
+                            <IoCloseCircleOutline size={18} />
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-
-      </div>
-        
 
         <Footer />
       </div>
@@ -612,7 +645,7 @@ const styles = {
 };
 
 // CSS Animation Injection
-const style = document.createElement('style');
+const style = document.createElement("style");
 style.textContent = `
   @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   @keyframes slideInCard { to { opacity: 1; transform: translateY(0); } }

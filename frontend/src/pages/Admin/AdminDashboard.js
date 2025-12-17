@@ -2,8 +2,11 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import AdminNavBar from "../../components/NavigationBars/AdminNavBar";
 import Footer from "../../components/NavigationBars/Footer";
+import usePageMetadata from "../../hooks/usePageMetadata";
 
 function AdminDashboard() {
+  usePageMetadata("Admin Dashboard", "/images/LAFLogo.png");
+
   const [adminName, setAdminName] = useState("");
   const [counts, setCounts] = useState({
     lost: 0,
@@ -26,7 +29,8 @@ function AdminDashboard() {
 
     // If a token exists, set it as the default Authorization header for api
     const token = localStorage.getItem("token");
-    if (token) axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    if (token)
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
     fetchDashboardData();
 
@@ -100,24 +104,54 @@ function AdminDashboard() {
             </div>
           </div>
 
-          {error && (
-            <div style={styles.errorBox}>{error}</div>
-          )}
+          {error && <div style={styles.errorBox}>{error}</div>}
 
           {/* TOP STAT CARDS */}
           <div style={styles.cardRow}>
-            <div style={styles.card}>Total Lost Items<br /><b>{counts.lost}</b></div>
-            <div style={styles.card}>Total Found Items<br /><b>{counts.found}</b></div>
-            <div style={styles.card}>Pending Claims<br /><b>{counts.pendingToday}</b></div>
-            <div style={styles.card}>Active Users Today<br /><b>{counts.verifiedToday}</b></div>
+            <div style={styles.card}>
+              Total Lost Items
+              <br />
+              <b>{counts.lost}</b>
+            </div>
+            <div style={styles.card}>
+              Total Found Items
+              <br />
+              <b>{counts.found}</b>
+            </div>
+            <div style={styles.card}>
+              Pending Claims
+              <br />
+              <b>{counts.pendingToday}</b>
+            </div>
+            <div style={styles.card}>
+              Active Users Today
+              <br />
+              <b>{counts.verifiedToday}</b>
+            </div>
           </div>
 
           {/* USERS */}
           <div style={styles.cardRow}>
-            <div style={styles.bigCard}>TOTAL STUDENTS<br /><span style={styles.bigNum}>{counts.totalUsers}</span></div>
-            <div style={styles.bigCard}>TOTAL STAFF<br /><span style={styles.bigNum}>{counts.totalStaff}</span></div>
-            <div style={styles.bigCard}>TOTAL ADMIN<br /><span style={styles.bigNum}>{counts.totalAdmin}</span></div>
-            <div style={styles.bigCard}>TOTAL UNVERIFIED<br /><span style={styles.bigNum}>{counts.totalUnverified}</span></div>
+            <div style={styles.bigCard}>
+              TOTAL STUDENTS
+              <br />
+              <span style={styles.bigNum}>{counts.totalUsers}</span>
+            </div>
+            <div style={styles.bigCard}>
+              TOTAL STAFF
+              <br />
+              <span style={styles.bigNum}>{counts.totalStaff}</span>
+            </div>
+            <div style={styles.bigCard}>
+              TOTAL ADMIN
+              <br />
+              <span style={styles.bigNum}>{counts.totalAdmin}</span>
+            </div>
+            <div style={styles.bigCard}>
+              TOTAL UNVERIFIED
+              <br />
+              <span style={styles.bigNum}>{counts.totalUnverified}</span>
+            </div>
           </div>
 
           {/* CIRCLES SECTION */}
@@ -127,7 +161,6 @@ function AdminDashboard() {
             {circle("Claimed Item", counts.claimed, "#6A5ACD")}
           </div>
         </div>
-        
 
         <Footer />
       </div>

@@ -13,9 +13,12 @@ import {
   IoShieldCheckmarkOutline,
 } from "react-icons/io5";
 import api from "../../services/api";
+import usePageMetadata from "../../hooks/usePageMetadata";
 
 // ============================= 2. COMPONENT =============================
 function NotificationsPage() {
+  usePageMetadata("Notifications", "/images/LAFLogo.png");
+
   const [notifications, setNotifications] = useState([]);
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);

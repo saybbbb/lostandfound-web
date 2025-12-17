@@ -5,9 +5,12 @@ import Header from "../../components/NavigationBars/Header";
 import Footer from "../../components/NavigationBars/Footer";
 import { uploadToCloudinary } from "../../utils/uploadImage";
 import api from "../../services/api";
+import usePageMetadata from "../../hooks/usePageMetadata";
 
 // ============================= 2. COMPONENT =============================
 function Settings() {
+  usePageMetadata("Settings", "/images/LAFLogo.png");
+
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const lettersOnlyRegex = /^[A-Za-zñÑ\s]+$/;
@@ -66,7 +69,7 @@ function Settings() {
       else if (value && !lettersOnlyRegex.test(value))
         error = "Letters only. Numbers and symbols are not allowed.";
     }
-    
+
     setErrors((prev) => ({ ...prev, [name]: error }));
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -112,9 +115,9 @@ function Settings() {
           {/* LEFT SIDEBAR */}
           <div style={styles.sidebarCard}>
             <div style={styles.sidebarItemActive}>Profile</div>
-            
-            <div 
-              style={styles.sidebarItem} 
+
+            <div
+              style={styles.sidebarItem}
               onClick={() => navigate("/Notifications")}
             >
               Notifications
@@ -187,8 +190,8 @@ function Settings() {
                 required
               />
               {errors.name && (
-                  <span style={styles.errorText}>{errors.name}</span>
-                )}
+                <span style={styles.errorText}>{errors.name}</span>
+              )}
             </div>
 
             <div style={styles.formGroup}>
@@ -198,7 +201,7 @@ function Settings() {
                 value={formData.email}
                 onChange={handleChange}
                 style={styles.input}
-                disabled 
+                disabled
               />
             </div>
 

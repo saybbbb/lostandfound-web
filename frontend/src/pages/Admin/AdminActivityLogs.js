@@ -3,8 +3,11 @@ import AdminNavBar from "../../components/NavigationBars/AdminNavBar";
 import Footer from "../../components/NavigationBars/Footer";
 import { IoSearchOutline, IoRefreshOutline } from "react-icons/io5";
 import api from "../../services/api";
+import usePageMetadata from "../../hooks/usePageMetadata";
 
 function AdminActivityLogs() {
+  usePageMetadata("Admin Activity Logs", "/images/LAFLogo.png");
+
   const [logs, setLogs] = useState([]);
   const [search, setSearch] = useState("");
   const [timeFilter, setTimeFilter] = useState(0); // 0 = All
@@ -15,10 +18,9 @@ function AdminActivityLogs() {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await api.get(
-        "/api/auth/admin/activity-logs",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await api.get("/api/auth/admin/activity-logs", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       // Ensure logs is an array
       setLogs(res.data.logs || []);
     } catch (err) {
@@ -42,7 +44,7 @@ function AdminActivityLogs() {
       const logTime = new Date(log.timestamp).getTime();
       const now = Date.now();
       const diffMinutes = (now - logTime) / 1000 / 60;
-      
+
       if (diffMinutes > timeFilter) return false;
     }
 
@@ -72,7 +74,8 @@ function AdminActivityLogs() {
         <div style={styles.header}>
           <h2 style={styles.title}>System Activity Logs</h2>
           <p style={styles.subtitle}>
-            Monitoring recent system actions (Auto-clears &gt; 15 mins) {/* &gt = ">"*/}
+            Monitoring recent system actions (Auto-clears &gt; 15 mins){" "}
+            {/* &gt = ">"*/}
           </p>
         </div>
 
@@ -81,7 +84,11 @@ function AdminActivityLogs() {
           <div style={styles.controlsRow}>
             {/* SEARCH */}
             <div style={styles.searchContainer}>
-              <IoSearchOutline size={20} color="#64748b" style={styles.searchIcon} />
+              <IoSearchOutline
+                size={20}
+                color="#64748b"
+                style={styles.searchIcon}
+              />
               <input
                 placeholder="Search Name, Activity, or Verifier..."
                 value={search}
@@ -104,16 +111,17 @@ function AdminActivityLogs() {
                   onClick={() => setTimeFilter(btn.value)}
                   style={{
                     ...styles.filterBtn,
-                    backgroundColor: timeFilter === btn.value ? "#1A1851" : "#F1F5F9",
+                    backgroundColor:
+                      timeFilter === btn.value ? "#1A1851" : "#F1F5F9",
                     color: timeFilter === btn.value ? "#fff" : "#64748B",
                   }}
                 >
                   {btn.label}
                 </button>
               ))}
-              <button 
-                onClick={fetchLogs} 
-                style={styles.refreshBtn} 
+              <button
+                onClick={fetchLogs}
+                style={styles.refreshBtn}
                 title="Refresh Data"
               >
                 <IoRefreshOutline size={20} />
@@ -140,7 +148,9 @@ function AdminActivityLogs() {
                 <tbody>
                   {loading ? (
                     <tr>
-                      <td colSpan="7" style={styles.centerText}>Loading logs...</td>
+                      <td colSpan="7" style={styles.centerText}>
+                        Loading logs...
+                      </td>
                     </tr>
                   ) : filteredLogs.length > 0 ? (
                     filteredLogs.map((log, idx) => (
@@ -148,11 +158,17 @@ function AdminActivityLogs() {
                         <td style={styles.td}>{idx + 1}</td>
                         <td style={styles.td}>
                           <div style={styles.dateTime}>
-                            <span>{new Date(log.timestamp).toLocaleTimeString()}</span>
-                            <span style={styles.dateSub}>{new Date(log.timestamp).toLocaleDateString()}</span>
+                            <span>
+                              {new Date(log.timestamp).toLocaleTimeString()}
+                            </span>
+                            <span style={styles.dateSub}>
+                              {new Date(log.timestamp).toLocaleDateString()}
+                            </span>
                           </div>
                         </td>
-                        <td style={{...styles.td, fontWeight: "600"}}>{log.name}</td>
+                        <td style={{ ...styles.td, fontWeight: "600" }}>
+                          {log.name}
+                        </td>
                         <td style={styles.td}>{log.activity}</td>
                         <td style={styles.td}>{log.details}</td>
                         <td style={styles.td}>{log.verifier}</td>

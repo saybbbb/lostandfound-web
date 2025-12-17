@@ -4,9 +4,12 @@ import { useNavigate } from "react-router-dom";
 import Header from "../../components/NavigationBars/Header";
 import Footer from "../../components/NavigationBars/Footer";
 import api from "../../services/api";
+import usePageMetadata from "../../hooks/usePageMetadata";
 
 // ============================= 2. COMPONENT =============================
 function LostItemPage() {
+  usePageMetadata("Lost Item", "/images/LAFLogo.png");
+
   const navigate = useNavigate();
 
   const [myLostItems, setMyLostItems] = useState([]);
@@ -167,8 +170,7 @@ function LostItemPage() {
                 onClick={() => setFilter(cat.name)}
                 style={{
                   ...styles.filterBtn,
-                  backgroundColor:
-                    filter === cat.name ? "#1A1851" : "#F5F6FA",
+                  backgroundColor: filter === cat.name ? "#1A1851" : "#F5F6FA",
                   color: filter === cat.name ? "#fff" : "#333",
                 }}
               >
@@ -322,11 +324,11 @@ const styles = {
   itemDate: { fontSize: 14, color: "#777", marginBottom: "10px" },
   itemLocation: { fontSize: 16, fontWeight: "500", color: "#333" },
   itemDesc: { fontSize: 14, color: "#555", margin: "10px 0px" },
-  cardActions: { 
-    marginTop: "15px", 
-    display: "flex", 
-    justifyContent: "space-between", 
-    alignItems: "center" 
+  cardActions: {
+    marginTop: "15px",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   contactBtn: {
     color: "#1A1851",

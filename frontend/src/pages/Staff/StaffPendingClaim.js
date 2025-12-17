@@ -1,16 +1,19 @@
 import React, { useState, useEffect, useCallback } from "react";
 import StaffNavBar from "../../components/NavigationBars/StaffNavBar";
 import Footer from "../../components/NavigationBars/Footer";
-import { 
-  IoSearchOutline, 
+import {
+  IoSearchOutline,
   IoTimeOutline,
   IoInformationCircleOutline,
-  IoEyeOutline 
+  IoEyeOutline,
 } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
+import usePageMetadata from "../../hooks/usePageMetadata";
 
 function StaffPendingClaim() {
+  usePageMetadata("Staff Pending Claim", "/images/LAFLogo.png");
+
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [claims, setClaims] = useState([]);
@@ -40,13 +43,15 @@ function StaffPendingClaim() {
     const date = new Date(dateString);
     const now = new Date();
     const diffHours = Math.floor((now - date) / (1000 * 60 * 60));
-    if (diffHours < 24) return `${diffHours} hr${diffHours !== 1 ? 's' : ''} ago`;
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    if (diffHours < 24)
+      return `${diffHours} hr${diffHours !== 1 ? "s" : ""} ago`;
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
-  const filtered = claims.filter((claim) =>
-    claim.claimed_by?.name?.toLowerCase().includes(search.toLowerCase()) ||
-    claim.name?.toLowerCase().includes(search.toLowerCase())
+  const filtered = claims.filter(
+    (claim) =>
+      claim.claimed_by?.name?.toLowerCase().includes(search.toLowerCase()) ||
+      claim.name?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -54,12 +59,13 @@ function StaffPendingClaim() {
       <StaffNavBar />
       <div style={styles.main}>
         <div style={styles.mainContent}>
-        
           {/* HEADER */}
           <div style={styles.header}>
             <div>
               <h1 style={styles.title}>Pending Claims</h1>
-              <p style={styles.subtitle}>Review claim submissions from students</p>
+              <p style={styles.subtitle}>
+                Review claim submissions from students
+              </p>
             </div>
             <div style={styles.headerActions}>
               <div style={styles.statsBadge}>
@@ -72,7 +78,11 @@ function StaffPendingClaim() {
           {/* CONTROLS */}
           <div style={styles.controls}>
             <div style={styles.searchContainer}>
-              <IoSearchOutline size={20} color="#94a3b8" style={styles.searchIcon} />
+              <IoSearchOutline
+                size={20}
+                color="#94a3b8"
+                style={styles.searchIcon}
+              />
               <input
                 type="text"
                 placeholder="Search claims..."
@@ -82,8 +92,12 @@ function StaffPendingClaim() {
               />
             </div>
             <div style={styles.controlGroup}>
-              <button style={styles.refreshButton} onClick={fetchClaims} disabled={loading}>
-                {loading ? 'Refreshing...' : 'Refresh'}
+              <button
+                style={styles.refreshButton}
+                onClick={fetchClaims}
+                disabled={loading}
+              >
+                {loading ? "Refreshing..." : "Refresh"}
               </button>
             </div>
           </div>
@@ -104,8 +118,13 @@ function StaffPendingClaim() {
             ) : (
               <div style={styles.itemsGrid}>
                 {filtered.map((claim, index) => (
-                  <div key={claim._id} style={{ ...styles.itemCard, animationDelay: `${index * 0.05}s` }}>
-                    
+                  <div
+                    key={claim._id}
+                    style={{
+                      ...styles.itemCard,
+                      animationDelay: `${index * 0.05}s`,
+                    }}
+                  >
                     {/* CARD HEADER */}
                     <div style={styles.cardHeader}>
                       <div style={styles.itemAvatar}>
@@ -138,13 +157,47 @@ function StaffPendingClaim() {
                         </div>
                       </div>
 
-                      <div style={{ marginTop: 15, display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: 8 }}>
-                        <span style={{fontSize: 14, color: '#64748b'}}>Claim Type:</span>
-                        <span style={{fontSize: 14, fontWeight: 600, color: '#1A1851'}}>Item Recovery</span>
+                      <div
+                        style={{
+                          marginTop: 15,
+                          display: "flex",
+                          justifyContent: "space-between",
+                          borderBottom: "1px solid #f1f5f9",
+                          paddingBottom: 8,
+                        }}
+                      >
+                        <span style={{ fontSize: 14, color: "#64748b" }}>
+                          Claim Type:
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 14,
+                            fontWeight: 600,
+                            color: "#1A1851",
+                          }}
+                        >
+                          Item Recovery
+                        </span>
                       </div>
-                      <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: 8 }}>
-                        <span style={{fontSize: 14, color: '#64748b'}}>Submitted:</span>
-                        <span style={{fontSize: 14, fontWeight: 600, color: '#1A1851'}}>
+                      <div
+                        style={{
+                          marginTop: 8,
+                          display: "flex",
+                          justifyContent: "space-between",
+                          borderBottom: "1px solid #f1f5f9",
+                          paddingBottom: 8,
+                        }}
+                      >
+                        <span style={{ fontSize: 14, color: "#64748b" }}>
+                          Submitted:
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 14,
+                            fontWeight: 600,
+                            color: "#1A1851",
+                          }}
+                        >
                           {new Date(claim.claimed_at).toLocaleDateString()}
                         </span>
                       </div>
@@ -153,8 +206,14 @@ function StaffPendingClaim() {
                     {/* CARD FOOTER */}
                     <div style={styles.cardFooter}>
                       <button
-                        style={{...styles.viewDetailsBtn, width: '100%', justifyContent: 'center'}}
-                        onClick={() => navigate(`/StaffClaimReview/${claim._id}`)}
+                        style={{
+                          ...styles.viewDetailsBtn,
+                          width: "100%",
+                          justifyContent: "center",
+                        }}
+                        onClick={() =>
+                          navigate(`/StaffClaimReview/${claim._id}`)
+                        }
                       >
                         <IoEyeOutline size={18} /> Review Claim
                       </button>
@@ -163,9 +222,9 @@ function StaffPendingClaim() {
                 ))}
               </div>
             )}
-          </div>  
-       </div>
-      
+          </div>
+        </div>
+
         <Footer />
       </div>
     </div>
@@ -474,9 +533,8 @@ const styles = {
   },
 };
 
-
 // CSS Animation Injection
-const style = document.createElement('style');
+const style = document.createElement("style");
 style.textContent = `
   @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   @keyframes slideInCard { to { opacity: 1; transform: translateY(0); } }
