@@ -1,3 +1,4 @@
+// ============================= 1. IMPORTS =============================
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/NavigationBars/Header";
@@ -5,9 +6,12 @@ import Footer from "../../components/NavigationBars/Footer";
 import { uploadToCloudinary } from "../../utils/uploadImage";
 import api from "../../services/api";
 
+// ============================= 2. COMPONENT =============================
 function Settings() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const lettersOnlyRegex = /^[A-Za-zñÑ\s]+$/;
+  const [errors, setErrors] = useState({});
 
   // State for form data
   const [formData, setFormData] = useState({
@@ -24,12 +28,9 @@ function Settings() {
     const fetchUserData = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await api.get(
-          "/api/auth/protected",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const res = await api.get("/api/auth/protected", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         const user = res.data.user;
         setFormData({
@@ -56,7 +57,18 @@ function Settings() {
   }, []);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    let error = "";
+
+    // NAME
+    if (name === "name") {
+      if (value.length > 50) error = "Maximum of 50 characters only.";
+      else if (value && !lettersOnlyRegex.test(value))
+        error = "Letters only. Numbers and symbols are not allowed.";
+    }
+    
+    setErrors((prev) => ({ ...prev, [name]: error }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleLogout = () => {
@@ -70,11 +82,9 @@ function Settings() {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      await api.put(
-        "/api/auth/profile/update",
-        formData,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await api.put("/api/auth/profile/update", formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       alert("Profile updated successfully!");
     } catch (err) {
       alert("Failed to update profile.");
@@ -84,6 +94,7 @@ function Settings() {
     }
   };
 
+  // ============================= 3. RENDER =============================
   return (
     <div style={styles.wrapper}>
       <Header />
@@ -102,7 +113,6 @@ function Settings() {
           <div style={styles.sidebarCard}>
             <div style={styles.sidebarItemActive}>Profile</div>
             
-            {/* ✅ UPDATED: Added onClick to navigate to Notifications */}
             <div 
               style={styles.sidebarItem} 
               onClick={() => navigate("/Notifications")}
@@ -172,8 +182,13 @@ function Settings() {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
+                maxLength={50}
                 style={styles.input}
+                required
               />
+              {errors.name && (
+                  <span style={styles.errorText}>{errors.name}</span>
+                )}
             </div>
 
             <div style={styles.formGroup}>
@@ -183,7 +198,7 @@ function Settings() {
                 value={formData.email}
                 onChange={handleChange}
                 style={styles.input}
-                disabled // Usually email changes require extra verification
+                disabled 
               />
             </div>
 
@@ -205,6 +220,7 @@ function Settings() {
   );
 }
 
+// ============================= 4. STYLES =============================
 const styles = {
   wrapper: {
     minHeight: "100vh",
@@ -239,8 +255,6 @@ const styles = {
     gap: "30px",
     flexWrap: "wrap",
   },
-
-  // Sidebar
   sidebarCard: {
     flex: "1 1 250px",
     maxWidth: "300px",
@@ -260,14 +274,14 @@ const styles = {
     padding: "15px 20px",
     fontSize: "16px",
     color: "white",
-    backgroundColor: "#1A1851", // Navy from screenshot
+    backgroundColor: "#1A1851",
     borderRadius: "8px",
     fontWeight: "500",
     cursor: "default",
   },
   logoutButton: {
     marginTop: "20px",
-    backgroundColor: "#F8C22E", // Yellow/Orange from screenshot
+    backgroundColor: "#F8C22E",
     color: "#fff",
     border: "none",
     padding: "12px",
@@ -277,8 +291,6 @@ const styles = {
     cursor: "pointer",
     width: "120px",
   },
-
-  // Main Content
   mainCard: {
     flex: "3 1 600px",
     border: "1px solid #E2E8F0",
@@ -330,6 +342,11 @@ const styles = {
   },
   formGroup: {
     marginBottom: "20px",
+  },
+  errorText: {
+    color: "red",
+    fontSize: 13,
+    marginTop: 4,
   },
   label: {
     display: "block",

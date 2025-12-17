@@ -1,16 +1,12 @@
-/* =========================
-   IMPORTS
-========================= */
-import React, { useEffect, useState } from "react";
+// ============================= 1. IMPORTS =============================
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../components/NavigationBars/Header";
 import Footer from "../../components/NavigationBars/Footer";
 import { uploadToCloudinary } from "../../utils/uploadImage";
 import api from "../../services/api";
 
-/* =========================
-   COMPONENT
-========================= */
+// ============================= 2. COMPONENT =============================
 function LostReportPage() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -24,17 +20,16 @@ function LostReportPage() {
     contact_info: "",
   });
 
-  /* =========================
-     EFFECTS
-  ========================= */
+  // LOAD SINGLE LOST ITEM SAFELY
   useEffect(() => {
     const loadItem = async () => {
       try {
-        const res = await api.get(`/api/auth/lost-items/${id}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
+        const res = await api.get(
+          `/api/auth/lost-items/${id}`,
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          }
+        );
 
         if (!res.data || !res.data.item) {
           alert("Lost item not found.");
@@ -53,24 +48,23 @@ function LostReportPage() {
     loadItem();
   }, [id, navigate]);
 
-  /* =========================
-     HANDLERS
-  ========================= */
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // SUBMIT FOUND REPORT
   const submitFoundReport = async (e) => {
     e.preventDefault();
 
     try {
       const res = await api.post(
         "/api/auth/lost-items/report-found",
-        { ...form, lost_item_id: id },
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+          ...form,
+          lost_item_id: id,
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
 
@@ -88,28 +82,20 @@ function LostReportPage() {
 
   if (!lostItem) return null;
 
-  /* =========================
-     RENDER
-  ========================= */
+  // ============================= 3. RENDER =============================
   return (
     <>
       <Header />
-
-      <div style={styles.pageContainer}>
+      <div style={styles.container}>
         <h1 style={styles.title}>Found Item Report</h1>
 
-        <p style={styles.subtitle}>
-          You are reporting that you found:{" "}
-          <strong>{lostItem.name}</strong>
+        <p>
+          You are reporting that you found: <strong>{lostItem.name}</strong>
         </p>
 
-        <form style={styles.form} onSubmit={submitFoundReport}>
+        <form onSubmit={submitFoundReport} style={styles.form}>
           <label>Found Location*</label>
-          <input
-            name="found_location"
-            required
-            onChange={handleChange}
-          />
+          <input name="found_location" required onChange={handleChange} />
 
           <label>Date Found*</label>
           <input
@@ -124,15 +110,12 @@ function LostReportPage() {
             name="description"
             required
             onChange={handleChange}
-          />
+          ></textarea>
 
           <label>Contact Info*</label>
-          <input
-            name="contact_info"
-            required
-            onChange={handleChange}
-          />
+          <input name="contact_info" required onChange={handleChange} />
 
+          {/* CLOUDINARY UPLOAD */}
           <label>Upload Image (optional)</label>
           <input
             type="file"
@@ -143,7 +126,7 @@ function LostReportPage() {
 
               const url = await uploadToCloudinary(file);
               if (url) {
-                setForm((prev) => ({ ...prev, image_url: url }));
+                setForm({ ...form, image_url: url });
               }
             }}
           />
@@ -159,37 +142,27 @@ function LostReportPage() {
   );
 }
 
-/* =========================
-   STYLES
-========================= */
+// ============================= 4. STYLES =============================
 const styles = {
-  pageContainer: {
-    padding: "40px 120px",
+  container: { 
+    padding: "40px 120px" 
   },
-
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#1A1851",
-    marginBottom: 10,
+  title: { 
+    fontSize: 32, 
+    color: "#1A1851", 
+    fontWeight: "bold" 
   },
-
-  subtitle: {
-    marginBottom: 20,
-  },
-
   form: {
     display: "flex",
     flexDirection: "column",
     gap: "12px",
     maxWidth: "700px",
   },
-
   submitBtn: {
     marginTop: 15,
     padding: "12px",
     backgroundColor: "#1A1851",
-    color: "#fff",
+    color: "white",
     fontWeight: "bold",
     borderRadius: 6,
     border: "none",

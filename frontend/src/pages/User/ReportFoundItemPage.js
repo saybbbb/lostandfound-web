@@ -4,9 +4,22 @@ import Footer from "../../components/NavigationBars/Footer";
 import { useNavigate } from "react-router-dom";
 import { uploadToCloudinary } from "../../utils/uploadImage";
 import api from "../../services/api";
+import { IoCloudUploadOutline } from "react-icons/io5"; 
+
+// Letters only (including ñ / Ñ), spaces allowed
+const lettersOnlyRegex = /^[A-Za-zñÑ\s]+$/;
+
+// Gmail validation
+const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
 
 function ReportFoundItemPage() {
   const navigate = useNavigate();
+  const [isUploading, setIsUploading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [preview, setPreview] = useState(null); 
+  const [errors, setErrors] = useState({});
+  const [descCount, setDescCount] = useState(0);
 
   const [form, setForm] = useState({
     name: "",
@@ -19,9 +32,6 @@ function ReportFoundItemPage() {
     posted_by: localStorage.getItem("userId"),
   });
 
-  const [isUploading, setIsUploading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false); // <--- NEW STATE
-  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     api
@@ -30,18 +40,47 @@ function ReportFoundItemPage() {
       .catch((err) => console.log("Error loading categories:", err));
   }, []);
 
+   // ============================= HANDLE CHANGE WITH VALIDATION =============================
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    let error = "";
+
+    // ITEM NAME
+    if (name === "name") {
+      if (value.length > 50) error = "Maximum of 50 characters only.";
+      else if (value && !lettersOnlyRegex.test(value))
+        error = "Letters only. Numbers and symbols are not allowed.";
+    }
+
+    // LOCATION
+    if (name === "found_location") {
+      if (value.length > 50) error = "Maximum of 50 characters only.";
+      else if (value && !lettersOnlyRegex.test(value))
+        error = "Letters only. Numbers and symbols are not allowed.";
+    }
+
+    // DESCRIPTION
+    if (name === "description") {
+      if (value.length > 255) return; // HARD STOP
+      setDescCount(value.length);
+    }
+
+    // CONTACT INFO (GMAIL ONLY)
+    if (name === "contact_info") {
+      if (value && !gmailRegex.test(value))
+        error = "Must be a valid Gmail address (example@gmail.com).";
+    }
+
+    setErrors((prev) => ({ ...prev, [name]: error }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  // ============================= SUBMIT FOUND ITEM =============================
   const submitFoundItem = async (e) => {
     e.preventDefault();
-    if (isSubmitting) return; // Prevent double submission
+    if (isSubmitting) return; 
 
-    setIsSubmitting(true); // Disable button
+    setIsSubmitting(true); 
 
     try {
       const res = await api.post(
@@ -58,12 +97,9 @@ function ReportFoundItemPage() {
         navigate("/ReportSuccessPage?type=found");
       }
     } catch (err) {
-      console.log(
-        "Submit Found Item ERROR:",
-        err.response?.data || err.message
-      );
+      console.log("Submit Found Item ERROR:", err.response?.data || err.message);
       alert("Error submitting found item");
-      setIsSubmitting(false); // Re-enable if error
+      setIsSubmitting(false); 
     }
   };
 
@@ -72,10 +108,12 @@ function ReportFoundItemPage() {
       <Header />
 
       <div style={styles.page}>
-        <h1 style={styles.title}>Found an Item</h1>
-        <p style={styles.subtitle}>
-          Please provide as much detail as possible to help with identification.
-        </p>
+        <div style={styles.headerBlock}>
+            <h1 style={styles.title}>Found an Item</h1>
+            <p style={styles.subtitle}>
+            Please provide as much detail as possible to help with identification.
+            </p>
+        </div>
 
         {/* Toggle */}
         <div style={styles.toggleContainer}>
@@ -89,122 +127,165 @@ function ReportFoundItemPage() {
           <button style={styles.activeToggle}>I Found an Item</button>
         </div>
 
-        {/* FORM */}
-        <form onSubmit={submitFoundItem} style={styles.form}>
-          <label style={styles.label}>Item Name*</label>
-          <input
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            style={styles.input}
-            required
-          />
+        {/* FORM - SPLIT LAYOUT */}
+        <form onSubmit={submitFoundItem} style={styles.splitLayout}>
+          
+          {/* LEFT COLUMN: TEXT INPUTS */}
+          <div style={styles.leftColumn}>
+            <label style={styles.label}>Item Name*</label>
+            <input
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              maxLength={50}
+              style={styles.input}
+              placeholder= "e.g., Black Wallet"
+              required
+            />
+            {errors.name && <span style={styles.errorText}>{errors.name}</span>}
 
-          <label style={styles.label}>Category*</label>
-          <select
-            name="category"
-            value={form.category}
-            onChange={handleChange}
-            style={styles.input}
-            required
-          >
-            <option value="">Select Category</option>
-            {categories.map((cat) => (
-              <option key={cat._id} value={cat._id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
+            <label style={styles.label}>Category*</label>
+            <select
+              name="category"
+              value={form.category}
+              onChange={handleChange}
+              style={styles.input}
+              required
+            >
+              <option value="">Select Category</option>
+              {categories.map((cat) => (
+                <option key={cat._id} value={cat._id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
 
-          <div style={styles.row}>
-            <div style={styles.col}>
-              <label style={styles.label}>Location*</label>
-              <input
-                name="found_location"
-                value={form.found_location}
-                onChange={handleChange}
-                style={styles.input}
-                required
-              />
+            <div style={styles.row}>
+              <div style={styles.col}>
+                <label style={styles.label}>Location*</label>
+                <input
+                  name="found_location"
+                  value={form.found_location}
+                  onChange={handleChange}
+                  maxLength={50}
+                  style={styles.input}
+                  placeholder= "e.g., Main Library"
+                  required
+                />
+                {errors.found_location && (
+                  <span style={styles.errorText}>{errors.found_location}</span>
+                )}
+              </div>
+
+              <div style={styles.col}>
+                <label style={styles.label}>Date*</label>
+                <input
+                  type="date"
+                  name="date_found"
+                  value={form.date_found}
+                  onChange={handleChange}
+                  style={styles.input}
+                  required
+                />
+              </div>
             </div>
 
-            <div style={styles.col}>
-              <label style={styles.label}>Date*</label>
-              <input
-                type="date"
-                name="date_found"
-                value={form.date_found}
-                onChange={handleChange}
-                style={styles.input}
-                required
-              />
-            </div>
+            <label style={styles.label}>Description*</label>
+            <textarea
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              maxLength={255}
+              style={styles.textarea}
+              placeholder="eg., A leather foldable wallet with coin purse along with some personal id inside"
+              required
+            />
+            <div style={styles.charCounter}>{descCount} / 255</div>
+
+            <label style={styles.label}>Contact Information*</label>
+            <input
+              name="contact_info"
+              value={form.contact_info}
+              onChange={handleChange}
+              style={styles.input}
+              placeholder="eg., example@gmail.com"
+              required
+            />
+            {errors.contact_info && (
+              <span style={styles.errorText}>{errors.contact_info}</span>
+            )}
           </div>
 
-          <label style={styles.label}>Description*</label>
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            style={styles.textarea}
-            required
-          />
+          {/* RIGHT COLUMN: IMAGE UPLOAD & BUTTONS */}
+          <div style={styles.rightColumn}>
+            
+            {/* BIG STATIC UPLOAD BOX */}
+            <div style={styles.uploadContainer}>
+                <input
+                    type="file"
+                    accept="image/*"
+                    id="file-upload"
+                    style={{ display: "none" }} 
+                    onChange={async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
 
-          <label style={styles.label}>Contact Information*</label>
-          <input
-            name="contact_info"
-            value={form.contact_info}
-            onChange={handleChange}
-            style={styles.input}
-            required
-          />
+                    setPreview(URL.createObjectURL(file));
+                    setIsUploading(true);
+                    try {
+                        const url = await uploadToCloudinary(file);
+                        if (url) {
+                        setForm({ ...form, image_url: url });
+                        }
+                    } catch (error) {
+                        console.error("Upload failed:", error);
+                        alert("Image upload failed. Please try again.");
+                    } finally {
+                        setIsUploading(false);
+                    }
+                    }}
+                />
+                
+                <label htmlFor="file-upload" style={styles.uploadLabel}>
+                    {preview ? (
+                        <img src={preview} alt="Preview" style={styles.imagePreview} />
+                    ) : (
+                        <div style={styles.uploadPlaceholder}>
+                            <IoCloudUploadOutline size={48} color="#1A1851" style={{ marginBottom: 10 }} />
+                            <span style={{color: "#555"}}>Click to Upload Image</span>
+                        </div>
+                    )}
+                    {isUploading && (
+                        <div style={styles.uploadingOverlay}>
+                            <span>Uploading...</span>
+                        </div>
+                    )}
+                </label>
+            </div>
 
-          {/* CLOUDINARY UPLOAD */}
-          <label style={styles.label}>Upload Image</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={async (e) => {
-              const file = e.target.files[0];
-              if (!file) return;
+            <div style={styles.buttonRow}>
+              <button
+                type="button"
+                onClick={() => navigate("/Dashboard")}
+                style={styles.cancelBtn}
+              >
+                Cancel
+              </button>
 
-              setIsUploading(true);
-              try {
-                const url = await uploadToCloudinary(file);
-                if (url) {
-                  setForm({ ...form, image_url: url });
+              <button
+                type="submit"
+                style={
+                  isUploading || isSubmitting
+                    ? { ...styles.submitBtn, backgroundColor: "#ccc", cursor: "not-allowed" }
+                    : styles.submitBtn
                 }
-              } catch (error) {
-                console.error("Upload failed:", error);
-                alert("Image upload failed. Please try again.");
-              } finally {
-                setIsUploading(false);
-              }
-            }}
-            style={styles.input}
-          />
-
-          <div style={styles.buttonRow}>
-            <button
-              type="button"
-              onClick={() => navigate("/Dashboard")}
-              style={styles.cancelBtn}
-            >
-              Cancel
-            </button>
-
-            <button
-              type="submit"
-              style={
-                isUploading || isSubmitting
-                  ? { ...styles.submitBtn, backgroundColor: "#ccc", cursor: "not-allowed" }
-                  : styles.submitBtn
-              }
-              disabled={isUploading || isSubmitting}
-            >
-              {isUploading ? "Uploading..." : isSubmitting ? "Submitting..." : "Submit Report"}
-            </button>
+                disabled={isUploading || isSubmitting}
+              >
+                {isUploading ? "Uploading..." : isSubmitting ? "Submitting..." : "Submit Report"}
+              </button>
+            </div>
           </div>
+
         </form>
       </div>
 
@@ -217,7 +298,12 @@ function ReportFoundItemPage() {
 
 const styles = {
   page: {
-    padding: "40px 120px",
+    padding: "40px 100px",
+    maxWidth: "1400px",
+    margin: "0 auto",
+  },
+  headerBlock: {
+      marginBottom: "20px",
   },
   title: {
     fontSize: 32,
@@ -234,8 +320,8 @@ const styles = {
   // Toggle Buttons
   toggleContainer: {
     display: "flex",
-    gap: "20px",
-    marginBottom: "30px",
+    gap: "0", 
+    marginBottom: "40px",
   },
   activeToggle: {
     flex: 1,
@@ -246,6 +332,7 @@ const styles = {
     borderRadius: "6px",
     fontSize: 16,
     fontWeight: "bold",
+    marginRight: "10px",
   },
   inactiveToggle: {
     flex: 1,
@@ -256,20 +343,43 @@ const styles = {
     borderRadius: "6px",
     fontSize: 16,
     fontWeight: "bold",
+    marginRight: "10px",
+    cursor: "pointer",
   },
 
-  form: {
+  // LAYOUT STYLES
+  splitLayout: {
+    display: "flex",
+    gap: "50px", 
+    alignItems: "flex-start", // Changed to flex-start so Text doesn't stretch to match image height
+  },
+  leftColumn: {
+    flex: 1,
     display: "flex",
     flexDirection: "column",
-    gap: "10px",
-    maxWidth: "700px",
   },
-
+  rightColumn: {
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+    gap: "20px",
+  },
+  errorText: {
+    color: "red",
+    fontSize: 13,
+    marginTop: 4,
+  },
+  charCounter: {
+    fontSize: 13,
+    color: "red",
+    marginTop: 4,
+  },
   label: {
-    marginTop: "10px",
+    marginTop: "15px", 
     fontWeight: "600",
     fontSize: 16,
     color: "#333",
+    marginBottom: "5px",
   },
 
   input: {
@@ -278,6 +388,8 @@ const styles = {
     borderRadius: "6px",
     border: "1px solid #ccc",
     backgroundColor: "#f8f8f8",
+    width: "100%", 
+    boxSizing: "border-box",
   },
 
   textarea: {
@@ -287,6 +399,9 @@ const styles = {
     border: "1px solid #ccc",
     minHeight: "120px",
     backgroundColor: "#f8f8f8",
+    width: "100%",
+    boxSizing: "border-box",
+    fontFamily: "inherit",
   },
 
   row: {
@@ -300,11 +415,52 @@ const styles = {
     flexDirection: "column",
   },
 
+  // STATIC UPLOAD BOX STYLES
+  uploadContainer: {
+      width: "100%", 
+      height: "500px", // FIXED STATIC HEIGHT
+      border: "2px dashed #ccc",
+      borderRadius: "10px",
+      backgroundColor: "#f8f8f8",
+      display: "flex",
+      position: "relative",
+      overflow: "hidden",
+  },
+  uploadLabel: {
+      width: "100%",
+      height: "100%",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      cursor: "pointer",
+  },
+  uploadPlaceholder: {
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+  },
+  imagePreview: {
+      width: "100%",
+      height: "100%",
+      objectFit: "contain", // AUTO ADJUST: Fits whole image inside the static box
+      backgroundColor: "#e5e7eb", // Light background to show padding if aspect ratio differs
+  },
+  uploadingOverlay: {
+    position: "absolute",
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: "rgba(255,255,255,0.7)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontWeight: "bold",
+    color: "#1A1851",
+  },
+
   buttonRow: {
     display: "flex",
     justifyContent: "flex-end",
     gap: "15px",
-    marginTop: "20px",
+    marginTop: "auto", 
   },
   cancelBtn: {
     padding: "12px 22px",
@@ -313,6 +469,7 @@ const styles = {
     border: "1px solid #ddd",
     borderRadius: "6px",
     fontSize: 16,
+    cursor: "pointer",
   },
   submitBtn: {
     padding: "12px 22px",
@@ -322,6 +479,7 @@ const styles = {
     borderRadius: "6px",
     fontSize: 16,
     fontWeight: "bold",
+    cursor: "pointer",
   },
 };
 

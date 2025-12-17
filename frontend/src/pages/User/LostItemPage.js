@@ -1,15 +1,11 @@
-/* =========================
-   IMPORTS
-========================= */
+// ============================= 1. IMPORTS =============================
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/NavigationBars/Header";
 import Footer from "../../components/NavigationBars/Footer";
 import api from "../../services/api";
 
-/* =========================
-   COMPONENT
-========================= */
+// ============================= 2. COMPONENT =============================
 function LostItemPage() {
   const navigate = useNavigate();
 
@@ -49,7 +45,6 @@ function LostItemPage() {
   const fetchLostItemsWithStatus = async () => {
     try {
       const res = await api.get("/api/auth/lost-items-with-status");
-
       setLostItems(res.data.lost || []);
       setFoundReports(res.data.foundReports || []);
     } catch (err) {
@@ -70,20 +65,17 @@ function LostItemPage() {
      HANDLERS
   ========================= */
   const handleCancel = async (itemId) => {
-    if (!window.confirm("Are you sure you want to cancel this report?")) return;
-
-    try {
-      await api.delete(`/api/auth/lost-items/${itemId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      setMyLostItems((prev) => prev.filter((i) => i._id !== itemId));
-      setLostItems((prev) => prev.filter((i) => i._id !== itemId));
-    } catch (err) {
-      console.error("Error cancelling item:", err);
-      alert(err.response?.data?.message || "Failed to cancel report.");
+    if (window.confirm("Are you sure you want to cancel this report?")) {
+      try {
+        await api.delete(`/api/auth/lost-items/${itemId}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        setMyLostItems(myLostItems.filter((item) => item._id !== itemId));
+        setLostItems(lostItems.filter((item) => item._id !== itemId));
+      } catch (err) {
+        console.error("Error cancelling item:", err);
+        alert(err.response?.data?.message || "Failed to cancel report.");
+      }
     }
   };
 
@@ -114,7 +106,6 @@ function LostItemPage() {
     const matchesCategory =
       filter === "All" ||
       item.category?.name?.toLowerCase() === filter.toLowerCase();
-
     return matchesSearch && matchesCategory;
   });
 
@@ -123,19 +114,19 @@ function LostItemPage() {
     const found = foundReports.find(
       (f) => String(f.lost_item_id) === String(item._id)
     );
-
-    return !(found && found.approval_status === "approved");
+    if (found && found.approval_status === "approved") {
+      return false;
+    }
+    return true;
   });
 
-  /* =========================
-     RENDER
-  ========================= */
+  // ============================= 3. RENDER =============================
   return (
     <div>
       <Header />
 
       <div style={styles.pageContainer}>
-        {/* TITLE */}
+        {/* Title */}
         <div style={styles.titleRow}>
           <h1 style={styles.title}>Lost Items</h1>
           <button
@@ -146,7 +137,7 @@ function LostItemPage() {
           </button>
         </div>
 
-        {/* SEARCH + FILTERS */}
+        {/* Search + Filters */}
         <div style={styles.searchFilterRow}>
           <div style={styles.searchBox}>
             <input
@@ -187,7 +178,7 @@ function LostItemPage() {
           </div>
         </div>
 
-        {/* GRID */}
+        {/* Lost Item Grid */}
         <div style={styles.grid}>
           {finalItems.map((item) => {
             const found = foundReports.find(
@@ -218,28 +209,16 @@ function LostItemPage() {
                   <p style={styles.itemLocation}>{item.lost_location}</p>
                   <p style={styles.itemDesc}>{item.description}</p>
 
-                  <div
-                    style={{
-                      marginTop: "15px",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
+                  {/* DISPLAY RULES */}
+                  <div style={styles.cardActions}>
                     {isPendingLostApproval ? (
-                      <p style={styles.badgePending}>
-                        Pending Verification...
-                      </p>
+                      <p style={styles.badgePending}>Pending Verification...</p>
                     ) : isPendingFoundReport ? (
-                      <p style={styles.badgePending}>
-                        Found Report Pending...
-                      </p>
+                      <p style={styles.badgePending}>Found Report Pending...</p>
                     ) : (
                       <button
                         style={styles.contactBtn}
-                        onClick={() =>
-                          navigate(`/LostReportPage/${item._id}`)
-                        }
+                        onClick={() => navigate(`/LostReportPage/${item._id}`)}
                       >
                         Found This Item
                       </button>
@@ -266,45 +245,31 @@ function LostItemPage() {
   );
 }
 
-/* =========================
-   STYLES
-========================= */
+// ============================= 4. STYLES =============================
 const styles = {
-  pageContainer: {
-    padding: "40px 80px",
-    minHeight: "65vh",
-  },
-
+  pageContainer: { padding: "40px 80px", minHeight: "65vh" },
   titleRow: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: "20px",
   },
-
-  title: {
-    fontSize: 40,
-    fontWeight: "bold",
-    color: "#1A1851",
-  },
-
+  title: { fontSize: 40, fontWeight: "bold", color: "#1A1851" },
   reportBtn: {
     padding: "12px 20px",
     backgroundColor: "#1A1851",
-    color: "#fff",
+    color: "white",
     borderRadius: "8px",
     border: "none",
     fontWeight: "bold",
     cursor: "pointer",
   },
-
   searchFilterRow: {
     display: "flex",
     alignItems: "center",
     gap: "20px",
     marginBottom: "30px",
   },
-
   searchBox: {
     display: "flex",
     alignItems: "center",
@@ -313,7 +278,6 @@ const styles = {
     border: "1px solid #ddd",
     overflow: "hidden",
   },
-
   searchInput: {
     flex: 1,
     padding: "12px",
@@ -321,75 +285,49 @@ const styles = {
     outline: "none",
     fontSize: 16,
   },
-
   searchBtn: {
     padding: "12px 20px",
     backgroundColor: "#1A1851",
-    color: "#fff",
+    color: "white",
     border: "none",
     cursor: "pointer",
   },
-
-  filterRow: {
-    display: "flex",
-    gap: "10px",
-  },
-
+  filterRow: { display: "flex", gap: "10px" },
   filterBtn: {
     padding: "10px 16px",
     borderRadius: "8px",
     border: "none",
-    fontWeight: 600,
+    fontWeight: "600",
     cursor: "pointer",
   },
-
   grid: {
     display: "grid",
     gridTemplateColumns: "repeat(3, 1fr)",
     gap: "30px",
   },
-
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: "white",
     borderRadius: "12px",
     overflow: "hidden",
-    boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
+    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
   },
-
   image: {
     width: "100%",
     height: "220px",
     objectFit: "cover",
     backgroundColor: "#eee",
   },
-
-  cardBody: {
-    padding: "20px",
+  cardBody: { padding: "20px" },
+  itemName: { fontSize: 20, fontWeight: "bold" },
+  itemDate: { fontSize: 14, color: "#777", marginBottom: "10px" },
+  itemLocation: { fontSize: 16, fontWeight: "500", color: "#333" },
+  itemDesc: { fontSize: 14, color: "#555", margin: "10px 0px" },
+  cardActions: { 
+    marginTop: "15px", 
+    display: "flex", 
+    justifyContent: "space-between", 
+    alignItems: "center" 
   },
-
-  itemName: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-
-  itemDate: {
-    fontSize: 14,
-    color: "#777",
-    marginBottom: "10px",
-  },
-
-  itemLocation: {
-    fontSize: 16,
-    fontWeight: 500,
-    color: "#333",
-  },
-
-  itemDesc: {
-    fontSize: 14,
-    color: "#555",
-    margin: "10px 0px",
-  },
-
   contactBtn: {
     color: "#1A1851",
     fontWeight: "bold",
@@ -399,12 +337,8 @@ const styles = {
     cursor: "pointer",
     padding: 0,
   },
-
-  badgePending: {
-    color: "orange",
-    fontWeight: "bold",
-    marginTop: 10,
-  },
+  badgePending: { color: "orange", fontWeight: "bold", marginTop: 10 },
+  badgeFound: { color: "green", fontWeight: "bold", marginTop: 10 },
 };
 
 export default LostItemPage;

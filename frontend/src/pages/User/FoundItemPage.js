@@ -1,28 +1,19 @@
-/* =========================
-   IMPORTS
-========================= */
+// ============================= 1. IMPORTS =============================
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Header from "../../components/NavigationBars/Header";
 import Footer from "../../components/NavigationBars/Footer";
+import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 
-/* =========================
-   COMPONENT
-========================= */
+// ============================= 2. COMPONENT =============================
 function FoundItemPage() {
-  const navigate = useNavigate();
-
   const [foundItems, setFoundItems] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [myLostItems, setMyLostItems] = useState([]);
-
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
+  const navigate = useNavigate();
+  const [myLostItems, setMyLostItems] = useState([]);
 
-  /* =========================
-     EFFECTS
-  ========================= */
   useEffect(() => {
     fetchFoundItems();
     fetchCategories();
@@ -31,17 +22,13 @@ function FoundItemPage() {
   useEffect(() => {
     api
       .get("/api/auth/lost-items/my", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then((res) => setMyLostItems(res.data.items || []))
       .catch((err) => console.log(err));
   }, []);
 
-  /* =========================
-     DATA FETCHERS
-  ========================= */
+  // Load found items
   const fetchFoundItems = async () => {
     try {
       const res = await api.get("/api/auth/found-items");
@@ -51,6 +38,7 @@ function FoundItemPage() {
     }
   };
 
+  // Load categories
   const fetchCategories = async () => {
     try {
       const res = await api.get("/api/auth/categories");
@@ -60,30 +48,22 @@ function FoundItemPage() {
     }
   };
 
-  /* =========================
-     FILTER LOGIC
-  ========================= */
+  // Filter Logic
   const filteredItems = foundItems.filter((item) => {
-    const matchesSearch = item.name
-      .toLowerCase()
-      .includes(search.toLowerCase());
-
+    const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
     const matchesCategory =
       filter === "All" ||
       item.category?.name?.toLowerCase() === filter.toLowerCase();
-
     return matchesSearch && matchesCategory;
   });
 
-  /* =========================
-     RENDER
-  ========================= */
+  // ============================= 3. RENDER =============================
   return (
     <div>
       <Header />
 
       <div style={styles.pageContainer}>
-        {/* TITLE + ACTION */}
+        {/* Title + Report Button */}
         <div style={styles.titleRow}>
           <h1 style={styles.title}>Found Items</h1>
           <button
@@ -94,8 +74,9 @@ function FoundItemPage() {
           </button>
         </div>
 
-        {/* SEARCH + FILTERS */}
+        {/* Search + Filters */}
         <div style={styles.searchFilterRow}>
+          {/* Search Input */}
           <div style={styles.searchBox}>
             <input
               style={styles.searchInput}
@@ -106,6 +87,7 @@ function FoundItemPage() {
             <button style={styles.searchBtn}>🔍</button>
           </div>
 
+          {/* Category Filters */}
           <div style={styles.filterRow}>
             <button
               onClick={() => setFilter("All")}
@@ -135,7 +117,7 @@ function FoundItemPage() {
           </div>
         </div>
 
-        {/* GRID */}
+        {/* Found Items Grid */}
         <div style={styles.grid}>
           {filteredItems.map((item) => (
             <div key={item._id} style={styles.card}>
@@ -156,15 +138,11 @@ function FoundItemPage() {
 
                 <button
                   disabled={item.claim_status === "claimed"}
-                  onClick={() =>
-                    navigate(`/ClaimFoundItemPage/${item._id}`)
-                  }
+                  onClick={() => navigate(`/ClaimFoundItemPage/${item._id}`)}
                   style={{
                     opacity: item.claim_status === "claimed" ? 0.5 : 1,
                     cursor:
-                      item.claim_status === "claimed"
-                        ? "not-allowed"
-                        : "pointer",
+                      item.claim_status === "claimed" ? "not-allowed" : "pointer",
                   }}
                 >
                   {item.claim_status === "claimed"
@@ -182,45 +160,38 @@ function FoundItemPage() {
   );
 }
 
-/* =========================
-   STYLES
-========================= */
+// ============================= 4. STYLES =============================
 const styles = {
   pageContainer: {
     padding: "40px 80px",
     minHeight: "65vh",
   },
-
   titleRow: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: "20px",
   },
-
   title: {
     fontSize: 40,
     fontWeight: "bold",
     color: "#1A1851",
   },
-
   reportBtn: {
     padding: "12px 20px",
     backgroundColor: "#1A1851",
-    color: "#fff",
+    color: "white",
     borderRadius: "8px",
     border: "none",
     fontWeight: "bold",
     cursor: "pointer",
   },
-
   searchFilterRow: {
     display: "flex",
     alignItems: "center",
     gap: "20px",
     marginBottom: "30px",
   },
-
   searchBox: {
     display: "flex",
     alignItems: "center",
@@ -229,7 +200,6 @@ const styles = {
     border: "1px solid #ddd",
     overflow: "hidden",
   },
-
   searchInput: {
     flex: 1,
     padding: "12px",
@@ -237,73 +207,71 @@ const styles = {
     outline: "none",
     fontSize: 16,
   },
-
   searchBtn: {
     padding: "12px 20px",
     backgroundColor: "#1A1851",
-    color: "#fff",
+    color: "white",
     border: "none",
     cursor: "pointer",
   },
-
   filterRow: {
     display: "flex",
     gap: "10px",
   },
-
   filterBtn: {
     padding: "10px 16px",
     borderRadius: "8px",
     border: "none",
-    fontWeight: 600,
+    fontWeight: "600",
     cursor: "pointer",
   },
-
   grid: {
     display: "grid",
     gridTemplateColumns: "repeat(3, 1fr)",
     gap: "30px",
   },
-
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: "white",
     borderRadius: "12px",
     overflow: "hidden",
     boxShadow: "0px 4px 12px rgba(0,0,0,0.1)",
   },
-
   image: {
     width: "100%",
     height: "220px",
     objectFit: "cover",
     backgroundColor: "#eee",
   },
-
   cardBody: {
     padding: "20px",
   },
-
   itemName: {
     fontSize: 20,
     fontWeight: "bold",
   },
-
   itemDate: {
     fontSize: 14,
     color: "#777",
     marginBottom: "10px",
   },
-
   itemLocation: {
     fontSize: 16,
-    fontWeight: 500,
+    fontWeight: "500",
     color: "#333",
   },
-
   itemDesc: {
     fontSize: 14,
     color: "#555",
     margin: "10px 0px",
+  },
+  contactBtn: {
+    color: "#1A1851",
+    fontWeight: "bold",
+    fontSize: 14,
+    border: "none",
+    background: "none",
+    cursor: "pointer",
+    padding: 0,
   },
 };
 
