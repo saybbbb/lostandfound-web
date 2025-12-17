@@ -203,6 +203,14 @@ function AdminUser() {
           {/* TABLE */}
           <div style={styles.tableWrapper}>
             <table style={styles.table}>
+              <colgroup>
+                <col style={{ width: "5%" }} />
+                <col style={{ width: "25%" }} />
+                <col style={{ width: "30%" }} />
+                <col style={{ width: "15%" }} />
+                <col style={{ width: "10%" }} />
+                <col style={{ width: "15%" }} />
+              </colgroup>
               <thead style={styles.theadSticky}>
                 <tr>
                   <th style={styles.th}>Index</th>
@@ -210,7 +218,9 @@ function AdminUser() {
                   <th style={styles.th}>Email</th>
                   <th style={styles.th}>Birthday</th>
                   <th style={styles.th}>Role</th>
-                  <th style={styles.th}>Actions</th>
+                  <th style={{ ...styles.th, ...styles.actionsCell }}>
+                    Actions
+                  </th>
                 </tr>
               </thead>
 
@@ -220,7 +230,12 @@ function AdminUser() {
                     <tr key={u._id}>
                       <td style={styles.td}>{index + 1}</td>
                       <td style={styles.td}>{u.name}</td>
-                      <td style={styles.td}>{u.email}</td>
+                      <td
+                        style={{ ...styles.td, ...styles.emailCell }}
+                        title={u.email}
+                      >
+                        {u.email}
+                      </td>
                       <td style={styles.td}>
                         {u.birthday
                           ? new Date(u.birthday).toISOString().split("T")[0]
@@ -236,45 +251,47 @@ function AdminUser() {
                       </td>
 
                       {/* ACTION BUTTONS */}
-                      <td style={{ ...styles.td, display: "flex", gap: 10 }}>
-                        {/* SHOW ONLY WHEN UNVERIFIED */}
-                        {u.verified === false ? (
-                          <>
-                            <button
-                              style={styles.verifyActionBtn}
-                              onClick={() => verifyUserById(u._id)}
-                            >
-                              VERIFY
-                            </button>
+                      <td style={{ ...styles.td, ...styles.actionsCell }}>
+                        <div style={styles.actionButtonContainer}>
+                          {/* SHOW ONLY WHEN UNVERIFIED */}
+                          {u.verified === false ? (
+                            <>
+                              <button
+                                style={styles.verifyActionBtn}
+                                onClick={() => verifyUserById(u._id)}
+                              >
+                                VERIFY
+                              </button>
 
-                            <button
-                              style={styles.rejectActionBtn}
-                              onClick={() => rejectUserById(u._id)}
-                            >
-                              REJECT
-                            </button>
-                          </>
-                        ) : (
-                          /* SHOW ONLY WHEN VERIFIED */
-                          <>
-                            <button
-                              style={styles.editActionBtn}
-                              onClick={() => {
-                                setSelectedUser(u);
-                                setNewRole(u.role);
-                              }}
-                            >
-                              EDIT
-                            </button>
+                              <button
+                                style={styles.rejectActionBtn}
+                                onClick={() => rejectUserById(u._id)}
+                              >
+                                REJECT
+                              </button>
+                            </>
+                          ) : (
+                            /* SHOW ONLY WHEN VERIFIED */
+                            <>
+                              <button
+                                style={styles.editActionBtn}
+                                onClick={() => {
+                                  setSelectedUser(u);
+                                  setNewRole(u.role);
+                                }}
+                              >
+                                EDIT
+                              </button>
 
-                            <button
-                              style={styles.deleteActionBtn}
-                              onClick={() => setDeleteUser(u)}
-                            >
-                              DELETE
-                            </button>
-                          </>
-                        )}
+                              <button
+                                style={styles.deleteActionBtn}
+                                onClick={() => setDeleteUser(u)}
+                              >
+                                DELETE
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -431,6 +448,7 @@ const styles = {
   table: {
     width: "100%",
     borderCollapse: "collapse",
+    tableLayout: "fixed",
   },
 
   theadSticky: {
@@ -445,11 +463,29 @@ const styles = {
     borderBottom: "2px solid #ccc",
     fontWeight: "bold",
     background: "#f4f4f4",
+    textAlign: "left",
   },
 
   td: {
     padding: 12,
     borderBottom: "1px solid #ddd",
+    verticalAlign: "middle",
+  },
+
+  emailCell: {
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  },
+
+  actionsCell: {
+    textAlign: "center",
+  },
+
+  actionButtonContainer: {
+    display: "flex",
+    gap: 10,
+    justifyContent: "center",
   },
 
   noData: {
