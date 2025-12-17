@@ -3,9 +3,12 @@ import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Header from "../../components/NavigationBars/Header";
 import Footer from "../../components/NavigationBars/Footer";
+import usePageMetadata from "../../hooks/usePageMetadata";
 
 // ============================= 2. COMPONENT =============================
 function ReportSuccessPage() {
+  usePageMetadata("Report Success", "/images/LAFLogo.png");
+
   const navigate = useNavigate();
   const location = useLocation();
 

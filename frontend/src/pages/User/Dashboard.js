@@ -18,6 +18,7 @@ import Footer from "../../components/NavigationBars/Footer";
 // ============================= 2. COMPONENT =============================
 function Dashboard() {
   usePageMetadata("Dashboard", "/images/LAFLogo.png");
+
   const navigate = useNavigate();
 
   // ============================= 3. RENDER =============================

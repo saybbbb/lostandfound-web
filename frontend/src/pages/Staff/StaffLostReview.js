@@ -16,8 +16,11 @@ import {
   IoCallOutline,
   IoCalendarOutline,
 } from "react-icons/io5";
+import usePageMetadata from "../../hooks/usePageMetadata";
 
 export default function StaffLostReview() {
+  usePageMetadata("Staff Lost Review", "/images/LAFLogo.png");
+
   const { id } = useParams(); // expected route: /StaffLostReview/:id
   const navigate = useNavigate();
   const [item, setItem] = useState(null);
@@ -33,10 +36,9 @@ export default function StaffLostReview() {
   const fetchItemDetails = async () => {
     setLoading(true);
     try {
-      const res = await api.get(
-        "/api/auth/staff/pending",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await api.get("/api/auth/staff/pending", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       // Defensive: ensure res.data.lost is an array
       const lostList = Array.isArray(res.data?.lost) ? res.data.lost : [];
@@ -63,7 +65,13 @@ export default function StaffLostReview() {
       top: 20px;
       right: 20px;
       padding: 16px 24px;
-      background: ${type === "success" ? "#10B981" : type === "warning" ? "#F59E0B" : "#EF4444"};
+      background: ${
+        type === "success"
+          ? "#10B981"
+          : type === "warning"
+          ? "#F59E0B"
+          : "#EF4444"
+      };
       color: white;
       border-radius: 10px;
       font-weight: 600;
@@ -100,7 +108,9 @@ export default function StaffLostReview() {
 
   const reject = async () => {
     if (processing) return;
-    const reason = prompt("Please provide a detailed reason for rejecting this report:");
+    const reason = prompt(
+      "Please provide a detailed reason for rejecting this report:"
+    );
     if (!reason) return;
     setProcessing(true);
     try {
@@ -155,8 +165,13 @@ export default function StaffLostReview() {
         <div style={styles.errorContainer}>
           <IoWarningOutline size={64} color="#EF4444" />
           <h2>Item Not Found</h2>
-          <p>The requested lost item could not be found or has been processed.</p>
-          <button style={styles.backButton} onClick={() => navigate("/StaffLostApproval")}>
+          <p>
+            The requested lost item could not be found or has been processed.
+          </p>
+          <button
+            style={styles.backButton}
+            onClick={() => navigate("/StaffLostApproval")}
+          >
             <IoArrowBackOutline size={18} /> Back to List
           </button>
         </div>
@@ -168,190 +183,254 @@ export default function StaffLostReview() {
     <div style={styles.container}>
       <StaffNavBar />
       <div style={styles.main}>
-      <div style={styles.mainContent}>
-        {/* Header */}
-        <div style={styles.header}>
-          <button style={styles.backNavButton} onClick={() => navigate("/StaffLostApproval")}>
-            <IoArrowBackOutline size={20} /> Back to List
-          </button>
-          <div style={styles.headerBracket}>
-            <div style={styles.headerInfo}>
-              <h1 style={styles.title}>Lost Item Review</h1>
-              <p style={styles.subtitle}>Review lost item report before publishing</p>
-            </div>
+        <div style={styles.mainContent}>
+          {/* Header */}
+          <div style={styles.header}>
+            <button
+              style={styles.backNavButton}
+              onClick={() => navigate("/StaffLostApproval")}
+            >
+              <IoArrowBackOutline size={20} /> Back to List
+            </button>
+            <div style={styles.headerBracket}>
+              <div style={styles.headerInfo}>
+                <h1 style={styles.title}>Lost Item Review</h1>
+                <p style={styles.subtitle}>
+                  Review lost item report before publishing
+                </p>
+              </div>
 
-            <div style={styles.claimStatus}>
-              <span style={styles.statusBadge}>Pending Approval</span>
-              <span style={styles.claimId}>ID: {String(item._id).substring(0, 8)}...</span>
+              <div style={styles.claimStatus}>
+                <span style={styles.statusBadge}>Pending Approval</span>
+                <span style={styles.claimId}>
+                  ID: {String(item._id).substring(0, 8)}...
+                </span>
+              </div>
             </div>
           </div>
-          
-        </div>
 
-        <div style={styles.contentGrid}>
-          {/* LEFT COLUMN: Item Info + Reporter */}
-          <div style={styles.detailsColumn}>
-            <div style={styles.card}>
-              <div style={styles.cardHeader}>
-                <IoCubeOutline size={24} color="#1A1851" />
-                <h3 style={styles.cardTitle}>Item Information</h3>
-              </div>
-              <div style={styles.cardBody}>
-                <div style={styles.detailItem}>
-                  <span style={styles.detailLabel}>Item Name</span>
-                  <span style={styles.detailValue}>{item.name || "Unnamed Item"}</span>
+          <div style={styles.contentGrid}>
+            {/* LEFT COLUMN: Item Info + Reporter */}
+            <div style={styles.detailsColumn}>
+              <div style={styles.card}>
+                <div style={styles.cardHeader}>
+                  <IoCubeOutline size={24} color="#1A1851" />
+                  <h3 style={styles.cardTitle}>Item Information</h3>
                 </div>
-
-                <div style={styles.detailItem}>
-                  <span style={styles.detailLabel}>Category</span>
-                  <span style={styles.detailValue}>{item.category?.name || "Uncategorized"}</span>
-                </div>
-
-                <div style={styles.detailItem}>
-                  <span style={styles.detailLabel}>Location Lost</span>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <IoLocationOutline color="#64748b" />
-                    <span style={styles.detailValue}>{item.lost_location}</span>
-                  </div>
-                </div>
-
-                <div style={styles.detailItem}>
-                  <span style={styles.detailLabel}>Date Lost</span>
-                  <span style={styles.detailValue}>{formatDate(item.date_lost)}</span>
-                </div>
-
-                <div style={styles.detailItem}>
-                  <span style={styles.detailLabel}>Description</span>
-                  <p style={styles.description}>{item.description || "No description provided"}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Reporter card */}
-            <div style={styles.card}>
-              <div style={styles.cardHeader}>
-                <IoPersonOutline size={24} color="#1A1851" />
-                <h3 style={styles.cardTitle}>Reported By</h3>
-              </div>
-              <div style={styles.cardBody}>
-                <div style={styles.claimantInfo}>
-                  <div style={styles.avatar}>
-                    {item.reported_by?.name ? item.reported_by.name.charAt(0).toUpperCase() : "U"}
-                  </div>
-                  <div>
-                    <div style={styles.claimantName}>{item.reported_by?.name || "Unknown"}</div>
-                    <div style={styles.claimantEmail}>{item.reported_by?.email || "No email"}</div>
-                  </div>
-                </div>
-
-                {item.contact_info && (
+                <div style={styles.cardBody}>
                   <div style={styles.detailItem}>
-                    <span style={styles.detailLabel}>Contact Info</span>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <IoCallOutline color="#64748b" />
-                      <span style={styles.detailValue}>{item.contact_info}</span>
+                    <span style={styles.detailLabel}>Item Name</span>
+                    <span style={styles.detailValue}>
+                      {item.name || "Unnamed Item"}
+                    </span>
+                  </div>
+
+                  <div style={styles.detailItem}>
+                    <span style={styles.detailLabel}>Category</span>
+                    <span style={styles.detailValue}>
+                      {item.category?.name || "Uncategorized"}
+                    </span>
+                  </div>
+
+                  <div style={styles.detailItem}>
+                    <span style={styles.detailLabel}>Location Lost</span>
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 6 }}
+                    >
+                      <IoLocationOutline color="#64748b" />
+                      <span style={styles.detailValue}>
+                        {item.lost_location}
+                      </span>
                     </div>
                   </div>
-                )}
+
+                  <div style={styles.detailItem}>
+                    <span style={styles.detailLabel}>Date Lost</span>
+                    <span style={styles.detailValue}>
+                      {formatDate(item.date_lost)}
+                    </span>
+                  </div>
+
+                  <div style={styles.detailItem}>
+                    <span style={styles.detailLabel}>Description</span>
+                    <p style={styles.description}>
+                      {item.description || "No description provided"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Reporter card */}
+              <div style={styles.card}>
+                <div style={styles.cardHeader}>
+                  <IoPersonOutline size={24} color="#1A1851" />
+                  <h3 style={styles.cardTitle}>Reported By</h3>
+                </div>
+                <div style={styles.cardBody}>
+                  <div style={styles.claimantInfo}>
+                    <div style={styles.avatar}>
+                      {item.reported_by?.name
+                        ? item.reported_by.name.charAt(0).toUpperCase()
+                        : "U"}
+                    </div>
+                    <div>
+                      <div style={styles.claimantName}>
+                        {item.reported_by?.name || "Unknown"}
+                      </div>
+                      <div style={styles.claimantEmail}>
+                        {item.reported_by?.email || "No email"}
+                      </div>
+                    </div>
+                  </div>
+
+                  {item.contact_info && (
+                    <div style={styles.detailItem}>
+                      <span style={styles.detailLabel}>Contact Info</span>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 6,
+                        }}
+                      >
+                        <IoCallOutline color="#64748b" />
+                        <span style={styles.detailValue}>
+                          {item.contact_info}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* RIGHT COLUMN: Image + Timeline + Actions */}
-          <div style={styles.proofColumn}>
-            <div style={styles.card}>
-              <div style={styles.cardHeader}>
-                <IoImageOutline size={24} color="#1A1851" />
-                <h3 style={styles.cardTitle}>Reference Image</h3>
-              </div>
-              <div style={styles.cardBody}>
-                {item.image_url ? (
-                  <div style={styles.imageContainer}>
-                    <img
-                      src={item.image_url}
-                      alt="Lost item"
-                      style={styles.proofImage}
-                      onError={(e) => {
-                        e.target.style.display = "none";
-                        e.target.parentElement.innerHTML =
-                          '<div style="padding:20px;color:#999;text-align:center">Image failed to load</div>';
+            {/* RIGHT COLUMN: Image + Timeline + Actions */}
+            <div style={styles.proofColumn}>
+              <div style={styles.card}>
+                <div style={styles.cardHeader}>
+                  <IoImageOutline size={24} color="#1A1851" />
+                  <h3 style={styles.cardTitle}>Reference Image</h3>
+                </div>
+                <div style={styles.cardBody}>
+                  {item.image_url ? (
+                    <div style={styles.imageContainer}>
+                      <img
+                        src={item.image_url}
+                        alt="Lost item"
+                        style={styles.proofImage}
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                          e.target.parentElement.innerHTML =
+                            '<div style="padding:20px;color:#999;text-align:center">Image failed to load</div>';
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div
+                      style={{
+                        padding: 30,
+                        textAlign: "center",
+                        color: "#64748b",
+                        background: "#f8fafc",
+                        borderRadius: 10,
                       }}
-                    />
-                  </div>
-                ) : (
-                  <div style={{ padding: 30, textAlign: "center", color: "#64748b", background: "#f8fafc", borderRadius: 10 }}>
-                    <IoImageOutline size={40} style={{ opacity: 0.5 }} />
-                    <p>No reference image provided</p>
-                  </div>
-                )}
+                    >
+                      <IoImageOutline size={40} style={{ opacity: 0.5 }} />
+                      <p>No reference image provided</p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
 
-            {/* Timeline */}
-            <div style={styles.card}>
-              <div style={styles.cardHeader}>
-                <IoCalendarOutline size={24} color="#1A1851" />
-                <h3 style={styles.cardTitle}>Report Timeline</h3>
-              </div>
-              <div style={styles.cardBody}>
-                <div style={styles.timeline}>
-                  <div style={styles.timelineItem}>
-                    <div style={styles.timelineDot}></div>
-                    <div style={styles.timelineContent}>
-                      <div style={styles.timelineTitle}>Report Submitted</div>
-                      <div style={styles.timelineDate}>{formatDate(item.createdAt || item.date_lost)}</div>
+              {/* Timeline */}
+              <div style={styles.card}>
+                <div style={styles.cardHeader}>
+                  <IoCalendarOutline size={24} color="#1A1851" />
+                  <h3 style={styles.cardTitle}>Report Timeline</h3>
+                </div>
+                <div style={styles.cardBody}>
+                  <div style={styles.timeline}>
+                    <div style={styles.timelineItem}>
+                      <div style={styles.timelineDot}></div>
+                      <div style={styles.timelineContent}>
+                        <div style={styles.timelineTitle}>Report Submitted</div>
+                        <div style={styles.timelineDate}>
+                          {formatDate(item.createdAt || item.date_lost)}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={styles.timelineItem}>
+                      <div style={styles.timelineDot}></div>
+                      <div style={styles.timelineContent}>
+                        <div style={styles.timelineTitle}>Under Review</div>
+                        <div style={styles.timelineDate}>
+                          Currently being reviewed by staff
+                        </div>
+                      </div>
                     </div>
                   </div>
+                </div>
+              </div>
 
-                  <div style={styles.timelineItem}>
-                    <div style={styles.timelineDot}></div>
-                    <div style={styles.timelineContent}>
-                      <div style={styles.timelineTitle}>Under Review</div>
-                      <div style={styles.timelineDate}>Currently being reviewed by staff</div>
-                    </div>
+              {/* Actions */}
+              <div style={styles.card}>
+                <div style={styles.cardHeader}>
+                  <IoInformationCircleOutline size={24} color="#1A1851" />
+                  <h3 style={styles.cardTitle}>Review Actions</h3>
+                </div>
+                <div style={styles.cardBody}>
+                  <div style={styles.verificationGuidelines}>
+                    <h4 style={styles.guidelinesTitle}>Checklist:</h4>
+                    <ul style={styles.guidelinesList}>
+                      <li>Verify description is clear</li>
+                      <li>Ensure contact info is valid</li>
+                      <li>Check if duplicate report exists</li>
+                    </ul>
                   </div>
-                </div>
-              </div>
-            </div>
 
-            {/* Actions */}
-            <div style={styles.card}>
-              <div style={styles.cardHeader}>
-                <IoInformationCircleOutline size={24} color="#1A1851" />
-                <h3 style={styles.cardTitle}>Review Actions</h3>
-              </div>
-              <div style={styles.cardBody}>
-                <div style={styles.verificationGuidelines}>
-                  <h4 style={styles.guidelinesTitle}>Checklist:</h4>
-                  <ul style={styles.guidelinesList}>
-                    <li>Verify description is clear</li>
-                    <li>Ensure contact info is valid</li>
-                    <li>Check if duplicate report exists</li>
-                  </ul>
-                </div>
+                  <div style={styles.actionButtons}>
+                    <button
+                      style={styles.approveButton}
+                      onClick={approve}
+                      disabled={processing}
+                    >
+                      {processing ? (
+                        <div style={styles.loadingDots} />
+                      ) : (
+                        <>
+                          <IoCheckmarkCircleOutline size={20} /> Approve Report
+                        </>
+                      )}
+                    </button>
 
-                <div style={styles.actionButtons}>
-                  <button style={styles.approveButton} onClick={approve} disabled={processing}>
-                    {processing ? <div style={styles.loadingDots} /> : <><IoCheckmarkCircleOutline size={20} /> Approve Report</>}
-                  </button>
+                    <button
+                      style={styles.rejectButton}
+                      onClick={reject}
+                      disabled={processing}
+                    >
+                      <IoCloseCircleOutline size={20} /> Reject Report
+                    </button>
 
-                  <button style={styles.rejectButton} onClick={reject} disabled={processing}>
-                    <IoCloseCircleOutline size={20} /> Reject Report
-                  </button>
+                    <button
+                      style={styles.needsInfoButton}
+                      onClick={requestMoreInfo}
+                    >
+                      Request More Info
+                    </button>
+                  </div>
 
-                  <button style={styles.needsInfoButton} onClick={requestMoreInfo}>
-                    Request More Info
-                  </button>
-                </div>
-
-                <div style={styles.actionNotes}>
-                  <p><strong>Important:</strong> Once processed, this report cannot be modified.</p>
+                  <div style={styles.actionNotes}>
+                    <p>
+                      <strong>Important:</strong> Once processed, this report
+                      cannot be modified.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
         <Footer />
       </div>
@@ -372,7 +451,7 @@ const styles = {
     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
     background: "linear-gradient(135deg, #f6f8ff 0%, #f0f2ff 100%)",
   },
-  main:{
+  main: {
     display: "flex",
     flexDirection: "column",
     flexGrow: 1,
@@ -438,7 +517,7 @@ const styles = {
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-    flexShrink:0,
+    flexShrink: 0,
     gap: "60%",
   },
   header: {
@@ -449,9 +528,6 @@ const styles = {
     flexWrap: "wrap",
   },
 
- 
-
-  
   headerInfo: {
     flex: 1,
     minWidth: 300,
@@ -773,7 +849,6 @@ const styles = {
     border: "1px solid #fbbf24",
   },
 };
-
 
 // Add animations/styles to document (same as ClaimReview)
 const style = document.createElement("style");

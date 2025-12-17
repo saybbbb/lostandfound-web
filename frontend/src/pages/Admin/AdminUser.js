@@ -4,8 +4,11 @@ import Footer from "../../components/NavigationBars/Footer";
 import AdminNavBar from "../../components/NavigationBars/AdminNavBar";
 import { IoSearchOutline } from "react-icons/io5";
 import api from "../../services/api";
+import usePageMetadata from "../../hooks/usePageMetadata";
 
 function AdminUser() {
+  usePageMetadata("Admin User", "/images/LAFLogo.png");
+
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
@@ -24,10 +27,9 @@ function AdminUser() {
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem("token");
-      const usersRes = await api.get(
-        "/api/auth/admin/users",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const usersRes = await api.get("/api/auth/admin/users", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setUsers(usersRes.data.users || []);
     } catch (err) {
       console.log(err);
@@ -78,10 +80,9 @@ function AdminUser() {
     try {
       const token = localStorage.getItem("token");
 
-      await api.delete(
-        `/api/auth/admin/reject/${id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await api.delete(`/api/auth/admin/reject/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       alert("User rejected and deleted.");
       fetchUsers();
@@ -122,10 +123,9 @@ function AdminUser() {
     try {
       const token = localStorage.getItem("token");
 
-      await api.delete(
-        `/api/auth/admin/delete/${deleteUser._id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await api.delete(`/api/auth/admin/delete/${deleteUser._id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       alert("User deleted.");
       setDeleteUser(null);
@@ -141,11 +141,11 @@ function AdminUser() {
   // ============================
   const filteredUsers = users
     .filter((u) => {
-      // Logic: 
+      // Logic:
       // 1. "unverified" tab shows ONLY users with verified: false
       // 2. "all" tab shows ONLY users with verified: true (Active Users)
       // 3. "user"/"staff"/"admin" tabs show verified users of that role
-      
+
       if (filterRole === "unverified") return u.verified === false;
 
       // For all other tabs, we only show VERIFIED users
@@ -155,9 +155,10 @@ function AdminUser() {
 
       return u.role?.toLowerCase() === filterRole;
     })
-    .filter((u) =>
-      u.name.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase())
+    .filter(
+      (u) =>
+        u.name.toLowerCase().includes(search.toLowerCase()) ||
+        u.email.toLowerCase().includes(search.toLowerCase())
     );
 
   return (
@@ -175,8 +176,7 @@ function AdminUser() {
                 key={role}
                 style={{
                   ...styles.button,
-                  backgroundColor:
-                    filterRole === role ? "#0F0E3E" : "#1A1851",
+                  backgroundColor: filterRole === role ? "#0F0E3E" : "#1A1851",
                 }}
                 onClick={() => setFilterRole(role)}
               >

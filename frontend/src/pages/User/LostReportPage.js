@@ -5,9 +5,12 @@ import Header from "../../components/NavigationBars/Header";
 import Footer from "../../components/NavigationBars/Footer";
 import { uploadToCloudinary } from "../../utils/uploadImage";
 import api from "../../services/api";
+import usePageMetadata from "../../hooks/usePageMetadata";
 
 // ============================= 2. COMPONENT =============================
 function LostReportPage() {
+  usePageMetadata("Lost Report", "/images/LAFLogo.png");
+
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -24,12 +27,9 @@ function LostReportPage() {
   useEffect(() => {
     const loadItem = async () => {
       try {
-        const res = await api.get(
-          `/api/auth/lost-items/${id}`,
-          {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-          }
-        );
+        const res = await api.get(`/api/auth/lost-items/${id}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
 
         if (!res.data || !res.data.item) {
           alert("Lost item not found.");
@@ -144,13 +144,13 @@ function LostReportPage() {
 
 // ============================= 4. STYLES =============================
 const styles = {
-  container: { 
-    padding: "40px 120px" 
+  container: {
+    padding: "40px 120px",
   },
-  title: { 
-    fontSize: 32, 
-    color: "#1A1851", 
-    fontWeight: "bold" 
+  title: {
+    fontSize: 32,
+    color: "#1A1851",
+    fontWeight: "bold",
   },
   form: {
     display: "flex",

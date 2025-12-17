@@ -1,26 +1,29 @@
 import React, { useState, useEffect, useCallback } from "react";
 import StaffNavBar from "../../components/NavigationBars/StaffNavBar";
 import Footer from "../../components/NavigationBars/Footer";
-import { 
-  IoSearchOutline, 
-  IoCheckmarkCircleOutline, 
+import {
+  IoSearchOutline,
+  IoCheckmarkCircleOutline,
   IoCloseCircleOutline,
   IoTimeOutline,
   IoInformationCircleOutline,
   IoLocationOutline,
-  IoEyeOutline 
+  IoEyeOutline,
 } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
+import usePageMetadata from "../../hooks/usePageMetadata";
 
 function StaffFoundApproval() {
+  usePageMetadata("Staff Found Approval", "/images/LAFLogo.png");
+
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [foundItems, setFoundItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [approvingId, setApprovingId] = useState(null);
   const [rejectingId, setRejectingId] = useState(null);
-  const [filter, setFilter] = useState("all"); 
+  const [filter, setFilter] = useState("all");
   const token = localStorage.getItem("token");
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
@@ -66,7 +69,7 @@ function StaffFoundApproval() {
   const rejectItem = async (itemId) => {
     setRejectingId(itemId);
     const reason = prompt("Please provide a reason for rejecting this item:");
-    
+
     if (!reason) {
       setRejectingId(null);
       return;
@@ -95,21 +98,27 @@ function StaffFoundApproval() {
       itemElement.style.transform = `translateX(${direction}%)`;
       itemElement.style.opacity = "0";
       setTimeout(() => {
-        setFoundItems(prev => prev.filter(item => item._id !== itemId));
+        setFoundItems((prev) => prev.filter((item) => item._id !== itemId));
       }, 300);
     } else {
-      setFoundItems(prev => prev.filter(item => item._id !== itemId));
+      setFoundItems((prev) => prev.filter((item) => item._id !== itemId));
     }
   };
 
   const showNotification = (message, type) => {
-    const notification = document.createElement('div');
+    const notification = document.createElement("div");
     notification.style.cssText = `
       position: fixed;
       top: 20px;
       right: 20px;
       padding: 16px 24px;
-      background: ${type === 'success' ? '#10B981' : type === 'warning' ? '#F59E0B' : '#EF4444'};
+      background: ${
+        type === "success"
+          ? "#10B981"
+          : type === "warning"
+          ? "#F59E0B"
+          : "#EF4444"
+      };
       color: white;
       border-radius: 10px;
       font-weight: 600;
@@ -130,25 +139,26 @@ function StaffFoundApproval() {
     const date = new Date(dateString);
     const now = new Date();
     const diffHours = Math.floor((now - date) / (1000 * 60 * 60));
-    
+
     if (diffHours < 24) {
-      return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+      return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
     }
-    
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
+
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     });
   };
 
   // FIX: Removed unused 'getStatusColor' function
 
   const filteredItems = foundItems
-    .filter(item => 
-      item.name.toLowerCase().includes(search.toLowerCase()) ||
-      item.description?.toLowerCase().includes(search.toLowerCase()) ||
-      item.posted_by?.name?.toLowerCase().includes(search.toLowerCase())
+    .filter(
+      (item) =>
+        item.name.toLowerCase().includes(search.toLowerCase()) ||
+        item.description?.toLowerCase().includes(search.toLowerCase()) ||
+        item.posted_by?.name?.toLowerCase().includes(search.toLowerCase())
     )
     .sort((a, b) => {
       if (filter === "recent") {
@@ -159,26 +169,24 @@ function StaffFoundApproval() {
       return 0;
     });
 
-    // FIX: Added responsive handling for search container
+  // FIX: Added responsive handling for search container
 
-    useEffect(() => {
-      const handleResize = () => {
-        setIsMobile(window.innerWidth <= 768);
-      };
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
 
-      window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
-    }, []);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
-
-    const getSearchContainerStyle = () => ({
-      flexGrow: 1,
-      flexBasis: isMobile ? "100%" : "60%",
-      minWidth: isMobile ? "90%" : "420px",
-      position: "relative",
-      marginRight: isMobile ? "0px" : "70px",
-    });
-
+  const getSearchContainerStyle = () => ({
+    flexGrow: 1,
+    flexBasis: isMobile ? "100%" : "60%",
+    minWidth: isMobile ? "90%" : "420px",
+    position: "relative",
+    marginRight: isMobile ? "0px" : "70px",
+  });
 
   return (
     <div style={styles.container}>
@@ -186,11 +194,13 @@ function StaffFoundApproval() {
 
       <div style={styles.main}>
         <div style={styles.mainContent}>
-            {/* HEADER */}
+          {/* HEADER */}
           <div style={styles.header}>
             <div>
               <h1 style={styles.title}>Found Item Approval</h1>
-              <p style={styles.subtitle}>Review found item submissions from users</p>
+              <p style={styles.subtitle}>
+                Review found item submissions from users
+              </p>
             </div>
             <div style={styles.headerActions}>
               <div style={styles.statsBadge}>
@@ -203,7 +213,11 @@ function StaffFoundApproval() {
           {/* CONTROLS */}
           <div style={styles.controls}>
             <div style={getSearchContainerStyle()}>
-              <IoSearchOutline size={20} color="#94a3b8" style={styles.searchIcon} />
+              <IoSearchOutline
+                size={20}
+                color="#94a3b8"
+                style={styles.searchIcon}
+              />
               <input
                 type="text"
                 placeholder="Search by item name, description, or submitter..."
@@ -212,9 +226,9 @@ function StaffFoundApproval() {
                 style={styles.searchInput}
               />
             </div>
-            
+
             <div style={styles.controlGroup}>
-              <select 
+              <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
                 style={styles.filterSelect}
@@ -223,13 +237,13 @@ function StaffFoundApproval() {
                 <option value="recent">Most Recent</option>
                 <option value="oldest">Oldest First</option>
               </select>
-              
-              <button 
+
+              <button
                 style={styles.refreshButton}
                 onClick={fetchFoundItems}
                 disabled={loading}
               >
-                {loading ? 'Refreshing...' : 'Refresh'}
+                {loading ? "Refreshing..." : "Refresh"}
               </button>
             </div>
           </div>
@@ -250,12 +264,12 @@ function StaffFoundApproval() {
             ) : (
               <div style={styles.itemsGrid}>
                 {filteredItems.map((item, index) => (
-                  <div 
+                  <div
                     key={item._id}
                     id={`found-item-${item._id}`}
                     style={{
                       ...styles.itemCard,
-                      animationDelay: `${index * 0.05}s`
+                      animationDelay: `${index * 0.05}s`,
                     }}
                   >
                     <div style={styles.cardHeader}>
@@ -266,7 +280,7 @@ function StaffFoundApproval() {
                         <h3 style={styles.itemTitle}>{item.name}</h3>
                         <div style={styles.itemMeta}>
                           <span style={styles.itemStatus}>
-                            {item.approval_status || 'pending'}
+                            {item.approval_status || "pending"}
                           </span>
                           <span style={styles.itemDate}>
                             {formatDate(item.date_found || item.createdAt)}
@@ -279,7 +293,7 @@ function StaffFoundApproval() {
                       <p style={styles.itemDescription}>
                         {item.description || "No description provided"}
                       </p>
-                      
+
                       {item.location && (
                         <div style={styles.location}>
                           <IoLocationOutline size={16} />
@@ -305,7 +319,9 @@ function StaffFoundApproval() {
                     <div style={styles.cardFooter}>
                       <button
                         style={styles.viewDetailsBtn}
-                        onClick={() => navigate(`/StaffFoundReview/${item._id}`)}
+                        onClick={() =>
+                          navigate(`/StaffFoundReview/${item._id}`)
+                        }
                       >
                         <IoEyeOutline size={18} />
                         View Details
@@ -363,14 +379,17 @@ function StaffFoundApproval() {
                 <div style={styles.summaryStat}>
                   <span style={styles.statLabel}>Last Updated</span>
                   <span style={styles.statValue}>
-                    {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {new Date().toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </span>
                 </div>
               </div>
             </div>
           </div>
         </div>
-  
+
         <Footer />
       </div>
     </div>
@@ -385,7 +404,7 @@ const styles = {
     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
     background: "linear-gradient(135deg, #f6f8ff 0%, #f0f2ff 100%)",
   },
-  main:{
+  main: {
     display: "flex",
     flexDirection: "column",
     flexGrow: 1,
@@ -733,7 +752,7 @@ const styles = {
 };
 
 // Add CSS animations
-const style = document.createElement('style');
+const style = document.createElement("style");
 style.textContent = `
   @keyframes spin {
     0% { transform: rotate(0deg); }
