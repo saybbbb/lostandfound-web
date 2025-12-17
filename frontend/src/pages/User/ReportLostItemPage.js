@@ -17,7 +17,7 @@ function ReportLostItemPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState([]);
-  const [preview, setPreview] = useState(null); 
+  const [preview, setPreview] = useState(null);
   const [errors, setErrors] = useState({});
   const [descCount, setDescCount] = useState(0);
 
@@ -32,7 +32,6 @@ function ReportLostItemPage() {
     reported_by: localStorage.getItem("userId"),
   });
 
-
   useEffect(() => {
     api
       .get("/api/auth/categories")
@@ -40,7 +39,7 @@ function ReportLostItemPage() {
       .catch((err) => console.log("Error loading categories:", err));
   }, []);
 
-   // ============================= HANDLE CHANGE WITH VALIDATION =============================
+  // ============================= HANDLE CHANGE WITH VALIDATION =============================
   const handleChange = (e) => {
     const { name, value } = e.target;
     let error = "";
@@ -53,7 +52,7 @@ function ReportLostItemPage() {
     }
 
     // LOCATION
-    if (name === "found_location") {
+    if (name === "lost_location") {
       if (value.length > 50) error = "Maximum of 50 characters only.";
       else if (value && !lettersOnlyRegex.test(value))
         error = "Letters only. Numbers and symbols are not allowed.";
@@ -82,15 +81,11 @@ function ReportLostItemPage() {
     setIsSubmitting(true);
 
     try {
-      const res = await api.post(
-        "/api/auth/lost-items",
-        form,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      const res = await api.post("/api/auth/lost-items", form, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
       if (res.data.success) {
         navigate("/ReportSuccessPage?type=lost");
@@ -108,19 +103,16 @@ function ReportLostItemPage() {
 
       <div style={styles.page}>
         <div style={styles.headerBlock}>
-            <h1 style={styles.title}>Lost an Item</h1>
-            <p style={styles.subtitle}>
-              Please provide as much detail as possible to help with identification.
-            </p>
+          <h1 style={styles.title}>Lost an Item</h1>
+          <p style={styles.subtitle}>
+            Please provide as much detail as possible to help with
+            identification.
+          </p>
         </div>
 
         {/* Toggle Buttons */}
         <div style={styles.toggleContainer}>
-          <button
-            style={styles.activeToggle}
-          >
-            I Lost an Item
-          </button>
+          <button style={styles.activeToggle}>I Lost an Item</button>
 
           <button
             style={styles.inactiveToggle}
@@ -132,7 +124,6 @@ function ReportLostItemPage() {
 
         {/* FORM - SPLIT LAYOUT */}
         <form onSubmit={submitLostItem} style={styles.splitLayout}>
-          
           {/* LEFT COLUMN: INPUTS */}
           <div style={styles.leftColumn}>
             <label style={styles.label}>Item Name*</label>
@@ -142,7 +133,7 @@ function ReportLostItemPage() {
               onChange={handleChange}
               maxLength={50}
               style={styles.input}
-              placeholder= "e.g., Black Wallet"
+              placeholder="e.g., Black Wallet"
               required
             />
             {errors.name && <span style={styles.errorText}>{errors.name}</span>}
@@ -167,12 +158,12 @@ function ReportLostItemPage() {
               <div style={styles.col}>
                 <label style={styles.label}>Location*</label>
                 <input
-                  name="found_location"
-                  value={form.found_location}
+                  name="lost_location"
+                  value={form.lost_location}
                   onChange={handleChange}
                   maxLength={50}
                   style={styles.input}
-                  placeholder= "e.g., Main Library"
+                  placeholder="e.g., Main Library"
                   required
                 />
                 {errors.found_location && (
@@ -221,49 +212,56 @@ function ReportLostItemPage() {
 
           {/* RIGHT COLUMN: UPLOAD & ACTIONS */}
           <div style={styles.rightColumn}>
-            
             {/* BIG STATIC UPLOAD BOX */}
             <div style={styles.uploadContainer}>
-                <input
-                    type="file"
-                    accept="image/*"
-                    id="file-upload"
-                    style={{ display: "none" }}
-                    onChange={async (e) => {
-                    const file = e.target.files[0];
-                    if (!file) return;
+              <input
+                type="file"
+                accept="image/*"
+                id="file-upload"
+                style={{ display: "none" }}
+                onChange={async (e) => {
+                  const file = e.target.files[0];
+                  if (!file) return;
 
-                    setPreview(URL.createObjectURL(file));
-                    setIsUploading(true);
-                    try {
-                        const url = await uploadToCloudinary(file);
-                        if (url) {
-                        setForm({ ...form, image_url: url });
-                        }
-                    } catch (error) {
-                        console.error("Upload failed:", error);
-                        alert("Image upload failed. Please try again.");
-                    } finally {
-                        setIsUploading(false);
+                  setPreview(URL.createObjectURL(file));
+                  setIsUploading(true);
+                  try {
+                    const url = await uploadToCloudinary(file);
+                    if (url) {
+                      setForm({ ...form, image_url: url });
                     }
-                    }}
-                />
-                
-                <label htmlFor="file-upload" style={styles.uploadLabel}>
-                    {preview ? (
-                        <img src={preview} alt="Preview" style={styles.imagePreview} />
-                    ) : (
-                        <div style={styles.uploadPlaceholder}>
-                            <IoCloudUploadOutline size={48} color="#1A1851" style={{ marginBottom: 10 }} />
-                            <span style={{color: "#555"}}>Click to Upload Image</span>
-                        </div>
-                    )}
-                    {isUploading && (
-                        <div style={styles.uploadingOverlay}>
-                            <span>Uploading...</span>
-                        </div>
-                    )}
-                </label>
+                  } catch (error) {
+                    console.error("Upload failed:", error);
+                    alert("Image upload failed. Please try again.");
+                  } finally {
+                    setIsUploading(false);
+                  }
+                }}
+              />
+
+              <label htmlFor="file-upload" style={styles.uploadLabel}>
+                {preview ? (
+                  <img
+                    src={preview}
+                    alt="Preview"
+                    style={styles.imagePreview}
+                  />
+                ) : (
+                  <div style={styles.uploadPlaceholder}>
+                    <IoCloudUploadOutline
+                      size={48}
+                      color="#1A1851"
+                      style={{ marginBottom: 10 }}
+                    />
+                    <span style={{ color: "#555" }}>Click to Upload Image</span>
+                  </div>
+                )}
+                {isUploading && (
+                  <div style={styles.uploadingOverlay}>
+                    <span>Uploading...</span>
+                  </div>
+                )}
+              </label>
             </div>
 
             <div style={styles.buttonRow}>
@@ -279,12 +277,20 @@ function ReportLostItemPage() {
                 type="submit"
                 style={
                   isUploading || isSubmitting
-                    ? { ...styles.submitBtn, backgroundColor: "#ccc", cursor: "not-allowed" }
+                    ? {
+                        ...styles.submitBtn,
+                        backgroundColor: "#ccc",
+                        cursor: "not-allowed",
+                      }
                     : styles.submitBtn
                 }
                 disabled={isUploading || isSubmitting}
               >
-                {isUploading ? "Uploading..." : isSubmitting ? "Submitting..." : "Submit Report"}
+                {isUploading
+                  ? "Uploading..."
+                  : isSubmitting
+                  ? "Submitting..."
+                  : "Submit Report"}
               </button>
             </div>
           </div>
@@ -305,7 +311,7 @@ const styles = {
     margin: "0 auto",
   },
   headerBlock: {
-      marginBottom: "20px",
+    marginBottom: "20px",
   },
   title: {
     fontSize: 32,
@@ -322,13 +328,13 @@ const styles = {
   // Toggle Buttons
   toggleContainer: {
     display: "flex",
-    gap: "0", 
+    gap: "0",
     marginBottom: "40px",
   },
   activeToggle: {
     flex: 1,
     padding: "14px",
-    backgroundColor: "#1A1851", 
+    backgroundColor: "#1A1851",
     color: "white",
     border: "none",
     borderRadius: "6px",
@@ -352,7 +358,7 @@ const styles = {
   // LAYOUT STYLES
   splitLayout: {
     display: "flex",
-    gap: "50px", 
+    gap: "50px",
     alignItems: "flex-start",
   },
   leftColumn: {
@@ -377,7 +383,7 @@ const styles = {
     marginTop: 4,
   },
   label: {
-    marginTop: "15px", 
+    marginTop: "15px",
     fontWeight: "600",
     fontSize: 16,
     color: "#333",
@@ -390,7 +396,7 @@ const styles = {
     borderRadius: "6px",
     border: "1px solid #ccc",
     backgroundColor: "#f8f8f8",
-    width: "100%", 
+    width: "100%",
     boxSizing: "border-box",
   },
 
@@ -419,37 +425,40 @@ const styles = {
 
   // STATIC UPLOAD BOX STYLES
   uploadContainer: {
-      width: "100%", 
-      height: "500px", // STATIC HEIGHT
-      border: "2px dashed #ccc",
-      borderRadius: "10px",
-      backgroundColor: "#f8f8f8",
-      display: "flex",
-      position: "relative",
-      overflow: "hidden",
+    width: "100%",
+    height: "500px", // STATIC HEIGHT
+    border: "2px dashed #ccc",
+    borderRadius: "10px",
+    backgroundColor: "#f8f8f8",
+    display: "flex",
+    position: "relative",
+    overflow: "hidden",
   },
   uploadLabel: {
-      width: "100%",
-      height: "100%",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      cursor: "pointer",
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
   },
   uploadPlaceholder: {
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
   },
   imagePreview: {
-      width: "100%",
-      height: "100%",
-      objectFit: "contain", // AUTO ADJUST
-      backgroundColor: "#e5e7eb",
+    width: "100%",
+    height: "100%",
+    objectFit: "contain", // AUTO ADJUST
+    backgroundColor: "#e5e7eb",
   },
   uploadingOverlay: {
     position: "absolute",
-    top: 0, left: 0, right: 0, bottom: 0,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: "rgba(255,255,255,0.7)",
     display: "flex",
     alignItems: "center",
@@ -462,7 +471,7 @@ const styles = {
     display: "flex",
     justifyContent: "flex-end",
     gap: "15px",
-    marginTop: "auto", 
+    marginTop: "auto",
   },
   cancelBtn: {
     padding: "12px 22px",
