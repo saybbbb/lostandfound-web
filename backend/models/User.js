@@ -13,6 +13,13 @@ const userSchema = new mongoose.Schema({
     default: "user"
   },
 
+
+  phone: { 
+    type: String, 
+    required: false, // Optional so registration doesn't break
+    default: "" 
+  },
+
   profile_photo: {
     type: String,
     default: null
