@@ -1,6 +1,6 @@
 // ============================= 1. IMPORTS =============================
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../services/api";
 import { useParams, useNavigate } from "react-router-dom";
 
 // Components
@@ -36,8 +36,7 @@ function ClaimFoundItemPage() {
 
   // Effect: Load Found Item details
   useEffect(() => {
-    axios
-      .get(`http://localhost:5000/api/auth/found-items/${foundId}`)
+      api.get(`/api/auth/found-items/${foundId}`)
       .then((res) => setFoundItem(res.data.item))
       .catch((err) => console.log(err));
   }, [foundId]);
@@ -92,8 +91,7 @@ function ClaimFoundItemPage() {
     setImageError("");
 
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/auth/claims",
+      const res = await api.post("/api/auth/claims", 
         {
           found_item: foundId,
           proof_description: proof,
